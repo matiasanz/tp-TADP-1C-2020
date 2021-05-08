@@ -2,10 +2,10 @@ require 'ORM'
 
 class Prueba
 
-    has_one("Int", :unNumero)
-    has_one("String", :nombre)
+    has_one(:number, :unNumero)
+    has_one(:string, :nombre)
 
-    def initialize()
+    def initialize
         @unNumero = 4
         @nombre = "Pepe"
     end

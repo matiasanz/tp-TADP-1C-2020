@@ -1,32 +1,39 @@
+require 'adapter'
+
 class Class
+
+    attr_reader :atributos_persistibles
+
     def has_one(tipo, named)
 
-        if @atributosPersistibles.nil?
-            @atributosPersistibles = {}
+        if @atributos_persistibles.nil?
+            @atributos_persistibles = {}
         end
 
-        @atributosPersistibles[named] = tipo
+        @atributos_persistibles[named] = tipo
     end
 
-    def atributos_persistibles()
-        @atributosPersistibles
-    end
 end
 
 class Object
+    attr_accessor :id
 
     def save!
-        self.class.atributos_persistibles.each do |nombre,tipo|
-            simboloAtributo = "@#{nombre}".to_sym
-            valor = instance_variable_get(simboloAtributo)
-
-            persistir(nombre,tipo,valor)
-        end
+        DataBase.new.get_tabla(self.class).persist(self)
     end
 
-    def persistir(named, tipo, valor)
-        puts "Persisti nombre: #{named}, tipo: #{tipo}, valor: #{valor.to_s.inspect}"
+    def atributos_persistibles()
+        self.class.atributos_persistibles
+            .map{|nombre, tipo| get_campo(nombre, tipo)}
     end
 
+    private
+    def get_campo(nombre, tipo)
+        valor = instance_variable_get(sim_to_atribute(nombre))
+        {nombre: nombre, tipo: tipo, valor: valor}
+    end
+
+    def sim_to_atribute(nombre)
+        "@#{nombre}".to_sym
+    end
 end
-
