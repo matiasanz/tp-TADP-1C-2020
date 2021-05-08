@@ -5,5 +5,9 @@ describe Prueba do
     it 'debería pasar este test' do
       expect(prueba.materia).to be :tadp
     end
+
+    it 'persistir' do
+        prueba.save!
+    end
   end
 end
