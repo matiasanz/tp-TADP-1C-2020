@@ -10,12 +10,20 @@ class Class
 
         define_singleton_method("find_by_#{named.to_s}".to_sym) do
         |valor|
-            DataBase.new.get_tabla(self).get_by(named, valor)
+            tabla(self).get_by(named, valor)
         end
     end
 
     def atributos_persistibles
         persistibles_propios.merge(persistibles_heredados)
+    end
+
+    def all_instances
+        tabla(self).all_instances
+    end
+
+    def tabla(clase)
+        DataBase.new.get_tabla(clase)
     end
 
     private

@@ -46,7 +46,22 @@ describe Prueba do
             nombre = "el gato"
             Ladron.new(nombre, 175, 90).save!
             resultados = Ladron.find_by_nombre(nombre)
-            (resultados.first).should include(:nombre => nombre, :velocidad=> 175, :sigilo=>90)
+
+            #expect(resultados.length).to be(1)
+
+            resultado = resultados.first
+            expect(resultado.instance_variable_get(:@nombre)).to eq(nombre)
+            expect(resultado.instance_variable_get(:@velocidad)).to eq(175)
+            expect(resultado.instance_variable_get(:@sigilo)).to eq(90)
+        end
+    end
+
+    describe 'al instances' do
+        it 'todas las instancias son efectivamente instancias' do
+            Ladron.new("juan carlos chorro", 325, 67).save!
+            Ladron.new("Motochorro", 900, 4).save!
+
+            expect(Ladron.all_instances).to all be_instance_of Ladron
         end
     end
 end

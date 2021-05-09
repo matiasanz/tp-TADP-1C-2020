@@ -17,7 +17,8 @@ end
 
 class Tabla
     def initialize(clase)
-        @tablaTADB = TADB::DB.table(clase.to_s)
+        @clase = clase
+        @tablaTADB = TADB::DB.table(@clase.to_s)
     end
 
     def persist(objeto)
@@ -32,6 +33,14 @@ class Tabla
     end
 
     def get_by(atributo, valor)
-        @tablaTADB.entries.select{|e| e[atributo]==valor}
+        all_instances.select{|i| i.instance_variable_get("@#{atributo.to_s}".to_sym)==valor}
+    end
+
+    def all_instances()
+        @tablaTADB.entries.map do |entry|
+            instancia = @clase.new
+            entry.each { |key, value| instancia.instance_variable_set("@#{key.to_s}".to_sym, value) }
+            instancia
+        end
     end
 end
