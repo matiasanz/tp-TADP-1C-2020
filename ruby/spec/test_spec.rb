@@ -6,8 +6,9 @@ describe Prueba do
       expect(prueba.materia).to be :tadp
     end
 
-    it 'persistir' do
+    it 'persistir una clase simple' do
         prueba.save!
+        expect(prueba.id).to_not be_nil
     end
   end
 end

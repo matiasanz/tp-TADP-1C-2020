@@ -1,3 +1,5 @@
+require 'tadb'
+
 class DataBase
     def initialize
         @tablas = {}
@@ -15,12 +17,17 @@ end
 
 class Tabla
     def initialize(clase)
-        #@this = TADB::DB.table(@clase.name)
-        # no se como hacerlo
+        @tablaTADB = TADB::DB.table(clase.to_s)
     end
 
     def persist(objeto)
         atributos = objeto.atributos_persistibles()
         puts "ponele que inserto #{atributos.to_s}"
+
+        nuevaFila = Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
+
+        id = @tablaTADB.insert(nuevaFila)
+
+        objeto.id=id
     end
 end
