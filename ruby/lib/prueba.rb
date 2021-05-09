@@ -2,8 +2,8 @@ require 'ORM'
 
 class Prueba
 
-    has_one(:string, :nombreAlumno)
-    has_one(:number, :nota)
+    has_one(String, :nombreAlumno)
+    has_one(Numeric, :nota)
 
     def initialize
         @nota = 8
@@ -16,11 +16,25 @@ class Prueba
 
 end
 
-class Parcialito < Prueba
-    has_one(:string, :nombreAyudante)
+class Personaje
+    has_one String, :nombre
+    has_one Numeric, :velocidad
 
-    def initialize
-        super
-        @nombreAyudante = "Diego"
+    attr_accessor :atributoNoPersistible
+
+    def initialize(nombre, velocidad)
+        @nombre = nombre
+        @velocidad = velocidad
+
+        @atributoNoPersistible = "Is it future or is it past"
+    end
+end
+
+class Ladron < Personaje
+    has_one Numeric, :sigilo
+
+    def initialize(nombre, velocidad, sigilo)
+        super(nombre, velocidad)
+        @sigilo = sigilo
     end
 end
