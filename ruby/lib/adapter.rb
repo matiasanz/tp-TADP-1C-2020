@@ -30,4 +30,8 @@ class Tabla
 
         objeto.id = id
     end
+
+    def get_by(atributo, valor)
+        @tablaTADB.entries.select{|e| e[atributo]==valor}
+    end
 end

@@ -7,6 +7,11 @@ class Class
             @atributos_persistibles = {}
         end
         @atributos_persistibles[named] = tipo
+
+        define_singleton_method("find_by_#{named.to_s}".to_sym) do
+        |valor|
+            DataBase.new.get_tabla(self).get_by(named, valor)
+        end
     end
 
     def atributos_persistibles

@@ -39,5 +39,14 @@ describe Prueba do
             ladron.save!
             expect(ladron.id).to_not be_nil
         end
-  end
+    end
+
+    describe 'encontrar por atributo' do
+        it 'encontrar un ladron por su nombre' do
+            nombre = "el gato"
+            Ladron.new(nombre, 175, 90).save!
+            resultados = Ladron.find_by_nombre(nombre)
+            (resultados.first).should include(:nombre => nombre, :velocidad=> 175, :sigilo=>90)
+        end
+    end
 end
