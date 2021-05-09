@@ -5,11 +5,11 @@ class Class
     def has_one(tipo, named)
         if @atributos_persistibles.nil?
             @atributos_persistibles = {}
-            definir_find_by(:id)
+            definir_find_by_(:id)
         end
         @atributos_persistibles[named] = tipo
 
-        definir_find_by(named)
+        definir_find_by_(named)
     end
 
     def atributos_persistibles
@@ -35,7 +35,7 @@ class Class
             superclass.atributos_persistibles : {}
     end
 
-    def definir_find_by(named)
+    def definir_find_by_(named)
         define_singleton_method("find_by_#{named.to_s}".to_sym) do
         |valor|
             tabla(self).get_by(named, valor)
@@ -57,11 +57,7 @@ class Object
 
     private
     def get_campo(nombre, tipo)
-        valor = instance_variable_get(sim_to_atribute(nombre))
+        valor = instance_variable_get(nombre.to_param)
         {nombre: nombre, tipo: tipo, valor: valor}
-    end
-
-    def sim_to_atribute(nombre)
-        "@#{nombre}".to_sym
     end
 end

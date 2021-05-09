@@ -62,6 +62,21 @@ describe Prueba do
             expect(resultado.id).to eq(ladri.id)
             expect(resultado.equal?(ladri)).to be true
         end
+
+        it 'Un objeto que se salva dos veces, pisa la version original' do
+            nombre = "salomon"
+            p = Personaje.new(nombre, 3)
+            p.save!
+
+            id = p.id
+
+            expect(p.id).not_to be_nil
+
+            p.save!
+            expect(p.id).to be(id)
+
+            expect(Personaje.find_by_nombre(nombre).length).to be(1)
+        end
     end
 
     describe 'all instances' do
@@ -74,4 +89,7 @@ describe Prueba do
     end
 
 
+    after(:all) do
+        DataBase.new.clear_all
+    end
 end
