@@ -22,12 +22,12 @@ class Tabla
 
     def persist(objeto)
         atributos = objeto.atributos_persistibles()
-        puts "ponele que inserto #{atributos.to_s}"
+        #puts "ponele que inserto #{atributos.to_s}"
 
         nuevaFila = Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
 
         id = @tablaTADB.insert(nuevaFila)
 
-        objeto.id=id
+        objeto.id = id
     end
 end
