@@ -45,18 +45,26 @@ describe Prueba do
         it 'encontrar un ladron por su nombre' do
             nombre = "el gato"
             Ladron.new(nombre, 175, 90).save!
-            resultados = Ladron.find_by_nombre(nombre)
-
-            #expect(resultados.length).to be(1)
-
-            resultado = resultados.first
+            resultado = Ladron.find_by_nombre(nombre).first
             expect(resultado.instance_variable_get(:@nombre)).to eq(nombre)
             expect(resultado.instance_variable_get(:@velocidad)).to eq(175)
             expect(resultado.instance_variable_get(:@sigilo)).to eq(90)
         end
+
+        it 'encontrar por id' do
+            ladri = Ladron.new("lucho", 175, 90)
+            ladri.save!
+
+            resultados = Ladron.find_by_id(ladri.id)
+            expect(resultados.length).to be(1)
+
+            resultado = resultados.first
+            expect(resultado.id).to eq(ladri.id)
+            expect(resultado.equal?(ladri)).to be true
+        end
     end
 
-    describe 'al instances' do
+    describe 'all instances' do
         it 'todas las instancias son efectivamente instancias' do
             Ladron.new("juan carlos chorro", 325, 67).save!
             Ladron.new("Motochorro", 900, 4).save!
@@ -64,4 +72,6 @@ describe Prueba do
             expect(Ladron.all_instances).to all be_instance_of Ladron
         end
     end
+
+
 end

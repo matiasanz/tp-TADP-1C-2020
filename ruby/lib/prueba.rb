@@ -23,8 +23,14 @@ end
 class Ladron < Personaje
     has_one Numeric, :sigilo
 
+    attr_accessor :nombre, :velocidad, :sigilo
+
     def initialize(nombre=nil, velocidad=nil, sigilo=nil)
         super(nombre, velocidad)
         @sigilo = sigilo
+    end
+
+    def equal?(otroLadron)
+        @nombre==otroLadron.nombre and @sigilo==otroLadron.sigilo and @velocidad==otroLadron.velocidad
     end
 end

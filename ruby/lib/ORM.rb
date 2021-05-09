@@ -5,13 +5,11 @@ class Class
     def has_one(tipo, named)
         if @atributos_persistibles.nil?
             @atributos_persistibles = {}
+            definir_find_by(:id)
         end
         @atributos_persistibles[named] = tipo
 
-        define_singleton_method("find_by_#{named.to_s}".to_sym) do
-        |valor|
-            tabla(self).get_by(named, valor)
-        end
+        definir_find_by(named)
     end
 
     def atributos_persistibles
@@ -37,6 +35,12 @@ class Class
             superclass.atributos_persistibles : {}
     end
 
+    def definir_find_by(named)
+        define_singleton_method("find_by_#{named.to_s}".to_sym) do
+        |valor|
+            tabla(self).get_by(named, valor)
+        end
+    end
 end
 
 class Object

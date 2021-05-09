@@ -23,7 +23,6 @@ class Tabla
 
     def persist(objeto)
         atributos = objeto.atributos_persistibles()
-        #puts "ponele que inserto #{atributos.to_s}"
 
         nuevaFila = Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
 
