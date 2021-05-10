@@ -47,6 +47,14 @@ class Class
             tabla.find_by(named, valor)
         end
     end
+
+    def clase_compuesta?(clase)
+        [String, Boolean, Numeric].include?(clase)
+    end
+
+    def as_atribute(clase)
+        clase_compuesta?(clase)? AtributoCompuesto.new(clase) :AtributoPrimitivo.new(clase)
+    end
 end
 
 class Object

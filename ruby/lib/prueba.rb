@@ -20,6 +20,10 @@ class Personaje
 
         @atributoNoPersistible = "Is it future or is it past"
     end
+
+    def equal?(otro)
+        @nombre==otro.instance_variable_get(:@nombre) and @comicidad==otro.instance_variable_get(:@comicidad)
+    end
 end
 
 class Ladron < Personaje
@@ -32,9 +36,10 @@ class Ladron < Personaje
         @sigilo = sigilo
     end
 
-    def equal?(otroLadron)
-        @nombre==otroLadron.nombre and @sigilo==otroLadron.sigilo and @comicidad==otroLadron.comicidad
+    def equal?(otro)
+        @sigilo==otro.sigilo and super
     end
+
 end
 
 class LadronDeSonrisas < Ladron

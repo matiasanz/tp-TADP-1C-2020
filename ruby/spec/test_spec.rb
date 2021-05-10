@@ -147,6 +147,22 @@ describe Prueba do
         end
     end
 
+    describe 'Atributos' do
+        it 'Atributo primitivo' do
+            atr = AtributoPrimitivo.new(String)
+            expect(atr.valor_persistible_de("hola")).to match("hola")
+            expect(atr.get_real_value("hola")).to match("hola")
+        end
+
+        it 'Atributo compuesto' do
+            objeto = Personaje.new('juanete', 5000)
+            atr = AtributoCompuesto.new(objeto.class)
+            expect(atr.valor_persistible_de(objeto)).to be(objeto.id)
+
+            expect(atr.get_real_value(objeto.id).equal?(objeto)).to be_truthy
+        end
+    end
+
     #    describe 'Composicion'
     #it 'un objeto esta compuesto por otra clase que no hereda de nada y se persiste' do
     #    duenio = Personaje.new('hagrid', 670)
