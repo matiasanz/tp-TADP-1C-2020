@@ -12,6 +12,16 @@ describe Prueba do
         end
     end
 
+    describe 'Boolean' do
+        it 'true es booleano' do
+            expect(true).to be_a(Boolean)
+        end
+
+        it 'false es booleano' do
+            expect(false).to be_a(Boolean)
+        end
+    end
+
     describe 'Clase simple' do
         let(:personaje) {Personaje.new("Flash", 2500)}
 

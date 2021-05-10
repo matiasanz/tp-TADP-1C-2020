@@ -8,7 +8,7 @@ class Tabla
     end
 
     def persist(objeto)
-        atributos = objeto.atributos_persistibles()
+        atributos = objeto.atributos_persistibles
 
         nuevaFila = Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
 
