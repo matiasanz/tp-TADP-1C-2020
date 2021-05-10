@@ -43,7 +43,8 @@ class Tabla
     end
 
     def actualizar_de_db(objeto)
-        @tablaTADB.entry(objeto.id)
+        datos = @tablaTADB.entries().select{|e| e[:id]==objeto.id}.first
+        asignar_datos(objeto, datos)
     end
 
     private

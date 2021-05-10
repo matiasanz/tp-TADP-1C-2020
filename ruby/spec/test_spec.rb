@@ -13,19 +13,39 @@ describe Prueba do
     end
 
     describe 'Clase simple' do
+        let(:personaje) {Personaje.new("Flash", 2500)}
+
         it 'atributos de una clase simple' do
             persistibles = Personaje.atributos_persistibles
             assert_persistibles.call(persistibles)
         end
 
         it 'persistir una clase simple' do
-            personaje = Personaje.new("Flash", 2500)
-
             expect(personaje.id).to be_nil
             personaje.save!
             expect(personaje.id).to_not be_nil
         end
 
+        it 'objeto persistido se olvida correctametne'do
+            personaje.save!
+            id=personaje.id
+            personaje.forget!
+
+            expect(personaje.id).to be_nil
+            expect(Personaje.find_by_id(id)).to match_array []
+        end
+
+        it 'un objeto se actualiza correctamente de la base de datos'do
+            personaje.save!
+            personaje.instance_variable_set(:@velocidad, 10)
+            expect(personaje.instance_variable_get(:@velocidad)).to be(10)
+            personaje.refresh!
+            expect(personaje.instance_variable_get(:@velocidad)).to be(2500)
+        end
+
+    end
+
+    describe 'clase que hereda de otra' do
         it 'atributos de una clase que hereda de otra' do
             persistibles = Ladron.atributos_persistibles
             assert_persistibles.call(persistibles)
@@ -39,18 +59,6 @@ describe Prueba do
             ladron.save!
             expect(ladron.id).to_not be_nil
         end
-
-        it 'objeto persistido se olvida correctametne'do
-            p = Personaje.new("Carlitos", 70)
-            p.save!
-            id=p.id
-            p.forget!
-
-            expect(p.id).to be_nil
-            expect(Personaje.find_by_id(id)).to match_array []
-
-        end
-
     end
 
     describe 'encontrar por atributo' do
@@ -100,7 +108,7 @@ describe Prueba do
         end
     end
 
-    after(:all) do
+    after(:each) do
         TADB::DB.clear_all
     end
 end
