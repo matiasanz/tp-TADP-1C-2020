@@ -6,13 +6,11 @@ describe Prueba do
         expect(persistibles).not_to be_an_has_key(:atributoNoPersistible)
     }}
 
-    describe '#Test de consuelo' do
+    describe 'Tests de utilidades' do
         it 'debería pasar este test' do
-          expect(prueba).to be :tadp
+            expect(prueba).to be :tadp
         end
-    end
 
-    describe 'Boolean' do
         it 'true es booleano' do
             expect(true).to be_a(Boolean)
         end
@@ -22,10 +20,10 @@ describe Prueba do
         end
     end
 
-    describe 'Clase simple' do
+    describe 'Persistencia de Clase simple' do
         let(:personaje) {Personaje.new("Flash", 2500)}
 
-        it 'atributos de una clase simple' do
+        it 'atributos persistibles de una clase simple' do
             persistibles = Personaje.atributos_persistibles
             assert_persistibles.call(persistibles)
         end
@@ -45,24 +43,35 @@ describe Prueba do
             expect(Personaje.find_by_id(id)).to match_array []
         end
 
-        it 'un objeto se actualiza correctamente de la base de datos'do
+        it 'Objeto salvado por segunda vez se actualiza en lugar de volver a insertarse' do
+            personaje.save!
+            id = personaje.id
+
+            expect(id).not_to be_nil
+
+            personaje.save!
+
+            expect(personaje.id).to be(id)
+            expect(Personaje.find_by_id(id).length).to be(1)
+        end
+
+        it 'un objeto se recupera correctamente de la base de datos'do
             personaje.save!
             personaje.instance_variable_set(:@velocidad, 10)
             expect(personaje.instance_variable_get(:@velocidad)).to be(10)
             personaje.refresh!
             expect(personaje.instance_variable_get(:@velocidad)).to be(2500)
         end
-
     end
 
-    describe 'clase que hereda de otra' do
-        it 'atributos de una clase que hereda de otra' do
+    describe 'Persistencia de subclases' do
+        it 'atributos persistibles se heredan' do
             persistibles = Ladron.atributos_persistibles
             assert_persistibles.call(persistibles)
             expect(persistibles).to include(:sigilo)
         end
 
-        it 'persistir una clase que hereda de otra' do
+        it 'la subclase se persiste correctamente' do
             ladron = Ladron.new("Nik", 200, 85)
 
             expect(ladron.id).to be_nil
@@ -71,17 +80,8 @@ describe Prueba do
         end
     end
 
-    describe 'encontrar por atributo' do
-        it 'encontrar un ladron por su nombre' do
-            nombre = "el gato"
-            Ladron.new(nombre, 175, 90).save!
-            resultado = Ladron.find_by_nombre(nombre).first
-            expect(resultado.instance_variable_get(:@nombre)).to eq(nombre)
-            expect(resultado.instance_variable_get(:@velocidad)).to eq(175)
-            expect(resultado.instance_variable_get(:@sigilo)).to eq(90)
-        end
-
-        it 'encontrar por id' do
+    describe 'Busqueda por atributo' do
+        it 'encontrar por id devuelve una unica instancia y es correcta' do
             ladri = Ladron.new("lucho", 175, 90)
             ladri.save!
 
@@ -93,19 +93,13 @@ describe Prueba do
             expect(resultado.equal?(ladri)).to be true
         end
 
-        it 'Un objeto que se salva dos veces, pisa la version original' do
-            nombre = "salomon"
-            p = Personaje.new(nombre, 3)
-            p.save!
-
-            id = p.id
-
-            expect(p.id).not_to be_nil
-
-            p.save!
-
-            expect(p.id).to be(id)
-            expect(Personaje.find_by_nombre(nombre).length).to be(1)
+        it 'encontrar por un string' do
+            nombre = "el gato"
+            Ladron.new(nombre, 175, 90).save!
+            resultado = Ladron.find_by_nombre(nombre).first
+            expect(resultado.instance_variable_get(:@nombre)).to eq(nombre)
+            expect(resultado.instance_variable_get(:@velocidad)).to eq(175)
+            expect(resultado.instance_variable_get(:@sigilo)).to eq(90)
         end
     end
 
@@ -114,7 +108,10 @@ describe Prueba do
             Ladron.new("juan carlos chorro", 325, 67).save!
             Ladron.new("Motochorro", 900, 4).save!
 
-            expect(Ladron.all_instances).to all be_instance_of Ladron
+            instancias = Ladron.all_instances
+
+            expect(instancias).to all be_instance_of Ladron
+            expect(instancias.length).to be(2)
         end
     end
 
