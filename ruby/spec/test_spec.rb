@@ -128,7 +128,7 @@ describe Prueba do
         end
     end
 
-    #  after(:each) do
-    #   TADB::DB.clear_all
-    #end
+    after(:each) do
+       TADB::DB.clear_all
+    end
 end
