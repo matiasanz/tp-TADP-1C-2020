@@ -20,8 +20,9 @@ class Tabla
         @tablaTADB.delete(objeto.id)
     end
 
+
     def find_by(atributo, valor)
-        @tablaTADB.entries.select{|e| e[atributo]==valor}.map{|fila| to_instance(fila)}
+        find_entries_by(atributo, valor).map{|fila| to_instance(fila)}
     end
 
     def get_all
@@ -29,7 +30,7 @@ class Tabla
     end
 
     def recuperar_de_db(objeto)
-        datos = @tablaTADB.entries.select{|e| e[:id]==objeto.id}.first
+        datos = find_entries_by(:id, objeto.id).first
         asignar_datos(objeto, datos)
     end
 
@@ -62,5 +63,9 @@ class Tabla
 
     def asignar_datos(objeto, datos)
         datos.each { |key, value| objeto.instance_variable_set(key.to_param, value) }
+    end
+
+    def find_entries_by(atributo, valor)
+        @tablaTADB.entries.select{|e| e[atributo]==valor}
     end
 end
