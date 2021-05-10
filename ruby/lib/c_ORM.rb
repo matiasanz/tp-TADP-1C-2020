@@ -1,4 +1,4 @@
-require 'adapter'
+require 'b_adapter'
 
 class Class
 
@@ -19,7 +19,7 @@ class Class
 
     #Enunciado
     def all_instances
-        tabla.all_instances
+        tabla.get_all
     end
 
     def tabla
@@ -59,7 +59,7 @@ class Object
 
     #Enunciado
     def forget!
-        tabla.delete(self)
+        tabla.remove(self)
         self.id= nil
     end
 
