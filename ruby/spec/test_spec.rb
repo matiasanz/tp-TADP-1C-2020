@@ -147,13 +147,13 @@ describe Prueba do
         end
     end
 
-    describe 'Composicion'
-    it '' do
-        duenio = Personaje.new('hagrid', 670)
-       mascota = Mascota.new('fang', duenio, true)
-       mascota.save!
-       expect(mascota.id).to_not be_nil
-   end
+    #    describe 'Composicion'
+    #it 'un objeto esta compuesto por otra clase que no hereda de nada y se persiste' do
+    #    duenio = Personaje.new('hagrid', 670)
+    #   mascota = Mascota.new('fang', duenio, true)
+    #   mascota.save!
+    #   expect(mascota.id).to_not be_nil
+    #end
 
     after(:each) do
        TADB::DB.clear_all
