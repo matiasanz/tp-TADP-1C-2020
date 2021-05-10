@@ -39,6 +39,18 @@ describe Prueba do
             ladron.save!
             expect(ladron.id).to_not be_nil
         end
+
+        it 'objeto persistido se olvida correctametne'do
+            p = Personaje.new("Carlitos", 70)
+            p.save!
+            id=p.id
+            p.forget!
+
+            expect(p.id).to be_nil
+            expect(Personaje.find_by_id(id)).to match_array []
+
+        end
+
     end
 
     describe 'encontrar por atributo' do
@@ -73,8 +85,8 @@ describe Prueba do
             expect(p.id).not_to be_nil
 
             p.save!
-            expect(p.id).to be(id)
 
+            expect(p.id).to be(id)
             expect(Personaje.find_by_nombre(nombre).length).to be(1)
         end
     end
@@ -87,7 +99,6 @@ describe Prueba do
             expect(Ladron.all_instances).to all be_instance_of Ladron
         end
     end
-
 
     after(:all) do
         TADB::DB.clear_all

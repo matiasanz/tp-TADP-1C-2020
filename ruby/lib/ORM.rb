@@ -2,6 +2,7 @@ require 'adapter'
 
 class Class
 
+    #Enunciado
     def has_one(tipo, named)
         if @atributos_persistibles.nil?
             @atributos_persistibles = {}
@@ -16,6 +17,7 @@ class Class
         persistibles_propios.merge(persistibles_heredados)
     end
 
+    #Enunciado
     def all_instances
         tabla.all_instances
     end
@@ -50,8 +52,20 @@ end
 class Object
     attr_accessor :id
 
+    #Enunciado
     def save!
-        self.class.tabla.persist(self)
+        tabla.persist(self)
+    end
+
+    #Enunciado
+    def forget!
+        tabla.delete(self)
+        self.id= nil
+    end
+
+    #Enunciado
+    def refresh!
+        tabla.refresh(self)
     end
 
     def atributos_persistibles()
@@ -63,5 +77,9 @@ class Object
     def get_campo(nombre, tipo)
         valor = instance_variable_get(nombre.to_param)
         {nombre: nombre, tipo: tipo, valor: valor}
+    end
+
+    def tabla
+        self.class.tabla
     end
 end

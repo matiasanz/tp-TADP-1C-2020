@@ -13,18 +13,14 @@ class Tabla
         nuevaFila = Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
 
         if objeto.id.nil?
-            id = @tablaTADB.insert(nuevaFila)
-            objeto.id = id
+            insert(objeto, nuevaFila)
         else
             update(objeto, nuevaFila)
         end
     end
 
-    def update(objeto, fila)
-        id = objeto.id
-        @tablaTADB.delete(id)
-        fila[:id] = id
-        @tablaTADB.insert(fila)
+    def delete(objeto)
+        @tablaTADB.delete(objeto.id)
     end
 
     def find_by(atributo, valor)
@@ -32,11 +28,34 @@ class Tabla
     end
 
     def all_instances()
-        @tablaTADB.entries.map do |entry|
-            #*args = [nil]*@clase.method(:initialize).arity.abs
+        @tablaTADB.entries.map do
+            |entry|
             instancia = @clase.new #(args)
-            entry.each { |key, value| instancia.instance_variable_set(key.to_param, value) }
+            #*args = [nil]*@clase.method(:initialize).arity.abs
+            asignar_datos(instancia, entry)
+
             instancia
         end
+    end
+
+    def asignar_datos(objeto, datos)
+        datos.each { |key, value| objeto.instance_variable_set(key.to_param, value) }
+    end
+
+    def actualizar_de_db(objeto)
+        @tablaTADB.entry(objeto.id)
+    end
+
+    private
+    def insert(objeto, fila)
+        id = @tablaTADB.insert(fila)
+        objeto.id = id
+    end
+
+    def update(objeto, fila)
+        id = objeto.id
+        @tablaTADB.delete(id)
+        fila[:id] = id
+        @tablaTADB.insert(fila)
     end
 end
