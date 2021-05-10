@@ -18,7 +18,7 @@ class Personaje
         @comicidad = comicidad
         @enojon = true
 
-        @atributoNoPersistible = "Is it future or is it past"
+        @atributoNoPersistible = "¡No me vean!"
     end
 
     def equal?(otro)
@@ -52,6 +52,8 @@ class Mascota
     has_one String, :nombre
     has_one Personaje, :duenio
     has_one Boolean, :hambriento
+
+    attr_accessor :duenio
 
     def initialize(nombre, duenio, hambriento)
         @nombre=nombre

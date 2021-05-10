@@ -53,9 +53,18 @@ class Tabla
     end
 
     def formato_fila(objeto)
-        atributos = objeto.atributos_persistibles
+        fila = {}
+        objeto.atributos_persistibles.each do
+            |atr|
+            nombre=atr[:nombre]
+            tipo=atr[:tipo]
+            valor = atr[:valor]
 
-        Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
+            tipo.agregar_a_fila(nombre, valor, fila)
+        end
+
+        #Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
+        fila
     end
 
     def to_instance(fila)
@@ -69,7 +78,16 @@ class Tabla
     end
 
     def asignar_datos(objeto, datos)
-        datos.each { |key, value| objeto.instance_variable_set(key.to_param, value) }
+        datos.each do |key, value|
+
+            if (key.param?)
+                clase = Object.const_get(value)
+                key = ((key.to_s)[1..-1]).to_sym
+                value = clase.find_by_id(datos[key]).first
+            end
+
+            objeto.instance_variable_set(key.to_param, value)
+        end
     end
 
     def find_entries_by(atributo, valor)

@@ -19,6 +19,11 @@ describe Prueba do
         it 'false es booleano' do
             expect(false).to be_a(Boolean)
         end
+
+        it 'parametro' do
+            expect(:@algo.param?).to be_truthy
+            expect(:algo.to_param).to be(:@algo)
+        end
     end
 
     describe 'Persistencia de Clase simple' do
@@ -87,8 +92,6 @@ describe Prueba do
             id = ladron.id
             expect(id).not_to be_nil
 
-            puts ("id: #{ladron.id}")
-
             ladron.refresh!
             expect(ladron.id).to match(id)
         end
@@ -148,30 +151,44 @@ describe Prueba do
     end
 
     describe 'Atributos' do
-        it 'Atributo primitivo' do
-            atr = AtributoPrimitivo.new(String)
-            expect(atr.valor_persistible_de("hola")).to match("hola")
-            expect(atr.get_real_value("hola")).to match("hola")
+        #        it 'Atributo primitivo' do
+        #   atr = Atributo.new(String)
+        #   fila = {}
+        #   atr.agregar_a_fila(:palabra, "hola", fila)
+        #
+        #   expect(atr.valor_persistible_de("hola")).to match("hola")
+        #   expect(atr.get_real_value("hola")).to match("hola")
+        #end
+
+        #        it 'Atributo compuesto' do
+        #   objeto = Personaje.new('juanete', 5000)
+        #   atr = AtributoCompuesto.new(objeto.class)
+
+        #   expect(atr.valor_persistible_de(objeto)).to be(objeto.id)
+
+        #   expect(atr.get_real_value(objeto.id, objeto.class).equal?(objeto)).to be_truthy
+        #end
+    end
+
+    describe 'Composicion' do
+        before(:each) do
+            @duenio = Personaje.new('hagrid', 670)
+            @mascota = Mascota.new('fang', @duenio, true)
+            @mascota.save!
         end
 
-        it 'Atributo compuesto' do
-            objeto = Personaje.new('juanete', 5000)
-            atr = AtributoCompuesto.new(objeto.class)
-            expect(atr.valor_persistible_de(objeto)).to be(objeto.id)
+        it 'un objeto esta compuesto por otra clase que no hereda de nada y se persiste' do
+           expect(@mascota.id).to_not be_nil
+        end
 
-            expect(atr.get_real_value(objeto.id).equal?(objeto)).to be_truthy
+        it ' una mascota se recupera de la base de datos' do
+            recuperado = Mascota.find_by_id(@mascota.id).first
+            expect(recuperado.id).to_not be_nil
+            expect(recuperado.duenio.id).to_not be_nil
         end
     end
 
-    #    describe 'Composicion'
-    #it 'un objeto esta compuesto por otra clase que no hereda de nada y se persiste' do
-    #    duenio = Personaje.new('hagrid', 670)
-    #   mascota = Mascota.new('fang', duenio, true)
-    #   mascota.save!
-    #   expect(mascota.id).to_not be_nil
-    #end
-
     after(:each) do
-       TADB::DB.clear_all
+      TADB::DB.clear_all
     end
 end

@@ -8,7 +8,7 @@ class Class
             @atributos_persistibles = {}
             definir_find_by_(:id)
         end
-        @atributos_persistibles[named] = tipo
+        @atributos_persistibles[named] = as_atribute(tipo)
 
         definir_find_by_(named)
     end
@@ -48,12 +48,12 @@ class Class
         end
     end
 
-    def clase_compuesta?(clase)
+    def clase_primitiva?(clase)
         [String, Boolean, Numeric].include?(clase)
     end
 
     def as_atribute(clase)
-        clase_compuesta?(clase)? AtributoCompuesto.new(clase) :AtributoPrimitivo.new(clase)
+        clase_primitiva?(clase)? Atributo.new(clase) : AtributoCompuesto.new(clase)
     end
 end
 
@@ -76,7 +76,7 @@ class Object
         tabla.recuperar_de_db(self)
     end
 
-    def atributos_persistibles()
+    def atributos_persistibles
         self.class.atributos_persistibles
             .map{|nombre, tipo| get_campo(nombre, tipo)}
     end
