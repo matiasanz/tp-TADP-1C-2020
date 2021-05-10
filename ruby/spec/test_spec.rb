@@ -3,6 +3,7 @@ describe Prueba do
     let(:assert_persistibles) {proc{|persistibles|
         expect(persistibles).to be_an_has_key(:nombre)
         expect(persistibles).to be_an_has_key(:velocidad)
+        expect(persistibles).to be_an_has_key(:enojon)
         expect(persistibles).not_to be_an_has_key(:atributoNoPersistible)
     }}
 
@@ -103,16 +104,34 @@ describe Prueba do
 
             resultado = resultados.first
             expect(resultado.id).to eq(ladri.id)
-            expect(resultado.equal?(ladri)).to be true
+            expect(resultado.equal?(ladri)).to be_truthy
         end
 
         it 'encontrar por un string' do
             nombre = "el gato"
-            Ladron.new(nombre, 175, 90).save!
+            ladron = Ladron.new(nombre, 175, 90)
+            ladron.save!
             resultado = Ladron.find_by_nombre(nombre).first
-            expect(resultado.instance_variable_get(:@nombre)).to eq(nombre)
-            expect(resultado.instance_variable_get(:@velocidad)).to eq(175)
-            expect(resultado.instance_variable_get(:@sigilo)).to eq(90)
+            expect(resultado.equal?(ladron)).to be_truthy
+
+            Ladron.new(nombre, 200, 25).save!
+
+            expect(Ladron.find_by_nombre(nombre).length).to be(2)
+        end
+
+        it 'encontrar por un booleano' do
+            Ladron.new("manuel", 20, 10).save!
+            Ladron.new("sebastian", 45, 20).save!
+            d = Ladron.new("diego", 5, 15)
+            d.enojon = false
+            d.save!
+
+
+            enojones = Ladron.find_by_enojon(true)
+            expect(enojones.map{|e|e.nombre}).to match_array ["manuel", "sebastian"]
+
+            noEnojones = Ladron.find_by_enojon(false)
+            expect(noEnojones.map{|n|n.nombre}).to match_array(["diego"])
         end
     end
 

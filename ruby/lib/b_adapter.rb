@@ -11,6 +11,7 @@ class Tabla
 
         if objeto.id.nil?
             insert(objeto)
+            return
         else
             update(objeto)
         end
