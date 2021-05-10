@@ -2,7 +2,7 @@ describe Prueba do
     let(:prueba) {Prueba.new.materia}
     let(:assert_persistibles) {proc{|persistibles|
         expect(persistibles).to be_an_has_key(:nombre)
-        expect(persistibles).to be_an_has_key(:velocidad)
+        expect(persistibles).to be_an_has_key(:comicidad)
         expect(persistibles).to be_an_has_key(:enojon)
         expect(persistibles).not_to be_an_has_key(:atributoNoPersistible)
     }}
@@ -58,10 +58,10 @@ describe Prueba do
 
         it 'un objeto se recupera correctamente de la base de datos'do
             personaje.save!
-            personaje.instance_variable_set(:@velocidad, 10)
-            expect(personaje.instance_variable_get(:@velocidad)).to be(10)
+            personaje.instance_variable_set(:@comicidad, 10)
+            expect(personaje.instance_variable_get(:@comicidad)).to be(10)
             personaje.refresh!
-            expect(personaje.instance_variable_get(:@velocidad)).to be(2500)
+            expect(personaje.instance_variable_get(:@comicidad)).to be(2500)
         end
     end
 
@@ -138,7 +138,7 @@ describe Prueba do
     describe 'all instances' do
         it 'todas las instancias son efectivamente instancias' do
             Ladron.new("juan carlos chorro", 325, 67).save!
-            Ladron.new("Motochorro", 900, 4).save!
+            Ladron.new("ladron de hamburguesas", 900, 4).save!
 
             instancias = Ladron.all_instances
 
@@ -146,6 +146,14 @@ describe Prueba do
             expect(instancias.length).to be(2)
         end
     end
+
+    describe 'Composicion'
+    it '' do
+        duenio = Personaje.new('hagrid', 670)
+       mascota = Mascota.new('fang', duenio, true)
+       mascota.save!
+       expect(mascota.id).to_not be_nil
+   end
 
     after(:each) do
        TADB::DB.clear_all

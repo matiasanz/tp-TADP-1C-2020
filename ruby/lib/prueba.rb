@@ -8,14 +8,14 @@ end
 
 class Personaje
     has_one String, :nombre
-    has_one Numeric, :velocidad
+    has_one Numeric, :comicidad
     has_one Boolean, :enojon
 
-    attr_accessor :atributoNoPersistible
+    attr_accessor :atributoNoPersistible, :enojon
 
-    def initialize(nombre, velocidad)
+    def initialize(nombre, comicidad)
         @nombre = nombre
-        @velocidad = velocidad
+        @comicidad = comicidad
         @enojon = true
 
         @atributoNoPersistible = "Is it future or is it past"
@@ -25,20 +25,32 @@ end
 class Ladron < Personaje
     has_one Numeric, :sigilo
 
-    attr_accessor :nombre, :velocidad, :sigilo, :enojon
+    attr_accessor :nombre, :comicidad, :sigilo
 
-    def initialize(nombre, velocidad, sigilo)
-        super(nombre, velocidad)
+    def initialize(nombre, comicidad, sigilo)
+        super(nombre, comicidad)
         @sigilo = sigilo
     end
 
     def equal?(otroLadron)
-        @nombre==otroLadron.nombre and @sigilo==otroLadron.sigilo and @velocidad==otroLadron.velocidad
+        @nombre==otroLadron.nombre and @sigilo==otroLadron.sigilo and @comicidad==otroLadron.comicidad
     end
 end
 
 class LadronDeSonrisas < Ladron
     def initialize
-        super('anonimo', 370, 95)
+        super('pepe argento', 370, 95)
+    end
+end
+
+class Mascota
+    has_one String, :nombre
+    has_one Personaje, :duenio
+    has_one Boolean, :hambriento
+
+    def initialize(nombre, duenio, hambriento)
+        @nombre=nombre
+        @duenio=duenio
+        @hambriento=hambriento
     end
 end

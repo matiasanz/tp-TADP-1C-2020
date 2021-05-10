@@ -11,7 +11,6 @@ class Tabla
 
         if objeto.id.nil?
             insert(objeto)
-            return
         else
             update(objeto)
         end
@@ -56,7 +55,7 @@ class Tabla
     def formato_fila(objeto)
         atributos = objeto.atributos_persistibles
 
-        return Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
+        Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
     end
 
     def to_instance(fila)
