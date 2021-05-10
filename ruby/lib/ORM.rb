@@ -38,7 +38,7 @@ class Class
     def definir_find_by_(named)
         define_singleton_method("find_by_#{named.to_s}".to_sym) do
         |valor|
-            tabla(self).get_by(named, valor)
+            tabla(self).find_by(named, valor)
         end
     end
 end

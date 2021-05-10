@@ -1,5 +1,5 @@
-require 'tadb'
 require 'utils'
+require 'tadb'
 
 class DataBase
 
@@ -47,13 +47,14 @@ class Tabla
         @tablaTADB.insert(fila)
     end
 
-    def get_by(atributo, valor)
+    def find_by(atributo, valor)
         all_instances.select{|i| i.instance_variable_get(atributo.to_param)==valor}
     end
 
     def all_instances()
         @tablaTADB.entries.map do |entry|
-            instancia = @clase.new
+            #*args = [nil]*@clase.method(:initialize).arity.abs
+            instancia = @clase.new #(args)
             entry.each { |key, value| instancia.instance_variable_set(key.to_param, value) }
             instancia
         end
