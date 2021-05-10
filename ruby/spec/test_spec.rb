@@ -78,6 +78,19 @@ describe Prueba do
             ladron.save!
             expect(ladron.id).to_not be_nil
         end
+
+        it 'subclase sin atributos y con constructor vacio se persiste y se recupera correctamente'do
+            ladron = LadronDeSonrisas.new
+            ladron.save!
+
+            id = ladron.id
+            expect(id).not_to be_nil
+
+            puts ("id: #{ladron.id}")
+
+            ladron.refresh!
+            expect(ladron.id).to match(id)
+        end
     end
 
     describe 'Busqueda por atributo' do
@@ -115,7 +128,7 @@ describe Prueba do
         end
     end
 
-    after(:each) do
-        TADB::DB.clear_all
-    end
+    #  after(:each) do
+    #   TADB::DB.clear_all
+    #end
 end

@@ -31,6 +31,11 @@ class Tabla
 
     def recuperar_de_db(objeto)
         datos = find_entries_by(:id, objeto.id).first
+
+        if datos.nil?
+            raise 'no se encontro objeto'
+        end
+
         asignar_datos(objeto, datos)
     end
 
@@ -49,12 +54,14 @@ class Tabla
 
     def formato_fila(objeto)
         atributos = objeto.atributos_persistibles
-        nuevaFila = Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
+
+        return Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
     end
 
     def to_instance(fila)
-        instancia = @clase.new #(args)
-        #*args = [nil]*@clase.method(:initialize).arity.abs
+        arity = @clase.instance_method(:initialize).arity.abs
+        *args = [nil]*arity
+        instancia = @clase.new(*args)
 
         asignar_datos(instancia, fila)
 

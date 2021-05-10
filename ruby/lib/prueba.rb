@@ -12,7 +12,7 @@ class Personaje
 
     attr_accessor :atributoNoPersistible
 
-    def initialize(nombre=nil, velocidad=nil)
+    def initialize(nombre, velocidad)
         @nombre = nombre
         @velocidad = velocidad
 
@@ -25,12 +25,18 @@ class Ladron < Personaje
 
     attr_accessor :nombre, :velocidad, :sigilo
 
-    def initialize(nombre=nil, velocidad=nil, sigilo=nil)
+    def initialize(nombre, velocidad, sigilo)
         super(nombre, velocidad)
         @sigilo = sigilo
     end
 
     def equal?(otroLadron)
         @nombre==otroLadron.nombre and @sigilo==otroLadron.sigilo and @velocidad==otroLadron.velocidad
+    end
+end
+
+class LadronDeSonrisas < Ladron
+    def initialize
+        super('anonimo', 370, 95)
     end
 end
