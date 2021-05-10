@@ -17,11 +17,15 @@ class Class
     end
 
     def all_instances
-        tabla(self).all_instances
+        tabla.all_instances
     end
 
-    def tabla(clase)
-        DataBase.new.get_tabla(clase)
+    def tabla
+        if @tabla.nil?
+            @tabla = Tabla.new(self)
+        end
+
+        @tabla
     end
 
     private
@@ -38,7 +42,7 @@ class Class
     def definir_find_by_(named)
         define_singleton_method("find_by_#{named.to_s}".to_sym) do
         |valor|
-            tabla(self).find_by(named, valor)
+            tabla.find_by(named, valor)
         end
     end
 end
@@ -47,7 +51,7 @@ class Object
     attr_accessor :id
 
     def save!
-        DataBase.new.get_tabla(self.class).persist(self)
+        self.class.tabla.persist(self)
     end
 
     def atributos_persistibles()

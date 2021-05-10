@@ -90,6 +90,6 @@ describe Prueba do
 
 
     after(:all) do
-        DataBase.new.clear_all
+        TADB::DB.clear_all
     end
 end

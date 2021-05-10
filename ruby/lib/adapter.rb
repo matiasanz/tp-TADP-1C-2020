@@ -1,26 +1,6 @@
 require 'utils'
 require 'tadb'
 
-class DataBase
-
-    def initialize
-        @tablas = {}
-    end
-
-    def get_tabla(clase)
-        crear_tabla(clase) unless @tablas.has_key?(clase)
-        @tablas[clase]
-    end
-
-    def crear_tabla(clase)
-        @tablas[clase] = Tabla.new(clase)
-    end
-
-    def clear_all()
-        TADB::DB.clear_all
-    end
-end
-
 class Tabla
     def initialize(clase)
         @clase = clase
