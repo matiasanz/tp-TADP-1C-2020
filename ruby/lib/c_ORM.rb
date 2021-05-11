@@ -6,11 +6,11 @@ class Class
     def has_one(tipo, named)
         if @atributos_persistibles.nil?
             @atributos_persistibles = {}
-            definir_find_by_(:id)
+            definir_find_by_(:id, String)
         end
-        @atributos_persistibles[named] = as_atribute(tipo)
+        @atributos_persistibles[named] = AtributoHelper.as_atribute(tipo)
 
-        definir_find_by_(named)
+        definir_find_by_(named, tipo)
     end
 
     def atributos_persistibles
@@ -37,23 +37,18 @@ class Class
     end
 
     def persistibles_heredados
-        (superclass != BasicObject and superclass.respond_to?(:atributos_persistibles))?
+        (superclass != BasicObject)? #Raro
             superclass.atributos_persistibles : {}
     end
 
-    def definir_find_by_(named)
+    def definir_find_by_(named, clase)
+        get_real_value = AtributoHelper.clase_primitiva?(clase)?
+            lambda{|valor| valor} : lambda{|objeto| objeto.id}
+
         define_singleton_method("find_by_#{named.to_s}".to_sym) do
-        |valor|
-            tabla.find_by(named, valor)
+            |valor|
+            tabla.find_by(named, get_real_value.call(valor))
         end
-    end
-
-    def clase_primitiva?(clase)
-        [String, Boolean, Numeric].include?(clase)
-    end
-
-    def as_atribute(clase)
-        clase_primitiva?(clase)? Atributo.new(clase) : AtributoCompuesto.new(clase)
     end
 end
 
@@ -78,15 +73,12 @@ class Object
 
     def atributos_persistibles
         self.class.atributos_persistibles
-            .map{|nombre, tipo| get_campo(nombre, tipo)}
+            .map do |nombre, tipo|
+                [nombre, tipo, instance_variable_get(nombre.to_param)]
+            end
     end
 
     private
-    def get_campo(nombre, tipo)
-        valor = instance_variable_get(nombre.to_param)
-        {nombre: nombre, tipo: tipo, valor: valor}
-    end
-
     def tabla
         self.class.tabla
     end

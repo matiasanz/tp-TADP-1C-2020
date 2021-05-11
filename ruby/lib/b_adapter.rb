@@ -8,7 +8,6 @@ class Tabla
     end
 
     def persist(objeto)
-
         if objeto.id.nil?
             insert(objeto)
         else
@@ -19,7 +18,6 @@ class Tabla
     def remove(objeto)
         @tablaTADB.delete(objeto.id)
     end
-
 
     def find_by(atributo, valor)
         find_entries_by(atributo, valor).map{|fila| to_instance(fila)}
@@ -33,7 +31,7 @@ class Tabla
         datos = find_entries_by(:id, objeto.id).first
 
         if datos.nil?
-            raise 'no se encontro objeto'
+            raise "el id del objeto #{objeto.to_s} no se corresponde con ninguno en la base de datos"
         end
 
         asignar_datos(objeto, datos)
@@ -41,49 +39,42 @@ class Tabla
 
     private
     def insert(objeto)
-        id = @tablaTADB.insert(formato_fila(objeto))
+        id = @tablaTADB.insert(formato_entrada(objeto))
         objeto.id = id
     end
 
     def update(objeto)
-        id = objeto.id
-        fila = formato_fila(objeto).merge({:id=>id})
-        @tablaTADB.delete(id)
+        fila = formato_entrada(objeto)
+        @tablaTADB.delete(objeto.id)
         @tablaTADB.insert(fila)
     end
 
-    def formato_fila(objeto)
-        fila = {}
+    def formato_entrada(objeto)
+        entrada = {:id=>objeto.id}
         objeto.atributos_persistibles.each do
-            |atr|
-            nombre=atr[:nombre]
-            tipo=atr[:tipo]
-            valor = atr[:valor]
-
-            tipo.agregar_a_fila(nombre, valor, fila)
+            |nombre, tipo, valor|
+            tipo.agregar_a_entrada(nombre, valor, entrada)
         end
-
-        #Hash[atributos.collect{|e| [e[:nombre], e[:valor]]}]
-        fila
+        entrada
     end
 
     def to_instance(fila)
-        arity = @clase.instance_method(:initialize).arity.abs
-        *args = [nil]*arity
+        *args = [nil]*aridad_constructor
         instancia = @clase.new(*args)
-
         asignar_datos(instancia, fila)
-
         return instancia
+    end
+
+    def aridad_constructor
+        @clase.instance_method(:initialize).arity.abs
     end
 
     def asignar_datos(objeto, datos)
         datos.each do |key, value|
 
             if (key.param?)
-                clase = Object.const_get(value)
                 key = ((key.to_s)[1..-1]).to_sym
-                value = clase.find_by_id(datos[key]).first
+                value = value.to_class.find_by_id(datos[key]).first
             end
 
             objeto.instance_variable_set(key.to_param, value)

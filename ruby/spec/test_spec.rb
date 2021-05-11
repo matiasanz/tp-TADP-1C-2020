@@ -181,10 +181,19 @@ describe Prueba do
            expect(@mascota.id).to_not be_nil
         end
 
-        it ' una mascota se recupera de la base de datos' do
+        it 'un objeto compuesto se recupera de la base de datos' do
             recuperado = Mascota.find_by_id(@mascota.id).first
             expect(recuperado.id).to_not be_nil
             expect(recuperado.duenio.id).to_not be_nil
+        end
+
+        it 'un objeto compuesto se busca por un atributo idem y se encuentra' do
+            encontrados = Mascota.find_by_duenio(@duenio)
+            expect(encontrados.length).to be(1)
+
+            encontrado = encontrados.first
+            expect(encontrado.id).to match(@mascota.id)
+            expect(encontrado.duenio.id).to match(@duenio.id)
         end
     end
 

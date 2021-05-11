@@ -1,3 +1,5 @@
+#************ Utilidades ***********************
+
 class Symbol
     def to_param
         "@#{self.to_s}".to_sym
@@ -7,6 +9,14 @@ class Symbol
         self.to_s.start_with? '@'
     end
 end
+
+class String
+    def to_class
+        Object.const_get(self)
+    end
+end
+
+# **************** Booleanos *****************
 
 module Boolean
 end
@@ -19,6 +29,18 @@ class FalseClass
     include Boolean
 end
 
+#****************** Atributos Persistibles ****************
+
+module AtributoHelper
+        def self.clase_primitiva?(clase)
+            [String, Boolean, Numeric].include?(clase)
+        end
+
+        def self.as_atribute(clase)
+            clase_primitiva?(clase)? Atributo.new(clase) : AtributoCompuesto.new(clase)
+        end
+end
+
 class Atributo
     attr_accessor :tipo
 
@@ -27,13 +49,9 @@ class Atributo
         @clase=clase
     end
 
-    def agregar_a_fila(nombre, valor, fila)
+    def agregar_a_entrada(nombre, valor, entrada)
         validar_tipo(valor)
-        fila[nombre] = valor
-    end
-
-    def recuperar_de_fila(nombre, fila)
-        fila[nombre]
+        entrada[nombre] = valor
     end
 
     def validar_tipo(objeto)
@@ -46,26 +64,14 @@ class AtributoCompuesto < Atributo
         super(clase)
     end
 
-    def agregar_a_fila(nombre, objeto, fila)
+    def agregar_a_entrada(nombre, objeto, fila)
         validar_tipo(objeto)
         fila[nombre] = valor_persistible_de(objeto)
         fila[nombre.to_param] = objeto.class.to_s
     end
 
-    def recuperar_de_fila(nombre, fila)
-        id = super.recuperar_de_fila(nombre, fila)
-        clase = clase_actual(nombre, fila)
-        clase.find_by_id(id).first
-    end
-
     def valor_persistible_de(objeto)
         objeto.save!
         objeto.id
-    end
-
-    private
-    def clase_actual(campo, fila)
-        super.recuperar_de_fila(campo.to_param, fila, true)
-        fila[campo.to_param].constantize
     end
 end
