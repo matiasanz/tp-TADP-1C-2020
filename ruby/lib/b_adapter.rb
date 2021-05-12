@@ -1,5 +1,6 @@
 require 'a_utils'
 require 'tadb'
+require 'exceptions'
 
 class Tabla
     def initialize(clase)
@@ -31,7 +32,7 @@ class Tabla
         datos = find_entries_by(:id, objeto.id).first
 
         if datos.nil?
-            raise "el id del objeto #{objeto.to_s} no se corresponde con ninguno en la base de datos"
+            raise ObjetoNoPersistidoException.new(objeto)
         end
 
         asignar_datos(objeto, datos)

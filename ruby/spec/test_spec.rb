@@ -40,7 +40,7 @@ describe Prueba do
             expect(personaje.id).to_not be_nil
         end
 
-        it 'objeto persistido se olvida correctametne'do
+        it 'objeto persistido se olvida y no esta mas en db'do
             personaje.save!
             id=personaje.id
             personaje.forget!
@@ -68,6 +68,10 @@ describe Prueba do
             personaje.refresh!
             expect(personaje.instance_variable_get(:@comicidad)).to be(2500)
         end
+
+        it 'Personaje que no fue persistido no se actualiza' do
+            expect{ personaje.refresh! }.to raise_error(ObjetoNoPersistidoException)
+        end
     end
 
     describe 'Persistencia de subclases' do
@@ -78,11 +82,12 @@ describe Prueba do
         end
 
         it 'la subclase se persiste correctamente' do
-            ladron = Ladron.new("Nik", 200, 85)
+            ladron = Ladron.new("Nik", 15, 85)
 
             expect(ladron.id).to be_nil
             ladron.save!
             expect(ladron.id).to_not be_nil
+            expect(Ladron.find_by_id(ladron.id)).to match_array [ladron]
         end
 
         it 'subclase sin atributos y con constructor vacio se persiste y se recupera correctamente'do
@@ -98,43 +103,38 @@ describe Prueba do
     end
 
     describe 'Busqueda por atributo' do
+        before(:each) do
+            @ladri1 = Ladron.new("lucho", 35, 90)
+            @ladri2 = Ladron.new("El gato", 35, 90)
+            @ladri3 = Ladron.new("El gato", 325, 67)
+
+            @ladri2.enojon=false
+
+            @ladri1.save!
+            @ladri2.save!
+            @ladri3.save!
+        end
+
         it 'encontrar por id devuelve una unica instancia y es correcta' do
-            ladri = Ladron.new("lucho", 175, 90)
-            ladri.save!
-
-            resultados = Ladron.find_by_id(ladri.id)
+            resultados = Ladron.find_by_id(@ladri1.id)
             expect(resultados.length).to be(1)
-
             resultado = resultados.first
-            expect(resultado.id).to eq(ladri.id)
-            expect(resultado.equal?(ladri)).to be_truthy
+            expect(resultado.id).to eq(@ladri1.id)
+            expect(resultado).to eq(@ladri1)
         end
 
         it 'encontrar por un string' do
-            nombre = "el gato"
-            ladron = Ladron.new(nombre, 175, 90)
-            ladron.save!
-            resultado = Ladron.find_by_nombre(nombre).first
-            expect(resultado.equal?(ladron)).to be_truthy
-
-            Ladron.new(nombre, 200, 25).save!
-
-            expect(Ladron.find_by_nombre(nombre).length).to be(2)
+            resultados = Ladron.find_by_nombre("El gato")
+            expect(resultados.length).to be(2)
+            expect(resultados).to match_array [@ladri2, @ladri3]
         end
 
         it 'encontrar por un booleano' do
-            Ladron.new("manuel", 20, 10).save!
-            Ladron.new("sebastian", 45, 20).save!
-            d = Ladron.new("diego", 5, 15)
-            d.enojon = false
-            d.save!
-
-
             enojones = Ladron.find_by_enojon(true)
-            expect(enojones.map{|e|e.nombre}).to match_array ["manuel", "sebastian"]
+            expect(enojones).to match_array [@ladri1, @ladri3]
 
             noEnojones = Ladron.find_by_enojon(false)
-            expect(noEnojones.map{|n|n.nombre}).to match_array(["diego"])
+            expect(noEnojones).to match_array(@ladri2)
         end
     end
 

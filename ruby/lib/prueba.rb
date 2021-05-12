@@ -21,8 +21,8 @@ class Personaje
         @atributoNoPersistible = "¡No me vean!"
     end
 
-    def equal?(otro)
-        @nombre==otro.instance_variable_get(:@nombre) and @comicidad==otro.instance_variable_get(:@comicidad)
+    def ==(otro)
+        @id==otro.id and @nombre==otro.instance_variable_get(:@nombre) and @comicidad==otro.instance_variable_get(:@comicidad)
     end
 end
 
@@ -36,7 +36,7 @@ class Ladron < Personaje
         @sigilo = sigilo
     end
 
-    def equal?(otro)
+    def ==(otro)
         @sigilo==otro.sigilo and super
     end
 
