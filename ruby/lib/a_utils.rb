@@ -53,7 +53,7 @@ class Atributo
     end
 
     def validar_tipo(objeto)
-        raise TipoErroneoException(objeto, @clase) unless objeto.is_a? @clase or objeto.nil?
+        raise TipoErroneoException.new(objeto, @clase) unless objeto.is_a? @clase or objeto.nil?
     end
 
     def recuperar_de_fila(nombre, fila)

@@ -24,6 +24,10 @@ describe Prueba do
             expect(:@algo.param?).to be_truthy
             expect(:algo.to_param).to be(:@algo)
         end
+
+        it 'Se especifica un tipo que no es una clase y falla' do
+            expect {Class.has_one(:simbolo, :atributo) }.to raise_error(ClaseDesconocidaException)
+        end
     end
 
     describe 'Persistencia de Clase simple' do
@@ -61,7 +65,12 @@ describe Prueba do
             expect(Personaje.find_by_id(id).length).to be(1)
         end
 
-        it 'un objeto se recupera correctamente de la base de datos'do
+        it 'Se intenta persistir un atributo que no es de la clase especificada y falla' do
+            personaje.enojon = "Fideos con tuco"
+            expect{ personaje.save! }.to raise_error(TipoErroneoException)
+        end
+
+        it 'un objeto que fue persistido se actualiza correctamente de la base de datos'do
             personaje.save!
             personaje.instance_variable_set(:@comicidad, 10)
             expect(personaje.instance_variable_get(:@comicidad)).to be(10)
