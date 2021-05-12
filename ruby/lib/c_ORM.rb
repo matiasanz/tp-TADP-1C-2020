@@ -6,15 +6,10 @@ class Class
     def has_one(tipo, named)
         if @atributos_persistibles.nil?
             @atributos_persistibles = {}
-            definir_find_by_(:id, String)
         end
         @atributos_persistibles[named] = AtributoHelper.as_atribute(tipo)
 
         definir_find_by_(named, tipo)
-    end
-
-    def atributos_persistibles
-        persistibles_propios.merge(persistibles_heredados)
     end
 
     #Enunciado
@@ -30,15 +25,17 @@ class Class
         @tabla
     end
 
+    def atributos_persistibles
+        persistibles_propios.merge(persistibles_heredados)
+    end
+
     private
     def persistibles_propios
-        @atributos_persistibles.nil?()?
-            {} : @atributos_persistibles
+        @atributos_persistibles.nil?? {} : @atributos_persistibles
     end
 
     def persistibles_heredados
-        (superclass != BasicObject)? #Raro
-            superclass.atributos_persistibles : {}
+        (superclass == BasicObject)? {} : superclass.atributos_persistibles
     end
 
     def definir_find_by_(named, clase)
@@ -53,6 +50,9 @@ class Class
 end
 
 class Object
+
+    has_one String, :id
+
     attr_accessor :id
 
     #Enunciado

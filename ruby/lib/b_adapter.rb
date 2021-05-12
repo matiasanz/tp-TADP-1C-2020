@@ -70,14 +70,10 @@ class Tabla
     end
 
     def asignar_datos(objeto, datos)
-        datos.each do |key, value|
-
-            if (key.param?)
-                key = ((key.to_s)[1..-1]).to_sym
-                value = value.to_class.find_by_id(datos[key]).first
-            end
-
-            objeto.instance_variable_set(key.to_param, value)
+        @clase.atributos_persistibles.each do
+            |nombre, clase|
+            valor = clase.recuperar_de_fila(nombre, datos)
+            objeto.instance_variable_set(nombre.to_param, valor)
         end
     end
 

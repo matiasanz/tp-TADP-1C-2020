@@ -42,8 +42,6 @@ module AtributoHelper
 end
 
 class Atributo
-    attr_accessor :tipo
-
     def initialize(clase)
         raise "El nombre #{clase.to_s} no se reconoce como clase o modulo" unless clase.is_a?(Module)
         @clase=clase
@@ -55,7 +53,11 @@ class Atributo
     end
 
     def validar_tipo(objeto)
-        raise "El objeto #{objeto.to_s} no pertenece a la clase #{@clase.to_s.inspect}" unless objeto.is_a? @clase
+        raise "El objeto #{objeto.to_s} no pertenece a la clase #{@clase.to_s.inspect}" unless objeto.is_a? @clase or objeto.nil?
+    end
+
+    def recuperar_de_fila(nombre, fila)
+        fila[nombre]
     end
 end
 
@@ -73,5 +75,12 @@ class AtributoCompuesto < Atributo
     def valor_persistible_de(objeto)
         objeto.save!
         objeto.id
+    end
+
+    def recuperar_de_fila(nombre, fila)
+        clase = fila[nombre.to_param].to_class
+
+        return nil unless clase.respond_to? :find_by_id
+        return clase.find_by_id(fila[nombre]).first
     end
 end
