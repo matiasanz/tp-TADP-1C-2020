@@ -132,6 +132,13 @@ describe Prueba do
             @ladri3.save!
         end
 
+        it 'Al buscar todas las instancias se obtienen efectivamente instancias' do
+            instancias = Ladron.all_instances
+
+            expect(instancias).to all be_instance_of Ladron
+            expect(instancias.length).to be(3)
+        end
+
         it 'encontrar por id devuelve una unica instancia y es correcta' do
             resultados = Ladron.find_by_id(@ladri1.id)
             expect(resultados.length).to be(1)
@@ -152,18 +159,6 @@ describe Prueba do
 
             noEnojones = Ladron.find_by_enojon(false)
             expect(noEnojones).to match_array(@ladri2)
-        end
-    end
-
-    describe 'all instances' do
-        it 'todas las instancias son efectivamente instancias' do
-            Ladron.new("juan carlos chorro", 325, 67).save!
-            Ladron.new("ladron de hamburguesas", 900, 4).save!
-
-            instancias = Ladron.all_instances
-
-            expect(instancias).to all be_instance_of Ladron
-            expect(instancias.length).to be(2)
         end
     end
 
