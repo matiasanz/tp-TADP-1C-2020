@@ -60,4 +60,24 @@ class Mascota
         @duenio=duenio
         @hambriento=hambriento
     end
+
+    def ==(otra)
+        instance_variables.all? {|v| instance_variable_get(v)==otra.instance_variable_get(v)}
+    end
+end
+
+class ClaseMuyCompuesta
+    has_one ClaseMuyCompuesta, :atributoMuyCompuesto
+    has_one Mascota, :mascota
+
+    attr_accessor :atributoMuyCompuesto, :mascota
+
+    def initialize(mascota, atributoMuyCompuesto)
+        @mascota = mascota
+        @atributoMuyCompuesto = atributoMuyCompuesto
+    end
+
+    def ==(otra)
+        @mascota==otra.mascota and @atributoMuyCompuesto==otra.atributoMuyCompuesto
+    end
 end

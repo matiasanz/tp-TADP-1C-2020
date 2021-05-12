@@ -44,6 +44,14 @@ describe Prueba do
             expect(personaje.id).to_not be_nil
         end
 
+        it 'persistir una clase con atributos nulos' do
+            p = Personaje.new(nil, nil)
+            p.enojon=nil
+            p.save!
+            expect(p.id).to_not be_nil
+            expect([p.instance_variable_get(:@nombre), p.instance_variable_get(:@comicidad), p.enojon]).to all be_nil
+        end
+
         it 'objeto persistido se olvida y no esta mas en db'do
             personaje.save!
             id=personaje.id
@@ -184,9 +192,26 @@ describe Prueba do
             expect(encontrado.id).to match(@mascota.id)
             expect(encontrado.duenio.id).to match(@duenio.id)
         end
+
+        it 'compuesta de compuesta' do
+
+            claseMuyCompuesta = ClaseMuyCompuesta.new(@mascota, nil)
+
+            otroDuenio = Personaje.new("Dave el Barvaro", 3600)
+            otraMascota = Mascota.new("Fafy", otroDuenio, true)
+
+            claseTodaviaMasCompuesta = ClaseMuyCompuesta.new(otraMascota, claseMuyCompuesta)
+
+            claseTodaviaMasCompuesta.save!
+
+            resultado = ClaseMuyCompuesta.find_by_id(claseTodaviaMasCompuesta.id).first
+
+            expect(resultado).to eq(claseTodaviaMasCompuesta)
+        end
     end
 
     after(:each) do
-      TADB::DB.clear_all
+        TADB::DB.clear_all
     end
+
 end

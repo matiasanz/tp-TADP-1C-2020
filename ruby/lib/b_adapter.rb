@@ -6,6 +6,8 @@ class Tabla
     def initialize(clase)
         @clase = clase
         @tablaTADB = TADB::DB.table(@clase.to_s)
+
+        @NULL_VALUE="$NULL"
     end
 
     def persist(objeto)
@@ -51,11 +53,16 @@ class Tabla
     end
 
     def formato_entrada(objeto)
-        entrada = {:id=>objeto.id}
+        entrada = {}
         objeto.atributos_persistibles.each do
             |nombre, tipo, valor|
             tipo.agregar_a_entrada(nombre, valor, entrada)
         end
+
+        id = objeto.id
+        entrada.transform_values! {|v| v.nil?? @NULL_VALUE: v}
+        entrada[:id] = id
+
         entrada
     end
 
@@ -74,8 +81,12 @@ class Tabla
         @clase.atributos_persistibles.each do
             |nombre, clase|
             valor = clase.recuperar_de_fila(nombre, datos)
-            objeto.instance_variable_set(nombre.to_param, valor)
+            objeto.instance_variable_set(nombre.to_param, parse_nil(valor))
         end
+    end
+
+    def parse_nil(valor)
+        (valor.is_a?(String) and valor.match(@NULL_VALUE))? nil: valor
     end
 
     def find_entries_by(atributo, valor)

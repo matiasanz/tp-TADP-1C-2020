@@ -32,13 +32,13 @@ end
 #****************** Atributos Persistibles ****************
 
 module AtributoHelper
-        def self.clase_primitiva?(clase)
-            [String, Boolean, Numeric].include?(clase)
-        end
+    def self.clase_primitiva?(clase)
+        [String, Boolean, Numeric].include?(clase)
+    end
 
-        def self.as_atribute(clase)
-            clase_primitiva?(clase)? Atributo.new(clase) : AtributoCompuesto.new(clase)
-        end
+    def self.as_atribute(clase)
+        clase_primitiva?(clase)? Atributo.new(clase) : AtributoCompuesto.new(clase)
+    end
 end
 
 class Atributo
@@ -68,7 +68,7 @@ class AtributoCompuesto < Atributo
 
     def agregar_a_entrada(nombre, objeto, fila)
         validar_tipo(objeto)
-        fila[nombre] = valor_persistible_de(objeto)
+        fila[nombre] = valor_persistible_de(objeto) unless objeto.nil?
         fila[nombre.to_param] = objeto.class.to_s
     end
 
