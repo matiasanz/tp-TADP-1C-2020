@@ -1,4 +1,4 @@
-require 'b_adapter'
+require 'c_adapter'
 
 class Class
 
