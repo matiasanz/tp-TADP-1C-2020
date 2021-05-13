@@ -1,7 +1,7 @@
 
 class ObjetoNoPersistidoException < StandardError
     def initialize(objeto)
-        super("el id del objeto #{objeto.to_s} no se corresponde con ninguno en la base de datos")
+        super("el objeto #{objeto.to_s} no se encuentra persistido")
     end
 end
 
