@@ -55,8 +55,8 @@ class Tabla
     def formato_entrada(objeto)
         entrada = {}
         objeto.atributos_persistibles.each do
-            |nombre, tipo, valor|
-            tipo.agregar_a_entrada(nombre, valor, entrada)
+            |atributo, valor|
+            atributo.agregar_a_entrada(valor, entrada)
         end
 
         id = objeto.id
@@ -79,8 +79,8 @@ class Tabla
 
     def asignar_datos(objeto, datos)
         @clase.atributos_persistibles.each do
-            |nombre, clase|
-            valor = clase.recuperar_de_fila(nombre, datos)
+            |nombre, atributo|
+            valor = atributo.recuperar_de_fila(datos)
             objeto.instance_variable_set(nombre.to_param, parse_nil(valor))
         end
     end
@@ -89,7 +89,7 @@ class Tabla
         (valor.is_a?(String) and valor.match(@NULL_VALUE))? nil: valor
     end
 
-    def find_entries_by(atributo, valor)
-        @tablaTADB.entries.select{|e| e[atributo]==valor}
+    def find_entries_by(nombre, valor)
+        @tablaTADB.entries.select{|e| e[nombre]==valor}
     end
 end

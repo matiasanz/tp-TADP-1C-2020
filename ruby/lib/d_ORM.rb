@@ -7,7 +7,7 @@ class Class
         if @atributos_persistibles.nil?
             @atributos_persistibles = {}
         end
-        @atributos_persistibles[named] = AtributoHelper.as_atribute(tipo)
+        @atributos_persistibles[named] = AtributoHelper.as_atribute(named, tipo)
 
         definir_find_by_(named, tipo)
     end
@@ -73,8 +73,8 @@ class Object
 
     def atributos_persistibles
         self.class.atributos_persistibles
-            .map do |nombre, tipo|
-                [nombre, tipo, instance_variable_get(nombre.to_param)]
+            .map do |nombre, atributo|
+                [atributo, instance_variable_get(nombre.to_param)]
             end
     end
 
