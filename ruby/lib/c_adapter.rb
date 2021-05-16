@@ -11,11 +11,9 @@ class Tabla
     end
 
     def persist(objeto)
-        if objeto.id.nil?
-            insert(objeto)
-        else
-            update(objeto)
-        end
+        @tablaTADB.delete(objeto.id) unless objeto.id.nil?
+        id = @tablaTADB.insert(formato_entrada(objeto))
+        objeto.id = id
     end
 
     def remove(objeto)
@@ -41,17 +39,6 @@ class Tabla
     end
 
     private
-    def insert(objeto)
-        id = @tablaTADB.insert(formato_entrada(objeto))
-        objeto.id = id
-    end
-
-    def update(objeto)
-        fila = formato_entrada(objeto)
-        @tablaTADB.delete(objeto.id)
-        @tablaTADB.insert(fila)
-    end
-
     def formato_entrada(objeto)
         entrada = {}
         objeto.atributos_persistibles.each do
