@@ -73,7 +73,7 @@ class Tabla
     end
 
     def parse_nil(valor)
-        (valor.is_a?(String) and valor.match(@NULL_VALUE))? nil: valor
+        (valor.is_a?(String) and valor==(@NULL_VALUE))? nil: valor
     end
 
     def find_entries_by(nombre, valor)

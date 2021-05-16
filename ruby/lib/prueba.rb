@@ -53,7 +53,7 @@ class Mascota
     has_one Personaje, :duenio
     has_one Boolean, :hambriento
 
-    attr_accessor :duenio
+    attr_accessor :duenio, :nombre, :hambriento
 
     def initialize(nombre, duenio, hambriento)
         @nombre=nombre
@@ -62,7 +62,7 @@ class Mascota
     end
 
     def ==(otra)
-        instance_variables.all? {|v| instance_variable_get(v)==otra.instance_variable_get(v)}
+        @nombre == otra.nombre and @duenio==otra.duenio and @hambriento==otra.hambriento
     end
 end
 

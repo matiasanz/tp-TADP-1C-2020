@@ -202,6 +202,8 @@ describe Prueba do
             resultado = ClaseMuyCompuesta.find_by_id(claseTodaviaMasCompuesta.id).first
 
             expect(resultado).to eq(claseTodaviaMasCompuesta)
+
+            puts resultado.inspect
         end
     end
 
