@@ -7,11 +7,11 @@ class Prueba
 end
 
 class Personaje
-    has_one String, :nombre
-    has_one Numeric, :comicidad
-    has_one Boolean, :enojon
+    extend ClasePersistible
 
-    attr_accessor :atributoNoPersistible, :enojon
+    has_one String, named: :nombre
+    has_one Numeric, named: :comicidad
+    has_one Boolean, named: :enojon
 
     def initialize(nombre, comicidad)
         @nombre = nombre
@@ -27,9 +27,7 @@ class Personaje
 end
 
 class Ladron < Personaje
-    has_one Numeric, :sigilo
-
-    attr_accessor :nombre, :comicidad, :sigilo
+    has_one Numeric, named: :sigilo
 
     def initialize(nombre, comicidad, sigilo)
         super(nombre, comicidad)
@@ -49,11 +47,9 @@ class LadronDeSonrisas < Ladron
 end
 
 class Mascota
-    has_one String, :nombre
-    has_one Personaje, :duenio
-    has_one Boolean, :hambriento
-
-    attr_accessor :duenio, :nombre, :hambriento
+    has_one String, named: :nombre
+    has_one Personaje, named: :duenio
+    has_one Boolean, named: :hambriento
 
     def initialize(nombre, duenio, hambriento)
         @nombre=nombre
@@ -67,10 +63,8 @@ class Mascota
 end
 
 class ClaseMuyCompuesta
-    has_one ClaseMuyCompuesta, :atributoMuyCompuesto
-    has_one Mascota, :mascota
-
-    attr_accessor :atributoMuyCompuesto, :mascota
+    has_one ClaseMuyCompuesta, named: :atributoMuyCompuesto
+    has_one Mascota, named: :mascota
 
     def initialize(mascota, atributoMuyCompuesto)
         @mascota = mascota

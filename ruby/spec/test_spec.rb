@@ -26,7 +26,7 @@ describe Prueba do
         end
 
         it 'Se especifica un tipo que no es una clase y falla' do
-            expect {Class.has_one(:simbolo, :atributo) }.to raise_error(ClaseDesconocidaException)
+            expect {Class.has_one(:simbolo, named: :atributo) }.to raise_error(ClaseDesconocidaException)
         end
     end
 
@@ -92,6 +92,10 @@ describe Prueba do
     end
 
     describe 'Persistencia de subclases' do
+        it 'Una subclase puede ser a su vez clase persistible' do
+            expect(Ladron).to be_a(ClasePersistible)
+        end
+
         it 'atributos persistibles se heredan' do
             persistibles = Ladron.atributos_persistibles
             assert_persistibles.call(persistibles)

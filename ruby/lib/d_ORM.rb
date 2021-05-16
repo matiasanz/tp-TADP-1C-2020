@@ -1,13 +1,10 @@
 require 'c_adapter'
 
-class Class
+module ClasePersistible
+    def has_one(tipo, named:, default: nil, no_blank: false, from: nil, to: nil)
+        attr_accessor named
 
-    #Enunciado
-    def has_one(tipo, named)
-        if (@atributos_persistibles.nil?)
-            @atributos_persistibles={}
-        end
-
+        @atributos_persistibles||={}
         @atributos_persistibles[named] = AtributoHelper.as_atribute(named, tipo)
         definir_find_by_(named, tipo)
     end
@@ -31,7 +28,7 @@ class Class
 
     private
     def persistibles_propios
-        @atributos_persistibles.nil?? {}: @atributos_persistibles
+        @atributos_persistibles||{}
     end
 
     def persistibles_heredados
@@ -40,20 +37,19 @@ class Class
 
     def definir_find_by_(named, clase)
         get_real_value = AtributoHelper.clase_primitiva?(clase)?
-            lambda{|valor| valor} : lambda{|objeto| objeto.id}
+                             lambda{|valor| valor} : lambda{|objeto| objeto.id}
 
         define_singleton_method("find_by_#{named.to_s}".to_sym) do
-            |valor|
+        |valor|
             tabla.find_by(named, get_real_value.call(valor))
         end
     end
 end
 
 class Object
+    extend ClasePersistible
 
-    has_one String, :id
-
-    attr_accessor :id
+    has_one String, named: :id
 
     #Enunciado
     def save!
