@@ -1,4 +1,4 @@
-
+# TODO muy buenos los tipos errores y los mensajes!
 class ObjetoNoPersistidoException < StandardError
     def initialize(objeto)
         super("el objeto #{objeto.to_s} no se encuentra persistido")

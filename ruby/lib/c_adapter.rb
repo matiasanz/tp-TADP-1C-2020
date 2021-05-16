@@ -68,6 +68,7 @@ class Tabla
         @clase.atributos_persistibles.each do
             |nombre, atributo|
             valor = atributo.recuperar_de_fila(datos)
+            # TODO pueden delegar setear la variable directamente al "atributo"
             objeto.instance_variable_set(nombre.to_param, parse_nil(valor))
         end
     end

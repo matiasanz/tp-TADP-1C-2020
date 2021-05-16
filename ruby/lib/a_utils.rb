@@ -1,6 +1,10 @@
 #************ Utilidades ***********************
 
 class Symbol
+    # TODO está bien que tengan estos métodos para ayudarse
+    # pero creo que les va a ser más facil si la diferencia entre
+    # el "nombre" de un atributo y la forma de utilizarlo para leerlo
+    # en una instancia lo encapsulan adentro del strategy de atributos persistibles
     def to_param
         "@#{self.to_s}".to_sym
     end
