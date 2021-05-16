@@ -2,11 +2,13 @@ require 'c_adapter'
 
 class Class
 
-    @@atributos_persistibles={}
-
     #Enunciado
     def has_one(tipo, named)
-        @@atributos_persistibles[named] = AtributoHelper.as_atribute(named, tipo)
+        if (@atributos_persistibles.nil?)
+            @atributos_persistibles={}
+        end
+
+        @atributos_persistibles[named] = AtributoHelper.as_atribute(named, tipo)
         definir_find_by_(named, tipo)
     end
 
@@ -24,10 +26,14 @@ class Class
     end
 
     def atributos_persistibles
-        @@atributos_persistibles.merge(persistibles_heredados)
+        persistibles_propios.merge(persistibles_heredados)
     end
 
     private
+    def persistibles_propios
+        @atributos_persistibles.nil?? {}: @atributos_persistibles
+    end
+
     def persistibles_heredados
         (superclass == BasicObject)? {} : superclass.atributos_persistibles
     end

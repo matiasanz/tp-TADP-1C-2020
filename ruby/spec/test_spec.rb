@@ -201,7 +201,9 @@ describe Prueba do
 
             resultado = ClaseMuyCompuesta.find_by_id(claseTodaviaMasCompuesta.id).first
 
+            puts ClaseMuyCompuesta.atributos_persistibles
             expect(resultado).to eq(claseTodaviaMasCompuesta)
+            expect(resultado.instance_variables).to match(claseTodaviaMasCompuesta.instance_variables)
         end
     end
 
