@@ -82,8 +82,7 @@ describe Prueba do
             personaje.save!
             personaje.comicidad=10
             expect(personaje.comicidad).to be(10)
-            personaje.refresh!
-            expect(personaje.comicidad).to be(2500)
+            expect(personaje.refresh!.comicidad).to be(2500)
         end
 
         it 'Personaje que no fue persistido no se actualiza' do

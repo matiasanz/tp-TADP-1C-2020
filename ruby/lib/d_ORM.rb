@@ -67,6 +67,8 @@ class Object
     #Enunciado
     def refresh!
         tabla.recuperar_de_db(self)
+
+        self
     end
 
     def atributos_persistibles
