@@ -72,7 +72,7 @@ class Object
     def atributos_persistibles
         self.class.atributos_persistibles
             .map do |nombre, atributo|
-                [atributo, instance_variable_get(nombre.to_param)]
+                [atributo, self.send(nombre)]
             end
     end
 
