@@ -13,16 +13,18 @@ class Personaje
     has_one Numeric, named: :comicidad
     has_one Boolean, named: :enojon
 
+    attr_accessor :atributoNoPersistible
+
     def initialize(nombre, comicidad)
         @nombre = nombre
         @comicidad = comicidad
         @enojon = true
 
-        @atributoNoPersistible = "¡No me vean!"
+        @atributoNoPersistible = "¡No se rian! podrian tener un hijo igual"
     end
 
     def ==(otro)
-        @id==otro.id and @nombre==otro.instance_variable_get(:@nombre) and @comicidad==otro.instance_variable_get(:@comicidad)
+        @id==otro.id and @nombre==otro.nombre and @comicidad==otro.comicidad
     end
 end
 

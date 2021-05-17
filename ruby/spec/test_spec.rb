@@ -49,7 +49,7 @@ describe Prueba do
             p.enojon=nil
             p.save!
             expect(p.id).to_not be_nil
-            expect([p.instance_variable_get(:@nombre), p.instance_variable_get(:@comicidad), p.enojon]).to all be_nil
+            expect([p.nombre, p.comicidad, p.enojon]).to all be_nil
         end
 
         it 'objeto persistido se olvida y no esta mas en db'do
@@ -80,14 +80,21 @@ describe Prueba do
 
         it 'un objeto que fue persistido se actualiza correctamente de la base de datos'do
             personaje.save!
-            personaje.instance_variable_set(:@comicidad, 10)
-            expect(personaje.instance_variable_get(:@comicidad)).to be(10)
+            personaje.comicidad=10
+            expect(personaje.comicidad).to be(10)
             personaje.refresh!
-            expect(personaje.instance_variable_get(:@comicidad)).to be(2500)
+            expect(personaje.comicidad).to be(2500)
         end
 
         it 'Personaje que no fue persistido no se actualiza' do
             expect{ personaje.refresh! }.to raise_error(ObjetoNoPersistidoException)
+        end
+
+        it 'Atributos no persistibles no se persisten' do
+            personaje.atributoNoPersistible="Si me persisto"
+            personaje.save!
+            resultado = Personaje.find_by_id(personaje.id).first
+            expect(resultado.atributoNoPersistible).to match("¡No se rian! podrian tener un hijo igual")
         end
     end
 
@@ -205,7 +212,6 @@ describe Prueba do
 
             resultado = ClaseMuyCompuesta.find_by_id(claseTodaviaMasCompuesta.id).first
 
-            puts ClaseMuyCompuesta.atributos_persistibles
             expect(resultado).to eq(claseTodaviaMasCompuesta)
             expect(resultado.instance_variables).to match(claseTodaviaMasCompuesta.instance_variables)
         end

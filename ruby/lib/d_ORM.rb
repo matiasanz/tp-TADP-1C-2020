@@ -1,10 +1,12 @@
 require 'c_adapter'
 
 module ClasePersistible
+
+    #Enunciado
     def has_one(tipo, named:, default: nil, no_blank: false, from: nil, to: nil)
         attr_accessor named
-
         @atributos_persistibles||={}
+
         @atributos_persistibles[named] = AtributoHelper.as_atribute(named, tipo)
         definir_find_by_(named, tipo)
     end
@@ -28,7 +30,7 @@ module ClasePersistible
 
     private
     def persistibles_propios
-        @atributos_persistibles||{}
+        @atributos_persistibles || {}
     end
 
     def persistibles_heredados
