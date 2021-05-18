@@ -37,7 +37,7 @@ class Ladron < Personaje
     end
 
     def ==(otro)
-        @sigilo==otro.sigilo and super
+        super and @sigilo==otro.sigilo
     end
 
 end

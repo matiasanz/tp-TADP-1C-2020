@@ -45,7 +45,7 @@ class Tabla
     private
     def formato_entrada(objeto)
         entrada = {}
-        objeto.atributos_persistibles.each do
+        objeto.valores_persistibles.each do
             |atributo, valor|
             atributo.agregar_a_entrada(valor, entrada)
         end

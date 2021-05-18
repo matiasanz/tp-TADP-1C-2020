@@ -16,3 +16,9 @@ class TipoErroneoException < StandardError
         super("El objeto #{objeto.to_s} no pertenece a la clase especificada #{clase.to_s.inspect}")
     end
 end
+
+class PropertyNotFoundException < StandardError
+    def initialize(property, clase)
+        super("#{property.to_s} no es una property de la clase #{clase.to_s}")
+    end
+end

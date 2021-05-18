@@ -7,6 +7,15 @@ module ClasePersistible
         @subclases << modulo
     end
 
+    def subclasses
+        @subclases||{}
+    end
+
+    def tabla
+        @tabla ||= Tabla.new(self)
+        @tabla
+    end
+
     #Enunciado
     def has_one(tipo, named:, default: nil, no_blank: false, from: nil, to: nil)
         attr_accessor named
@@ -19,21 +28,9 @@ module ClasePersistible
         tabla.get_all + subclasses.flat_map{|s| s.all_instances}
     end
 
-    #Enunciado
     def atributos_persistibles
-        persistibles_heredados.merge(@atributos_persistibles || {})
-    end
-
-    #Mover a method missing y hacer que vaya por aca en caso de atributo persistible
-    def find_by_id(id)
-        tabla.find_by(:id, id) + subclasses.flat_map{|c|c.find_by_id(id)}
-        # Lo defino por separado, para evitar tener que instanciar las clases
-        # Al querer compararlas por id
-    end
-
-    def tabla
-        @tabla ||= Tabla.new(self)
-        @tabla
+        propios = @atributos_persistibles || {}
+        persistibles_heredados.merge(propios)
     end
 
     private
@@ -41,9 +38,23 @@ module ClasePersistible
         (superclass == BasicObject)? {} : superclass.atributos_persistibles
     end
 
-    def subclasses
-        @subclases||{}
+    #Enunciado: Find by
+    def method_missing(method, *args)
+        if trying_to_find?(method)
+            property = parse_find_by(method)
+            validar_busqueda(property)
+            return find_by(property, *args)
+        end
+
+        super
     end
+
+    def respond_to_missing?(*args)
+        metodo = args.first
+        trying_to_find?(metodo) or super
+    end
+
+    # Metodos auxiliares ++++++++++++++++++++++++++++++++
 
     def trying_to_find?(metodo)
         metodo.to_s.start_with?("find_by_")
@@ -58,22 +69,19 @@ module ClasePersistible
     end
 
     def validar_busqueda(property)
-        raise "#{property.to_s} no es una property de la clase #{self.to_s}" unless is_property?(property)
+        raise PropertyNotFoundException.new(property, self) unless is_property?(property)
     end
 
-    def method_missing(method, *args)
-        if trying_to_find?(method)
-            property = parse_find_by(method)
-            validar_busqueda(property)
-            return all_instances.select{|i| i.send(property)==args.first}
+    protected
+    def find_by(property, value)
+        if atributos_persistibles[property].is_a? AtributoSimple
+            return tabla.find_by(property, value) + subclasses.flat_map{|c|c.find_by(property, value)}
+            #La idea es que si no hace falta instanciar todos los objetos para hacer la consulta, no lo haga.
+            #En particular, para el caso del id, de la otra forma si una clase tuviera un atributo de su mismo tipo,
+            #al querer recuperarla de la db se va a hacer find_by_id, quedando en bucle.
+        else
+            return all_instances.select{|i| i.send(property)==value}
         end
-
-        super
-    end
-
-    def respond_to_missing?(*args)
-        metodo = args.first
-        trying_to_find?(metodo) or super
     end
 end
 
@@ -100,7 +108,7 @@ class Object
         self
     end
 
-    def atributos_persistibles
+    def valores_persistibles
         self.class.atributos_persistibles
             .map do |nombre, atributo|
                 [atributo, self.send(nombre)]

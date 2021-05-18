@@ -196,6 +196,7 @@ describe Prueba do
         end
 
         it 'un objeto compuesto se busca por un atributo idem y se encuentra' do
+            puts Mascota.all_instances.inspect
             encontrados = Mascota.find_by_duenio(@duenio)
             expect(encontrados.length).to be(1)
 
