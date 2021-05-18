@@ -43,13 +43,10 @@ class AtributoCompuesto < AtributoPersistible
     def agregar_a_entrada(objeto, fila)
         validar_tipo(objeto)
         fila[@nombre] = valor_persistible_de(objeto) unless objeto.nil?
-        fila[@nombre.to_param] = objeto.class.to_s
     end
 
     def recuperar_de_fila(fila)
-        clase = fila[@nombre.to_param].to_class
-        return nil unless clase.respond_to? :find_by_id
-        return clase.find_by_id(fila[@nombre]).first
+        return @clase.find_by_id(fila[@nombre]).first
     end
 
     private
