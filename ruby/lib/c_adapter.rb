@@ -1,6 +1,5 @@
-require 'b_atributos_persistibles'
 require 'tadb'
-require 'exceptions'
+require 'b_atributos_persistibles'
 
 class Tabla
     def initialize(clase)
@@ -10,24 +9,29 @@ class Tabla
         @NULL_VALUE="$NULL"
     end
 
+    #Se usa en save!
     def persist(objeto)
-        @tablaTADB.delete(objeto.id) unless objeto.id.nil?
+        @tablaTADB.delete(objeto.id)
         id = @tablaTADB.insert(formato_entrada(objeto))
         objeto.id = id
     end
 
+    #Se usa en forget!
     def remove(objeto)
         @tablaTADB.delete(objeto.id)
     end
 
+    #Actualmente se usa solo para el id. Ver si vale la pena dejar
     def find_by(atributo, valor)
         find_entries_by(atributo, valor).map{|fila| to_instance(fila)}
     end
 
+    #Se usa en all_instances
     def get_all
         @tablaTADB.entries.map {|entry| to_instance(entry)}
     end
 
+    #Se usa en refresh!
     def recuperar_de_db(objeto)
         datos = find_entries_by(:id, objeto.id).first
 

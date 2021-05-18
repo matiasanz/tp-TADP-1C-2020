@@ -1,6 +1,7 @@
 require_relative 'a_utils'
+require 'exceptions'
 
-#*********** Dudoso **************
+#*********** Selector **************
 
 module AtributoHelper
     def self.clase_primitiva?(clase)
@@ -14,7 +15,7 @@ end
 
 #*********** Atributos Persistibles **************
 
-
+#Abstracta
 class AtributoPersistible
     def initialize(nombre, clase)
         raise ClaseDesconocidaException.new(clase) unless clase.is_a?(Module)
@@ -47,7 +48,6 @@ class AtributoCompuesto < AtributoPersistible
 
     def recuperar_de_fila(fila)
         clase = fila[@nombre.to_param].to_class
-
         return nil unless clase.respond_to? :find_by_id
         return clase.find_by_id(fila[@nombre]).first
     end

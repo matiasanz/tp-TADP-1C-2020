@@ -1,15 +1,8 @@
 describe Prueba do
-    let(:prueba) {Prueba.new.materia}
-    let(:assert_persistibles) {proc{|persistibles|
-        expect(persistibles).to be_an_has_key(:nombre)
-        expect(persistibles).to be_an_has_key(:comicidad)
-        expect(persistibles).to be_an_has_key(:enojon)
-        expect(persistibles).not_to be_an_has_key(:atributoNoPersistible)
-    }}
 
     describe 'Tests de utilidades' do
         it 'debería pasar este test' do
-            expect(prueba).to be :tadp
+            expect(Prueba.new.materia).to be :tadp
         end
 
         it 'true es booleano' do
@@ -28,14 +21,18 @@ describe Prueba do
         it 'Se especifica un tipo que no es una clase y falla' do
             expect {Class.has_one(:simbolo, named: :atributo) }.to raise_error(ClaseDesconocidaException)
         end
+
+        it 'Las subclases de una clase persistible se obtienen correctamente' do
+            expect(Personaje.send(:subclasses)).to include(Ladron)
+        end
     end
 
     describe 'Persistencia de Clase simple' do
         let(:personaje) {Personaje.new("Flash", 2500)}
 
         it 'atributos persistibles de una clase simple' do
-            persistibles = Personaje.atributos_persistibles
-            assert_persistibles.call(persistibles)
+            persistibles = Personaje.atributos_persistibles.keys
+            expect(persistibles).to match_array([:comicidad, :enojon, :nombre, :id])
         end
 
         it 'persistir una clase simple' do
@@ -103,8 +100,8 @@ describe Prueba do
         end
 
         it 'atributos persistibles se heredan' do
-            persistibles = Ladron.atributos_persistibles
-            assert_persistibles.call(persistibles)
+            persistibles = Ladron.atributos_persistibles.keys
+            expect(persistibles).to include(:comicidad, :enojon, :nombre, :id)
             expect(persistibles).to include(:sigilo)
         end
 
@@ -147,6 +144,15 @@ describe Prueba do
 
             expect(instancias).to all be_instance_of Ladron
             expect(instancias.length).to be(3)
+        end
+
+        it 'Al buscar todas las instancias de una superclase, se obtienen todas juntas' do
+            personaje = Personaje.new("H. Power", 479)
+            personaje.save!
+
+            resultado = Personaje.all_instances
+            expect(resultado).to include(personaje)
+            expect(resultado.length).to be(4)
         end
 
         it 'encontrar por id devuelve una unica instancia y es correcta' do
