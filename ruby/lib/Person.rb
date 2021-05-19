@@ -1,5 +1,5 @@
-require 'Persistible'
-require 'Boleean'
+require_relative 'Persistible'
+require_relative 'Boleean'
 
 class Person
 
