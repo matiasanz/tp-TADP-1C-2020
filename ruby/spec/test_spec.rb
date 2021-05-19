@@ -67,8 +67,8 @@ describe Prueba do
       puts p.save!
       puts p.last_name
       puts Person.table
-      puts Person.id
-      puts Person.att
+      puts p.id
+      puts Person.atributos_persistibles
       puts Person.obtener_hash_para_insertar
 
       class Grade
