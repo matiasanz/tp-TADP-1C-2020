@@ -2,6 +2,10 @@ require 'tadb'
 
 class Object
 
+  def atributos_persistibles
+    @atributos_persistibles
+  end
+
   def has_one(tipo_atributo, named:)
     @atributos_persistibles = {} if @atributos_persistibles.nil?
     @atributos_persistibles[named] = tipo_atributo
@@ -16,23 +20,15 @@ class Object
     nil
   end
 
-  def atributos_persistibles
-    @atributos_persistibles
-  end
-
-  def insertar
+  def insertar(hash_a_insertar)  ## deberia ser private TODO
     @tabla = TADB::DB.table("#{self.name}") if @tabla.nil?
-    @tabla.insert(obtener_hash_para_insertar)
-  end
-
-  def table
-    @tabla
+    @tabla.insert(hash_a_insertar)
   end
 
   ## cosas de instancias de clases
   def save!
     return nil if self.class.atributos_persistibles.nil?
-    @id = self.class.insertar
+    @id = self.class.insertar(obtener_hash_para_insertar(self))
   end
 
   def id
@@ -40,10 +36,14 @@ class Object
   end
 
   #private
-    def obtener_hash_para_insertar  ###TODO
+    def obtener_hash_para_insertar(objeto)
       hash_para_insertar = {}
-      @atributos_persistibles.each do |key, value|
-        hash_para_insertar[key] = value.to_s
+      self.class.atributos_persistibles.each do |key, _|
+        if objeto.send(key) == nil
+          hash_para_insertar[key] = objeto.send(key).to_s
+        else
+          hash_para_insertar[key] = objeto.send(key)
+        end
       end
       hash_para_insertar
     end
