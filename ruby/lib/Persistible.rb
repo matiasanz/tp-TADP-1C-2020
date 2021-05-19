@@ -21,7 +21,7 @@ class Object
   end
 
   def insertar(hash_a_insertar)  ## deberia ser private TODO
-    @tabla = TADB::DB.table("#{self.name}") if @tabla.nil?
+    @tabla = TADB::DB.table(self.name) if @tabla.nil?
     @tabla.insert(hash_a_insertar)
   end
 
