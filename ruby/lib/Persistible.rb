@@ -1,4 +1,5 @@
 require 'tadb'
+require_relative 'Excepciones'
 
 class Object
 
@@ -25,6 +26,13 @@ class Object
     @tabla.insert(hash_a_insertar)
   end
 
+  def obtener_atributos_persistidos(id:)
+    entradas = @tabla.entries
+    entradas.each do |entrada|
+      return entrada if entrada.has_value?(id)
+    end
+  end
+
   ## cosas de instancias de clases
   def save!
     return nil if self.class.atributos_persistibles.nil?
@@ -33,6 +41,19 @@ class Object
 
   def id
     @id
+  end
+
+  def refresh!
+    if self.id == nil
+      raise RefreshException.new(self)
+    end
+    atributos = self.class.atributos_persistibles.keys
+    hash_con_atributos_persistidos = self.class.obtener_atributos_persistidos(id: self.id)
+    atributos.each do |simbolo|
+      setters = simbolo.to_s << "="
+      self.send(setters.to_sym, hash_con_atributos_persistidos[simbolo])
+    end
+
   end
 
   #private

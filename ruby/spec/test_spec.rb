@@ -81,5 +81,32 @@ describe Prueba do
       Person.name
     end
   end
+
+  describe 'test_punto_1_c' do
+
+    it 'los objetos persistibles entienden el mensaje refresh!()' do
+      p = Person.new
+      p.save!
+      p.refresh!
+    end
+
+    it 'usar refresh! sin save! genera una excepcion' do
+      # Falla! Este objeto no tiene id!
+      expect{Person.new.refresh!}.to raise_error(RefreshException)
+    end
+
+    it 'refresh!() debe actualizar el estado del objeto en base a lo que se haya guardado en la base' do
+      p = Person.new
+      p.first_name = "jose"
+      p.save!
+
+      p.first_name = "pepe"
+      expect(p.first_name).to eq "pepe"
+
+      p.refresh!
+      expect(p.first_name).to eq "jose"
+    end
+
+  end
 end
 
