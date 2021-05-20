@@ -3,7 +3,8 @@ require_relative 'Boleean'
 
 class Person
 
-  attr_accessor :first_name, :last_name, :age, :admin
+  #prepend ObjetoPersistible
+
   attr_accessor :some_other_non_persistible_attribute
 
   has_one String, named: :first_name

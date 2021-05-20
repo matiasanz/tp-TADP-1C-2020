@@ -1,51 +1,60 @@
 require 'tadb'
 require_relative 'Excepciones'
 
+#module ObjetoPersistible
+
 class Object
 
   def atributos_persistibles
     @atributos_persistibles
   end
 
-  def has_one(tipo_atributo, named:)
-    @atributos_persistibles = {} if @atributos_persistibles.nil?
-    @atributos_persistibles[named] = tipo_atributo
-  end
 
-  #para test
-  def tipo_de(nombre_atributo)
-    return nil if @atributos_persistibles.nil?
-    if @atributos_persistibles.has_key?(nombre_atributo)
-      return @atributos_persistibles[nombre_atributo]
+  #class << self
+
+    def has_one(tipo_atributo, named:)
+      attr_accessor named
+      @atributos_persistibles = {} if @atributos_persistibles.nil?
+      @atributos_persistibles[named] = tipo_atributo
     end
-    nil
-  end
 
-  #para test
-  def tiene_id_en_tabla?(id:)
-    entradas = @tabla.entries
-    resultado = false
-    entradas.each do |entrada|
-      resultado = true if entrada.has_value?(id)
+    #para test
+    def tipo_de(nombre_atributo)
+      return nil if @atributos_persistibles.nil?
+      if @atributos_persistibles.has_key?(nombre_atributo)
+        return @atributos_persistibles[nombre_atributo]
+      end
+      nil
     end
-    resultado
-  end
 
-  def insertar(hash_a_insertar)
-    @tabla = TADB::DB.table(name) if @tabla.nil?
-    @tabla.insert(hash_a_insertar)
-  end
-
-  def atributos_persistidos_de(id:)
-    entradas = @tabla.entries
-    entradas.each do |entrada|
-      return entrada if entrada.has_value?(id)
+    #para test
+    def tiene_id_en_tabla?(id:)
+      entradas = @tabla.entries
+      resultado = false
+      entradas.each do |entrada|
+        resultado = true if entrada.has_value?(id)
+      end
+      resultado
     end
-  end
 
-  def borrar_de_tabla(id)
-    @tabla.delete(id)
-  end
+    def insertar(hash_a_insertar)
+      @tabla = TADB::DB.table(name) if @tabla.nil?
+      @tabla.insert(hash_a_insertar)
+    end
+
+    def atributos_persistidos_de(id:)
+      entradas = @tabla.entries
+      entradas.each do |entrada|
+        return entrada if entrada.has_value?(id)
+      end
+    end
+
+    def borrar_de_tabla(id)
+      @tabla.delete(id)
+    end
+
+  #end
+
 
   ## cosas de instancias de clases
   def save!
