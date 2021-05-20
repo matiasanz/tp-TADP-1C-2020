@@ -106,7 +106,23 @@ describe Prueba do
       p.refresh!
       expect(p.first_name).to eq "jose"
     end
-
   end
+
+  describe 'test_punto_1_d' do
+    it 'Una vez olvidado, el objeto debe desaparecer del registro en disco y ya no debe tener seteado el atributo id' do
+      p = Person.new
+      p.first_name = "arturo"
+      p.last_name = "puig"
+      p.save!
+      id = p.id
+      p.forget!
+      expect(Person.tiene_id_en_tabla?(id: id)).to eq false
+      expect(p.id).to eq nil
+      #Nota: No todos los objetos necesitan implementar estas operaciones, sólo aquellos que queramos persistir.
+      # La forma de identificar a estos tipos queda a criterio de cada grupo.
+
+    end
+  end
+
 end
 

@@ -21,6 +21,16 @@ class Object
     nil
   end
 
+  #para test
+  def tiene_id_en_tabla?(id:)
+    entradas = @tabla.entries
+    resultado = false
+    entradas.each do |entrada|
+      resultado = true if entrada.has_value?(id)
+    end
+    resultado
+  end
+
   def insertar(hash_a_insertar)  ## deberia ser private TODO
     @tabla = TADB::DB.table(self.name) if @tabla.nil?
     @tabla.insert(hash_a_insertar)
@@ -33,6 +43,10 @@ class Object
     end
   end
 
+  def borrar_de_tabla(id)
+    @tabla.delete(id)
+  end
+
   ## cosas de instancias de clases
   def save!
     return nil if self.class.atributos_persistibles.nil?
@@ -41,6 +55,10 @@ class Object
 
   def id
     @id
+  end
+
+  def id=(id)
+    @id = id
   end
 
   def refresh!
@@ -54,6 +72,14 @@ class Object
       self.send(setters.to_sym, hash_con_atributos_persistidos[simbolo])
     end
 
+  end
+
+  def forget!
+    if self.id == nil
+      raise ForgetException.new(self)
+    end
+    self.class.borrar_de_tabla(self.id)
+    self.id = nil
   end
 
   #private
