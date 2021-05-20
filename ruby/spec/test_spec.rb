@@ -66,7 +66,7 @@ describe Prueba do
       p.save!
       puts p.id
       puts Person.atributos_persistibles
-      puts p.obtener_hash_para_insertar(p)
+      puts p.obtener_hash_para_insertar
 
       class Grade
         attr_accessor :value
@@ -76,7 +76,7 @@ describe Prueba do
       p = Grade.new
       p.value = 2
       p.save!
-      puts p.obtener_hash_para_insertar(p)
+      puts p.obtener_hash_para_insertar
 
       Person.name
     end

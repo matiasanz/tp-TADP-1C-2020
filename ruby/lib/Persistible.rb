@@ -31,12 +31,12 @@ class Object
     resultado
   end
 
-  def insertar(hash_a_insertar)  ## deberia ser private TODO
-    @tabla = TADB::DB.table(self.name) if @tabla.nil?
+  def insertar(hash_a_insertar)
+    @tabla = TADB::DB.table(name) if @tabla.nil?
     @tabla.insert(hash_a_insertar)
   end
 
-  def obtener_atributos_persistidos(id:)
+  def atributos_persistidos_de(id:)
     entradas = @tabla.entries
     entradas.each do |entrada|
       return entrada if entrada.has_value?(id)
@@ -50,49 +50,43 @@ class Object
   ## cosas de instancias de clases
   def save!
     return nil if self.class.atributos_persistibles.nil?
-    @id = self.class.insertar(obtener_hash_para_insertar(self))
+    @id = self.class.insertar(obtener_hash_para_insertar)
   end
 
   def id
     @id
   end
 
-  def id=(id)
-    @id = id
-  end
-
   def refresh!
-    if self.id == nil
+    if @id == nil
       raise RefreshException.new(self)
     end
     atributos = self.class.atributos_persistibles.keys
-    hash_con_atributos_persistidos = self.class.obtener_atributos_persistidos(id: self.id)
+    hash_con_atributos_persistidos = self.class.atributos_persistidos_de(id: @id)
     atributos.each do |simbolo|
       setters = simbolo.to_s << "="
       self.send(setters.to_sym, hash_con_atributos_persistidos[simbolo])
     end
-
   end
 
   def forget!
-    if self.id == nil
+    if @id == nil
       raise ForgetException.new(self)
     end
-    self.class.borrar_de_tabla(self.id)
-    self.id = nil
+    self.class.borrar_de_tabla(@id)
+    @id = nil
   end
 
-  #private
-    def obtener_hash_para_insertar(objeto)
-      hash_para_insertar = {}
-      self.class.atributos_persistibles.each do |key, _|
-        if objeto.send(key) == nil
-          hash_para_insertar[key] = objeto.send(key).to_s
-        else
-          hash_para_insertar[key] = objeto.send(key)
-        end
+  def obtener_hash_para_insertar  #deberia ser private TODO
+    hash_para_insertar = {}
+    self.class.atributos_persistibles.keys.each do |key|
+      if send(key) == nil
+        hash_para_insertar[key] = send(key).to_s
+      else
+        hash_para_insertar[key] = send(key)
       end
-      hash_para_insertar
     end
+    hash_para_insertar
+  end
 
 end
