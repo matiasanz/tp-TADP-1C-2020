@@ -65,21 +65,8 @@ describe Prueba do
       p.first_name = "raul"
       p.last_name = "porcheto"
       p.save!
-      puts p.id
       puts Person.atributos_persistibles
       puts p.obtener_hash_para_insertar
-
-      class Grade
-        attr_accessor :value
-        has_one String, named: :value # Hasta acá :value es un String
-        has_one Numeric, named: :value # Pero ahora debe ser Numeric
-      end
-      p = Grade.new
-      p.value = 2
-      p.save!
-      puts p.obtener_hash_para_insertar
-
-      Person.name
     end
   end
 
@@ -115,13 +102,9 @@ describe Prueba do
       p.first_name = "arturo"
       p.last_name = "puig"
       p.save!
-      id = p.id
       p.forget!
       expect(p.atributos_persistidos).to eq nil
       expect(p.id).to eq nil
-      #Nota: No todos los objetos necesitan implementar estas operaciones, sólo aquellos que queramos persistir.
-      # La forma de identificar a estos tipos queda a criterio de cada grupo.
-
     end
   end
 
