@@ -3,9 +3,7 @@ require_relative 'Excepciones'
 
 module ObjetoPersistible
 
-  def id
-    @id
-  end
+  attr_reader :id
 
   def atributos_persistibles
     self.class.atributos_persistibles
