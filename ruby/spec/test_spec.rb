@@ -108,5 +108,66 @@ describe Prueba do
     end
   end
 
+  describe 'test_punto_2 a' do
+    it '' do
+      class Point
+        include ObjetoPersistible
+        has_one Numeric, named: :x
+        has_one Numeric, named: :y
+        def add(other)
+          self.x = self.x + other.x
+          self.y = self.y + other.y
+        end
+      end
+
+      p1 = Point.new
+      p1.x = 2
+      p1.y = 5
+      p1.save!
+      p2 = Point.new
+      p2.x = 1
+      p2.y = 3
+      p2.save!
+
+      # Si no salvamos p3 entonces no va a aparecer en la lista
+      p3 = Point.new
+      p3.x = 9
+      p3.y = 7
+
+      # Retorna [Point(2,5), Point(1,3)]
+      expect(Point.all_instances[0].x).to eq 2
+      expect(Point.all_instances[0].y).to eq 5
+      expect(Point.all_instances[1].x).to eq 1
+      expect(Point.all_instances[1].y).to eq 3
+      expect(Point.all_instances[2]).to eq nil
+      Point.all_instances.map {|elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
+      puts ""
+
+      p4 = Point.all_instances.first
+      p4.add(p2)
+      p4.save!
+
+      # Retorna [Point(3,8), Point(1,3)]
+      expect(Point.all_instances[0].x).to eq 1
+      expect(Point.all_instances[0].y).to eq 3
+      expect(Point.all_instances[1].x).to eq 3
+      expect(Point.all_instances[1].y).to eq 8
+      expect(Point.all_instances[2]).to eq nil
+      Point.all_instances.map {|elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
+      puts ""
+
+      p2.forget!
+
+      # Retorna [Point(3,8)]
+      expect(Point.all_instances[0].x).to eq 3
+      expect(Point.all_instances[0].y).to eq 8
+      expect(Point.all_instances[1]).to eq nil
+      Point.all_instances.map {|elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
+      puts ""
+
+      Point.tabla.clear
+    end
+  end
+
 end
 

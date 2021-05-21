@@ -37,6 +37,19 @@ module ObjetoPersistible
       end
       nil
     end
+
+    clase.define_singleton_method(:all_instances) do
+      return nil if @tabla.nil?
+      @tabla.entries.map {|entrada| generar_instancia(entrada)}
+    end
+
+    # metodos auxiliares
+    clase.define_singleton_method(:generar_instancia) do |entrada_de_tabla|
+      instancia = self.new
+      instancia.send(:id=, entrada_de_tabla[:id])
+      instancia.settear_atributos
+    end
+
   end
 
   #self.instance_eval do
@@ -50,6 +63,8 @@ module ObjetoPersistible
   def save!
     return nil if atributos_persistibles.nil?
     self.tabla= TADB::DB.table(self.class.name) if tabla.nil?
+    forget! if @id  # lo actualiza si ya tenia un ID, para eso borro la entrada anterior
+    # tener en cuenta que el ID cambia con cada save!()
     @id = tabla.insert(obtener_hash_para_insertar)
     self
   end
@@ -58,13 +73,7 @@ module ObjetoPersistible
     if @id == nil
       raise RefreshException.new(self)
     end
-    atributos_symbolos = atributos_persistibles.keys
-    hash_con_atributos_persistidos = atributos_persistidos
-    atributos_symbolos.each do |simbolo|
-      simbolo_setter = (simbolo.to_s << "=").to_sym
-      self.send(simbolo_setter, hash_con_atributos_persistidos[simbolo])
-    end
-    self
+    settear_atributos
   end
 
   def forget!
@@ -88,12 +97,25 @@ module ObjetoPersistible
     hash_para_insertar
   end
 
+  #metodo extraido porque lo usa la clase y las instancias
+  def settear_atributos
+    atributos_symbolos = atributos_persistibles.keys
+    atributos_symbolos.each do |simbolo|
+      simbolo_setter = (simbolo.to_s << "=").to_sym
+      self.send(simbolo_setter, atributos_persistidos[simbolo])
+    end
+    self
+  end
+
   def atributos_persistidos
     entradas = tabla.entries
     entradas.each do |entrada|
-      return entrada if entrada.has_value?(id)
+      return entrada if entrada.has_value?(@id)
     end
     nil
   end
+
+  private
+  attr_writer :id
 
 end
