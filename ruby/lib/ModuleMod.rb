@@ -3,14 +3,22 @@ require_relative 'Boleean'
 
 class Module
 
-  def atributos_persistibles
-    @atributos_persistibles
-  end
+  attr_reader :atributos_persistibles
+  attr_accessor :tabla
 
   def has_one(tipo_atributo, named:)
     attr_accessor named
     @atributos_persistibles = {} if @atributos_persistibles.nil?
     @atributos_persistibles[named] = tipo_atributo
+  end
+
+  #para test
+  def tipo_de(nombre_atributo)
+    return nil if @atributos_persistibles.nil?
+    if @atributos_persistibles.has_key?(nombre_atributo)
+      return @atributos_persistibles[nombre_atributo]
+    end
+    nil
   end
 
 end

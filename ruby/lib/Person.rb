@@ -1,9 +1,8 @@
 require_relative 'ModuleMod'
-require_relative 'Persistible'
 
 class Person
 
-  #include ObjetoPersistible
+  include ObjetoPersistible
 
   attr_accessor :some_other_non_persistible_attribute
 

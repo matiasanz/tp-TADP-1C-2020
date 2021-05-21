@@ -11,7 +11,7 @@ describe Prueba do
 
     it 'la definicion de has_one sobre un atributo persitible existente lo reescribe' do
       class Grade
-        #include ObjetoPersistible
+        include ObjetoPersistible
         has_one String, named: :value # Hasta acá :value es un String
         has_one Numeric, named: :value # Pero ahora debe ser Numeric
       end
@@ -117,7 +117,7 @@ describe Prueba do
       p.save!
       id = p.id
       p.forget!
-      expect(Person.atributos_persistidos_de(id: id)).to eq nil
+      expect(p.atributos_persistidos).to eq nil
       expect(p.id).to eq nil
       #Nota: No todos los objetos necesitan implementar estas operaciones, sólo aquellos que queramos persistir.
       # La forma de identificar a estos tipos queda a criterio de cada grupo.
