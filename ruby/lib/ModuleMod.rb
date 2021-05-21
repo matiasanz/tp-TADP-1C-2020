@@ -8,7 +8,7 @@ class Module
 
   def has_one(tipo_atributo, named:)
     attr_accessor named
-    @atributos_persistibles = {} if @atributos_persistibles.nil?
+    @atributos_persistibles ||= {}
     @atributos_persistibles[named] = tipo_atributo
   end
 
