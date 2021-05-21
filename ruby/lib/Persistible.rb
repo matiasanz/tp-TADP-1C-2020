@@ -18,6 +18,33 @@ module ObjetoPersistible
   end
 
 
+  # define metodos y accesors para las clases persistibles (tambien funciona para modulos)
+  def self.included(clase)
+    clase.singleton_class.send(:attr_reader, :atributos_persistibles)
+    clase.singleton_class.send(:attr_accessor, :tabla)
+
+    clase.define_singleton_method(:has_one) do |tipo_atributo, named:|
+      attr_accessor named
+      @atributos_persistibles ||= {}
+      @atributos_persistibles[named] = tipo_atributo
+    end
+
+    #para test
+    clase.define_singleton_method(:tipo_de) do |nombre_atributo|
+      return nil if @atributos_persistibles.nil?
+      if @atributos_persistibles.has_key?(nombre_atributo)
+        return @atributos_persistibles[nombre_atributo]
+      end
+      nil
+    end
+  end
+
+  #self.instance_eval do
+  #  self.class.singleton_class.send(:attr_reader, :atributos_persistibles)
+  #  self.class.singleton_class.send(:attr_accessor, :tabla)
+  # end
+
+
 
   # metodos de instancias de clases persistibles
   def save!
