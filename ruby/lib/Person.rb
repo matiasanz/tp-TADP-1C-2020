@@ -1,9 +1,9 @@
+require_relative 'ModuleMod'
 require_relative 'Persistible'
-require_relative 'Boleean'
 
 class Person
 
-  #prepend ObjetoPersistible
+  #include ObjetoPersistible
 
   attr_accessor :some_other_non_persistible_attribute
 

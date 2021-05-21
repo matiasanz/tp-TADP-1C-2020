@@ -5,18 +5,20 @@ require_relative 'Excepciones'
 
 class Object
 
-  def atributos_persistibles
-    @atributos_persistibles
-  end
+  #def atributos_persistibles
+  #  @atributos_persistibles
+  #end
 
 
   #class << self
 
+=begin
     def has_one(tipo_atributo, named:)
       attr_accessor named
       @atributos_persistibles = {} if @atributos_persistibles.nil?
       @atributos_persistibles[named] = tipo_atributo
     end
+=end
 
     #para test
     def tipo_de(nombre_atributo)
@@ -25,16 +27,6 @@ class Object
         return @atributos_persistibles[nombre_atributo]
       end
       nil
-    end
-
-    #para test
-    def tiene_id_en_tabla?(id:)
-      entradas = @tabla.entries
-      resultado = false
-      entradas.each do |entrada|
-        resultado = true if entrada.has_value?(id)
-      end
-      resultado
     end
 
     def insertar(hash_a_insertar)
@@ -47,6 +39,7 @@ class Object
       entradas.each do |entrada|
         return entrada if entrada.has_value?(id)
       end
+      nil
     end
 
     def borrar_de_tabla(id)
@@ -55,6 +48,7 @@ class Object
 
   #end
 
+  #module_function :tipo_de, :tiene_id_en_tabla?, :insertar, :atributos_persistidos_de, :borrar_de_tabla
 
   ## cosas de instancias de clases
   def save!
@@ -70,11 +64,11 @@ class Object
     if @id == nil
       raise RefreshException.new(self)
     end
-    atributos = self.class.atributos_persistibles.keys
+    atributos_symbolos = self.class.atributos_persistibles.keys
     hash_con_atributos_persistidos = self.class.atributos_persistidos_de(id: @id)
-    atributos.each do |simbolo|
-      setters = simbolo.to_s << "="
-      self.send(setters.to_sym, hash_con_atributos_persistidos[simbolo])
+    atributos_symbolos.each do |simbolo|
+      simbolo_setter = (simbolo.to_s << "=").to_sym
+      self.send(simbolo_setter, hash_con_atributos_persistidos[simbolo])
     end
   end
 
@@ -90,7 +84,7 @@ class Object
     hash_para_insertar = {}
     self.class.atributos_persistibles.keys.each do |key|
       if send(key) == nil
-        hash_para_insertar[key] = send(key).to_s
+        hash_para_insertar[key] = ""
       else
         hash_para_insertar[key] = send(key)
       end
