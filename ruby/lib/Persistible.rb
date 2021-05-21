@@ -31,7 +31,7 @@ class Object
 
     def insertar(hash_a_insertar)
       @tabla = TADB::DB.table(name) if @tabla.nil?
-      @tabla.insert(hash_a_insertar)
+      @tabla.insert(hash_a_insertar)  #devuelve el id
     end
 
     def atributos_persistidos_de(id:)
@@ -54,6 +54,7 @@ class Object
   def save!
     return nil if self.class.atributos_persistibles.nil?
     @id = self.class.insertar(obtener_hash_para_insertar)
+    self
   end
 
   def id
@@ -70,6 +71,7 @@ class Object
       simbolo_setter = (simbolo.to_s << "=").to_sym
       self.send(simbolo_setter, hash_con_atributos_persistidos[simbolo])
     end
+    self
   end
 
   def forget!
@@ -78,6 +80,7 @@ class Object
     end
     self.class.borrar_de_tabla(@id)
     @id = nil
+    self
   end
 
   def obtener_hash_para_insertar  #deberia ser private TODO
