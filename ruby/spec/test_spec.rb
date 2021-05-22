@@ -66,7 +66,7 @@ describe Prueba do
       p.last_name = "porcheto"
       p.save!
       puts Person.atributos_persistibles
-      puts p.obtener_hash_para_insertar
+      puts p.obtener_hash_para_insertar(p.id)
     end
   end
 
@@ -233,6 +233,40 @@ describe Prueba do
       Student.tabla.clear
     end
 
+  end
+
+  describe 'test_punto_3' do
+    it 'a' do
+
+      class Grade
+        include ObjetoPersistible
+        has_one Numeric, named: :value
+      end
+
+      class Student
+        include ObjetoPersistible
+        has_one String, named: :full_name
+        has_one Grade, named: :grade
+      end
+
+      s = Student.new
+      s.full_name = "leo sbaraglia"
+      s.grade = Grade.new
+      s.grade.value = 8
+      s.save!                        # Salva al estudiante Y su nota
+
+      g = s.grade                    # Retorna Grade(8)
+      expect(g.value).to eq 8
+
+      g.value = 5
+      g.save!
+
+      puts s.refresh!.grade.class               # Retorna Grade(5)
+      expect(s.refresh!.grade.value).to eq 5
+
+      Student.tabla.clear
+      Grade.tabla.clear
+    end
   end
 
 end

@@ -84,15 +84,20 @@ module ObjetoPersistible
   def save!
     return nil if atributos_persistibles.nil?
     self.tabla= TADB::DB.table(self.class.name) if tabla.nil?
-    forget! if @id  # lo actualiza si ya tenia un ID, para eso borro la entrada anterior
-    # tener en cuenta que el ID cambia con cada save!()
-    @id = tabla.insert(obtener_hash_para_insertar)
+    if @id
+      id_temporal = @id
+      forget!   # lo actualiza si ya tenia un ID, para eso borro la entrada anterior
+      @id = tabla.insert(obtener_hash_para_insertar(id_temporal))
+    else
+      @id = tabla.insert(obtener_hash_para_insertar(@id))
+    end
     self
   end
 
   def refresh!
     raise RefreshException.new(self) if @id == nil
     settear_atributos
+    self
   end
 
   def forget!
@@ -102,24 +107,30 @@ module ObjetoPersistible
     self
   end
 
-  def obtener_hash_para_insertar  #deberia ser private TODO
+  def obtener_hash_para_insertar(id)  #deberia ser private? TODO
     hash_para_insertar = {}
-    atributos_persistibles.keys.each do |key|
+    atributos_persistibles.each do |key, value|
       if send(key) == nil
         hash_para_insertar[key] = ""
+      elsif value != String && value != Numeric && value != Boolean
+        hash_para_insertar[key] = send(key).save!.id
       else
         hash_para_insertar[key] = send(key)
       end
     end
+    hash_para_insertar[:id] = id
     hash_para_insertar
   end
 
   #metodo extraido porque lo usa la clase y las instancias
   def settear_atributos
-    atributos_symbolos = atributos_persistibles.keys
-    atributos_symbolos.each do |simbolo|
+    atributos_persistibles.each do |simbolo, value|
       simbolo_setter = (simbolo.to_s << "=").to_sym
-      self.send(simbolo_setter, atributos_persistidos[simbolo])
+      if value != String && value != Numeric && value != Boolean  #logica repetida con obtener_hash_para_insertar TODO
+        self.send(simbolo_setter, value.find_by_id(atributos_persistidos[simbolo])[0])
+      else
+        self.send(simbolo_setter, atributos_persistidos[simbolo])
+      end
     end
     self
   end
