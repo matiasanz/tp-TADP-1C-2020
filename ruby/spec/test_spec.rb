@@ -272,6 +272,144 @@ describe Prueba do
       Student.tabla.clear
       Grade.tabla.clear
     end
+
+    it 'b' do
+
+      class Grade
+        include ObjetoPersistible
+        extend ClasePersistible
+        has_one Numeric, named: :value
+      end
+
+      class Student
+        include ObjetoPersistible
+        extend ClasePersistible
+        has_one String, named: :full_name
+        has_many Grade, named: :grades
+
+        def initialize
+          inicializar_has_many(:grades)
+          super
+        end
+      end
+
+      s = Student.new
+      s.full_name = "leo sbaraglia"
+      puts " =>> #{s.grades}"
+      expect(s.grades).to eq []                # Retorna []
+      s.grades.push(Grade.new)
+      s.grades.last.value = 8
+      expect(s.grades.last.value).to eq 8
+      s.grades.push(Grade.new)
+      s.grades.last.value = 5
+      expect(s.grades.last.value).to eq 5
+      puts Student.atributos_persistibles
+      puts Student.atributos_persistibles[:has_many_attr]
+      puts Student.atributos_persistibles[:has_many_attr].to_s
+      s.save!                        # Salva al estudiante Y sus notas
+
+      puts s.grades.map{|g| g.value}
+      puts ""
+      s.refresh!              # Retorna [Grade(8), Grade(5)]
+      puts s.grades.map{|g| g.value}
+      puts ""
+      expect(s.grades[0].value).to eq 8
+      expect(s.grades[1].value).to eq 5
+      expect(s.grades[2]).to eq nil
+
+      g = s.grades.last
+      g.value = 6
+      g.save!
+
+      s.refresh!            # Retorna [Grade(8), Grade(6)]
+      puts s.grades
+      expect(s.grades[0].value).to eq 8
+      expect(s.grades[1].value).to eq 6
+      expect(s.grades[2]).to eq nil
+
+      Student.tabla.clear
+      Grade.tabla.clear
+    end
+
+    it 'b 2' do
+
+      class Student
+        include ObjetoPersistible
+        extend ClasePersistible
+        has_one String, named: :full_name
+        has_many Numeric, named: :numeros
+        has_many Boolean, named: :booleanos
+        has_many String, named: :cadenas
+
+        def initialize
+          inicializar_has_many(:numeros, :booleanos, :cadenas)
+          super
+        end
+      end
+
+      s = Student.new
+      s.full_name = "leo sbaraglia"
+      expect(s.numeros).to eq []
+      expect(s.booleanos).to eq []
+      expect(s.cadenas).to eq []      # Retorna []
+      s.numeros.push(1)
+      s.numeros.push(2)
+      s.numeros.push(3)
+      expect(s.numeros.last).to eq 3
+      s.booleanos.push(true)
+      s.booleanos.push(false)
+      s.booleanos.push(true)
+      expect(s.booleanos.last).to eq true
+      s.cadenas.push("hola")
+      s.cadenas.push("como")
+      s.cadenas.push("estas")
+      expect(s.cadenas.last).to eq "estas"
+      s.save!
+
+      s.refresh!
+      expect(s.numeros[0]).to eq 1
+      expect(s.numeros[1]).to eq 2
+      expect(s.numeros[2]).to eq 3
+      expect(s.numeros[3]).to eq nil
+
+      expect(s.booleanos[0]).to eq true
+      expect(s.booleanos[1]).to eq false
+      expect(s.booleanos[2]).to eq true
+      expect(s.booleanos[3]).to eq nil
+
+      expect(s.cadenas[0]).to eq "hola"
+      expect(s.cadenas[1]).to eq "como"
+      expect(s.cadenas[2]).to eq "estas"
+      expect(s.cadenas[3]).to eq nil
+
+      s.numeros[2] = 4
+      s.booleanos[2] = false
+      s.cadenas[2]= "te va"
+
+      puts s.numeros
+      puts s.booleanos
+      puts s.cadenas
+      s.refresh!
+      puts s.numeros
+      puts s.booleanos
+      puts s.cadenas
+      expect(s.numeros[0]).to eq 1
+      expect(s.numeros[1]).to eq 2
+      expect(s.numeros[2]).to eq 3
+      expect(s.numeros[3]).to eq nil
+
+      expect(s.booleanos[0]).to eq true
+      expect(s.booleanos[1]).to eq false
+      expect(s.booleanos[2]).to eq true
+      expect(s.booleanos[3]).to eq nil
+
+      expect(s.cadenas[0]).to eq "hola"
+      expect(s.cadenas[1]).to eq "como"
+      expect(s.cadenas[2]).to eq "estas"
+      expect(s.cadenas[3]).to eq nil
+
+      Student.tabla.clear
+    end
   end
 
 end
