@@ -12,6 +12,7 @@ describe Prueba do
     it 'la definicion de has_one sobre un atributo persitible existente lo reescribe' do
       class Grade
         include ObjetoPersistible
+        extend ClasePersistible
         has_one String, named: :value # Hasta acá :value es un String
         has_one Numeric, named: :value # Pero ahora debe ser Numeric
       end
@@ -112,6 +113,7 @@ describe Prueba do
     it '' do
       class Point
         include ObjetoPersistible
+        extend ClasePersistible
         has_one Numeric, named: :x
         has_one Numeric, named: :y
         def add(other)
@@ -174,6 +176,7 @@ describe Prueba do
 
       class Student
         include ObjetoPersistible
+        extend ClasePersistible
         has_one String, named: :full_name
         has_one Numeric, named: :grade
 
@@ -240,11 +243,13 @@ describe Prueba do
 
       class Grade
         include ObjetoPersistible
+        extend ClasePersistible
         has_one Numeric, named: :value
       end
 
       class Student
         include ObjetoPersistible
+        extend ClasePersistible
         has_one String, named: :full_name
         has_one Grade, named: :grade
       end

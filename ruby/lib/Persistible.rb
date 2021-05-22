@@ -17,7 +17,7 @@ module ObjetoPersistible
     self.class.tabla = tabla
   end
 
-
+=begin
   # define metodos y accesors para las clases persistibles (tambien funciona para modulos)
   def self.included(clase)
     clase.singleton_class.send(:attr_reader, :atributos_persistibles)
@@ -53,14 +53,14 @@ module ObjetoPersistible
       end
     end
 
-    clase.define_singleton_method(:respond_to_missing?) do |mensaje, include_all_private_methods = false|
+    clase.define_singleton_method(:respond_to_missing?) do |mensaje, priv = false|
       instancia = clase.new
       mensaje_a_instancia = mensaje.to_s.gsub("find_by_", "").to_sym    #mini logica repetida en :method_missing arriba TODO. podria se un util
       if instancia.respond_to?(mensaje_a_instancia, false)
         metodo = instancia.method(mensaje_a_instancia)
-        return metodo.arity == 0 || super(mensaje, *include_all_private_methods)
+        metodo.arity == 0 || super(mensaje, *priv)
       else
-        super(mensaje, *include_all_private_methods)
+        super(mensaje, *priv)
       end
     end
 
@@ -72,7 +72,7 @@ module ObjetoPersistible
     end
 
   end
-
+=end
   #self.instance_eval do
   #  self.class.singleton_class.send(:attr_reader, :atributos_persistibles)
   #  self.class.singleton_class.send(:attr_accessor, :tabla)

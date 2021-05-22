@@ -1,5 +1,6 @@
 require_relative 'Persistible'
 require_relative 'Boleean'
+require_relative 'ClasePersistible'
 
 class Module
 

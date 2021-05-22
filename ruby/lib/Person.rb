@@ -3,7 +3,7 @@ require_relative 'ModuleMod'
 class Person
 
   include ObjetoPersistible
-  #extend ClasePersistible
+  extend ClasePersistible
 
   attr_accessor :some_other_non_persistible_attribute
 
