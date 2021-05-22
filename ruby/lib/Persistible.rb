@@ -43,9 +43,30 @@ module ObjetoPersistible
       @tabla.entries.map {|entrada| generar_instancia(entrada)}
     end
 
+    clase.define_singleton_method(:method_missing) do |mensaje, *args, &bloque|
+      if clase.respond_to?(mensaje, false)
+        #naturalmente falla si el metodo tiene aridad != 0, porque asi esta definido en respond_to_missing?
+        mensaje_a_enviar = mensaje.to_s.gsub("find_by_", "").to_sym
+        all_instances.select {|instancia| instancia.send(mensaje_a_enviar) == args[0]}
+      else
+        super(mensaje, *args, bloque)
+      end
+    end
+
+    clase.define_singleton_method(:respond_to_missing?) do |mensaje, include_all_private_methods = false|
+      instancia = clase.new
+      mensaje_a_instancia = mensaje.to_s.gsub("find_by_", "").to_sym    #mini logica repetida en :method_missing arriba TODO. podria se un util
+      if instancia.respond_to?(mensaje_a_instancia, false)
+        metodo = instancia.method(mensaje_a_instancia)
+        return metodo.arity == 0 || super(mensaje, *include_all_private_methods)
+      else
+        super(mensaje, *include_all_private_methods)
+      end
+    end
+
     # metodos auxiliares
     clase.define_singleton_method(:generar_instancia) do |entrada_de_tabla|
-      instancia = self.new
+      instancia = clase.new
       instancia.send(:id=, entrada_de_tabla[:id])
       instancia.settear_atributos
     end
@@ -70,16 +91,12 @@ module ObjetoPersistible
   end
 
   def refresh!
-    if @id == nil
-      raise RefreshException.new(self)
-    end
+    raise RefreshException.new(self) if @id == nil
     settear_atributos
   end
 
   def forget!
-    if @id == nil
-      raise ForgetException.new(self)
-    end
+    raise ForgetException.new(self) if @id == nil
     tabla.delete(@id)
     @id = nil
     self

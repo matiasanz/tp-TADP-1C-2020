@@ -147,7 +147,7 @@ describe Prueba do
       p4.add(p2)
       p4.save!
 
-      # Retorna [Point(3,8), Point(1,3)]
+      # Retorna [Point(3,8), Point(1,3)]    (invertido me da, supongo que esta ok)
       expect(Point.all_instances[0].x).to eq 1
       expect(Point.all_instances[0].y).to eq 3
       expect(Point.all_instances[1].x).to eq 3
@@ -167,6 +167,72 @@ describe Prueba do
 
       Point.tabla.clear
     end
+  end
+
+  describe 'test_punto_2 b' do
+    it '' do
+
+      class Student
+        include ObjetoPersistible
+        has_one String, named: :full_name
+        has_one Numeric, named: :grade
+
+        def promoted
+          self.grade > 8
+        end
+
+        def has_last_name(last_name)
+          self.full_name.split(' ')[1] === last_name
+        end
+
+      end
+
+      s = Student.new
+      s.full_name = "gonzalo kastan"
+      s.grade = 9
+      s.save!
+
+      s = Student.new
+      s.full_name = "fernando lopez"
+      s.grade = 2
+      s.save!
+
+      s = Student.new
+      s.full_name = "tito puente"
+      s.grade = 10
+      s.save!
+
+      s = Student.new
+      s.full_name = "emiliano garcia"
+      s.grade = 6
+      s.save!
+
+      # Retorna los estudiantes con id === "5"
+      expect(Student.find_by_id("5")).to eq []
+
+      # Retorna los estudiantes con nombre === "tito puente"
+      expect(Student.find_by_full_name("tito puente").length).to eq 1
+      expect(Student.find_by_full_name("tito puente")[0].full_name).to eq "tito puente"
+
+      # Retorna los estudiantes con nota === 2
+      expect(Student.find_by_grade(2).length).to eq 1
+      expect(Student.find_by_grade(2)[0].full_name).to eq "fernando lopez"
+
+      # Retorna los estudiantes que no promocionaron
+      expect(Student.find_by_promoted(false).length).to eq 2
+
+      # Falla! No existe el mensaje porque has_last_name recibe args.
+      expect{Student.find_by_has_last_name("puente")}.to raise_error(NoMethodError)
+
+      expect{Student.by_has_last_name("algo")}.to raise_error(NoMethodError)
+
+      expect(Student.respond_to?(:find_by_has_last_name, false)).to eq false
+      expect(Student.respond_to?(:find_by_promoted, false)).to eq true
+      expect(Student.respond_to?(:t_has_last_name, false)).to eq false
+
+      Student.tabla.clear
+    end
+
   end
 
 end
