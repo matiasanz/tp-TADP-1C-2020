@@ -64,17 +64,21 @@ module ClasePersistible
         mensaje.to_s.delete_prefix("find_by_").to_sym
     end
 
-    def is_property?(property)
+    def has_property?(property)
         method_defined?(property) and instance_method(property).arity.eql? 0
     end
 
     def validar_busqueda(property)
-        raise PropertyNotFoundException.new(property, self) unless is_property?(property)
+        raise PropertyNotFoundException.new(property, self) unless has_property?(property)
+    end
+
+    def entrada_de_tabla?(property)
+        atributos_persistibles[property].is_a? AtributoSimple
     end
 
     protected
     def find_by(property, value)
-        if atributos_persistibles[property].is_a? AtributoSimple
+        if entrada_de_tabla?(property)
             return tabla.find_by(property, value) + subclasses.flat_map{|c|c.find_by(property, value)}
             #La idea es que si no hace falta instanciar todos los objetos para hacer la consulta, no lo haga.
             #En particular, para el caso del id, de la otra forma si una clase tuviera un atributo de su mismo tipo,
