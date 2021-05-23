@@ -1,5 +1,6 @@
 require_relative 'a_utils'
 require 'exceptions'
+require 'c_validador_de_atributos'
 #*********** Selector **************
 
 module AtributoHelper
@@ -17,7 +18,7 @@ end
 
 #Abstracta
 class AtributoPersistible
-    attr_reader :nombre
+    attr_reader :nombre, :clase
     def initialize(nombre, clase, default=nil)
         raise ClaseDesconocidaException.new(clase) unless clase.is_a?(Module)
         @nombre=nombre
@@ -27,7 +28,7 @@ class AtributoPersistible
         validar_tipo(default)
     end
 
-    def validar_tipo(objeto)
+    def validar_tipo(objeto) #TODO Mover a validador
         raise TipoErroneoException.new(objeto, @clase) unless objeto.is_a? @clase or objeto.nil?
     end
 
@@ -55,6 +56,7 @@ class AtributoPersistible
     end
 end
 
+# Persistible simple *******************************
 class AtributoSimple < AtributoPersistible
     def agregar_a_entrada(valor, entrada)
         validar_tipo(valor)
@@ -70,6 +72,7 @@ class AtributoSimple < AtributoPersistible
     end
 end
 
+# Persistible Compuesto *******************************
 class AtributoCompuesto < AtributoPersistible
 
     def agregar_a_entrada(objeto, fila)
@@ -85,6 +88,8 @@ class AtributoCompuesto < AtributoPersistible
         return @clase.find_by_id(fila[@nombre]).first
     end
 end
+
+# Persistible Multiple *******************************
 
 class AtributoMultiple < AtributoPersistible
     def initialize(nombre, tipo, default, claseCompuesta)

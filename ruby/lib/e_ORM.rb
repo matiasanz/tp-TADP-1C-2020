@@ -1,4 +1,4 @@
-require 'c_adapter'
+require 'd_adapter'
 
 module ClasePersistible
 
@@ -91,9 +91,6 @@ module ClasePersistible
     def find_by(property, value)
         if entrada_de_tabla?(property)
             return tabla.find_by(property, value) + subclasses.flat_map{|c|c.find_by(property, value)}
-            #La idea es que si no hace falta instanciar todos los objetos para hacer la consulta, no lo haga.
-            #En particular, para el caso del id, de la otra forma si una clase tuviera un atributo de su mismo tipo,
-            #al querer recuperarla de la db se va a hacer find_by_id, quedando en bucle.
         else
             return all_instances.select{|i| i.send(property)==value}
         end

@@ -1,4 +1,4 @@
-require 'd_ORM'
+require 'e_ORM'
 
 class Prueba
     def materia

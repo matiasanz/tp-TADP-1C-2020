@@ -263,6 +263,26 @@ describe Prueba do
         end
     end
 
+    describe 'Validador' do
+        let(:validador) do
+            ValidadorDeAtributo.new(Numeric, no_blank: true, from: 0, to: 4, validate: lambda{|x| x<3})
+        end
+
+        it 'Validar dato numerico correcto' do
+            dato = 2
+            expect(validador.cumple_no_blank?(dato)).to be_truthy
+            expect(validador.cumple_rango?(dato)).to be_truthy
+            expect(validador.cumple_validate?(dato)).to be_truthy
+            expect{validador.validar(dato)}.to_not raise_exception
+        end
+
+        it 'Validar dato numerico correcto' do
+            expect(validador.cumple_no_blank?(nil)).to be_falsey
+            expect(validador.cumple_rango?(-1)).to be_falsey
+            expect{validador.validar(4)}.to raise_error(ValidateException)
+        end
+    end
+
     after(:each) do
         TADB::DB.clear_all
     end
