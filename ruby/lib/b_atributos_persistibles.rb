@@ -9,7 +9,8 @@ module AtributoHelper
     end
 
     def self.as_atribute(nombre, clase)
-        clase_primitiva?(clase)? AtributoSimple.new(nombre, clase) : AtributoCompuesto.new(nombre, clase)
+        tipoAtributo = clase_primitiva?(clase)? AtributoSimple : AtributoCompuesto
+        tipoAtributo.new(nombre, clase)
     end
 end
 
@@ -17,6 +18,7 @@ end
 
 #Abstracta
 class AtributoPersistible
+    attr_reader :nombre
     def initialize(nombre, clase)
         raise ClaseDesconocidaException.new(clase) unless clase.is_a?(Module)
         @nombre=nombre
@@ -32,17 +34,17 @@ class AtributoPersistible
         persistir(persistible) unless persistible.nil?
     end
 
-    def persistir(persistible)
-        raise 'debe implementar'
-    end
-
     def get_from(objeto)
         valorActual = objeto.send(@nombre)
         validar_tipo(valorActual)
         valorActual
     end
 
-    def commit(objeto)
+    def persistir(persistible)
+        raise 'Se intento ejecutar un metodo que pretende ser abstracto, no sobrecargado'
+    end
+
+    def persistir_relaciones(objeto)
         #no hace nada
     end
 end
@@ -68,12 +70,12 @@ class AtributoCompuesto < AtributoPersistible
         fila[@nombre] = objeto.id
     end
 
-    def recuperar_de_fila(fila, _)
-        return @clase.find_by_id(fila[@nombre]).first
-    end
-
     def persistir(persistible)
         persistible.save!
+    end
+
+    def recuperar_de_fila(fila, _)
+        return @clase.find_by_id(fila[@nombre]).first
     end
 end
 
@@ -88,7 +90,7 @@ class AtributoMultiple < AtributoPersistible
         #no hace nada
     end
 
-    def commit(objeto)
+    def persistir_relaciones(objeto)
         clean(objeto)
         lista = get_from(objeto)
         lista.each do
@@ -99,8 +101,8 @@ class AtributoMultiple < AtributoPersistible
         end unless lista.nil?
     end
 
-    def clean(objeto)
-        @TablaMultiple.delete_by_duenio(objeto)
+    def clean(duenio)
+        @TablaMultiple.delete_elements(duenio)
     end
 
     def recuperar_de_fila(_, duenio)

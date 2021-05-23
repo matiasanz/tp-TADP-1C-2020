@@ -77,7 +77,7 @@ class Tabla
     end
 end
 
-class TablaMultiple < Tabla
+class TablaMultiple
     def initialize(tipo, claseCompuesta, parametro)
         @clase = tipo
         @tablaTADB = TADB::DB.table("#{claseCompuesta.to_s}_#{parametro.to_s}")
@@ -87,11 +87,11 @@ class TablaMultiple < Tabla
         @tablaTADB.insert(fila)
     end
 
-    def get_entradas_de_objeto(objeto)
-        find_entries_by(:idDuenio, objeto.id)
+    def delete_elements(duenio)
+        get_entradas_de_objeto(duenio).each{|e| @tablaTADB.delete(e[:id])}
     end
 
-    def delete_by_duenio(duenio)
-        get_entradas_de_objeto(duenio).each{|e| @tablaTADB.delete(e[:id])}
+    def get_entradas_de_objeto(objeto)
+        @tablaTADB.entries.select{|e| e[:idDuenio]==objeto.id}
     end
 end

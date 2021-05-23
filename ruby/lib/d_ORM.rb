@@ -11,7 +11,7 @@ module ClasePersistible
     end
 
     def tabla
-        @tabla ||= Tabla.new(self)
+        @tabla||=Tabla.new(self)
     end
 
     def persistibles_propios
@@ -19,15 +19,21 @@ module ClasePersistible
     end
 
     #Enunciado
-    def has_one(tipo, named:, default: nil, no_blank: false, from: nil, to: nil)
-        attr_accessor named
-        persistibles_propios[named] = AtributoHelper.as_atribute(named, tipo)
+    def has_one(tipo, named:, default: nil, no_blank: false, from: nil, to: nil, validate: ->{})
+        has(AtributoHelper.as_atribute(named, tipo))
     end
 
-    def has_many(tipo, named:, default: nil, no_blank: false, from: nil, to: nil)
-        attr_accessor named
-        persistibles_propios[named] = AtributoMultiple.new(named, tipo, self)
+    def has_many(tipo, named:, default: nil, no_blank: false, from: nil, to: nil, validate: ->{})
+        has(AtributoMultiple.new(named, tipo, self))
     end
+
+    private
+    def has(atributo)
+        nombre = atributo.nombre
+        attr_accessor nombre
+        persistibles_propios[nombre] = atributo
+    end
+    public
 
     #Enunciado
     def all_instances
@@ -125,7 +131,7 @@ class Object
     end
 
     def save_relations!
-        each_persistible { |atributo| atributo.commit(self)}
+        each_persistible { |atributo| atributo.persistir_relaciones(self)}
     end
 
     def each_persistible(&block)
