@@ -1,9 +1,8 @@
-require_relative 'ModuleMod'
+require_relative 'ORM'
 
 class Person
 
-  include ObjetoPersistible
-  extend ClasePersistible
+  include ORM
 
   attr_accessor :some_other_non_persistible_attribute
 

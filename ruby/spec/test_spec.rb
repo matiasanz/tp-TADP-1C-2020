@@ -11,8 +11,7 @@ describe Prueba do
 
     it 'la definicion de has_one sobre un atributo persitible existente lo reescribe' do
       class Grade
-        include ObjetoPersistible
-        extend ClasePersistible
+        include ORM
         has_one String, named: :value # Hasta acá :value es un String
         has_one Numeric, named: :value # Pero ahora debe ser Numeric
       end
@@ -112,8 +111,7 @@ describe Prueba do
   describe 'test_punto_2 a' do
     it '' do
       class Point
-        include ObjetoPersistible
-        extend ClasePersistible
+        include ORM
         has_one Numeric, named: :x
         has_one Numeric, named: :y
         def add(other)
@@ -175,8 +173,7 @@ describe Prueba do
     it '' do
 
       class Student
-        include ObjetoPersistible
-        extend ClasePersistible
+        include ORM
         has_one String, named: :full_name
         has_one Numeric, named: :grade
 
@@ -242,14 +239,12 @@ describe Prueba do
     it 'a' do
 
       class Grade
-        include ObjetoPersistible
-        extend ClasePersistible
+        include ORM
         has_one Numeric, named: :value
       end
 
       class Student
-        include ObjetoPersistible
-        extend ClasePersistible
+        include ORM
         has_one String, named: :full_name
         has_one Grade, named: :grade
       end
@@ -276,14 +271,12 @@ describe Prueba do
     it 'b' do
 
       class Grade
-        include ObjetoPersistible
-        extend ClasePersistible
+        include ORM
         has_one Numeric, named: :value
       end
 
       class Student
-        include ObjetoPersistible
-        extend ClasePersistible
+        include ORM
         has_one String, named: :full_name
         has_many Grade, named: :grades
 
@@ -334,8 +327,7 @@ describe Prueba do
     it 'b 2' do
 
       class Student
-        include ObjetoPersistible
-        extend ClasePersistible
+        include ORM
         has_one String, named: :full_name
         has_many Numeric, named: :numeros
         has_many Boolean, named: :booleanos
