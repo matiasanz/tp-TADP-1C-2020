@@ -43,6 +43,10 @@ class AtributoPersistible
         #no hace nada
     end
 
+    def clean
+        #no hace nada
+    end
+
     protected
     def get_from(objeto)
         valorActual = objeto.send(@nombre)
@@ -95,7 +99,7 @@ class AtributoMultiple < AtributoPersistible
     def initialize(nombre, tipo, default, claseCompuesta)
         super(nombre, Array, default)
         @atributo = AtributoHelper.as_atribute(:elemento, tipo)
-        @TablaMultiple = TablaMultiple.new(tipo, claseCompuesta, nombre)
+        @TablaMultiple = Tabla.new_tabla_multiple(tipo, claseCompuesta, nombre)
     end
 
     def agregar_a_entrada(objeto, fila)

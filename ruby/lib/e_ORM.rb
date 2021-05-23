@@ -11,7 +11,7 @@ module ClasePersistible
     end
 
     def tabla
-        @tabla||=Tabla.new(self)
+        @tabla||=Tabla.new_tabla_unica(self)
     end
 
     def persistibles_propios
@@ -112,6 +112,7 @@ class Object
 
     #Enunciado
     def forget!
+        each_persistible {|p| p.clean}
         tabla.remove(self)
         self.id= nil
     end
