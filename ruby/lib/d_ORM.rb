@@ -3,24 +3,30 @@ require 'c_adapter'
 module ClasePersistible
 
     def inherited(modulo)
-        @subclases||=[]
-        @subclases << modulo
+        subclasses << modulo
     end
 
     def subclasses
-        @subclases||{}
+        @subclases||=[]
     end
 
     def tabla
         @tabla ||= Tabla.new(self)
-        @tabla
+    end
+
+    def persistibles_propios
+        @atributos_persistibles||={}
     end
 
     #Enunciado
     def has_one(tipo, named:, default: nil, no_blank: false, from: nil, to: nil)
         attr_accessor named
-        @atributos_persistibles||={}
-        @atributos_persistibles[named] = AtributoHelper.as_atribute(named, tipo)
+        persistibles_propios[named] = AtributoHelper.as_atribute(named, tipo)
+    end
+
+    def has_many(tipo, named:, default: nil, no_blank: false, from: nil, to: nil)
+        attr_accessor named
+        persistibles_propios[named] = AtributoMultiple.new(named, tipo, self)
     end
 
     #Enunciado
@@ -29,8 +35,7 @@ module ClasePersistible
     end
 
     def atributos_persistibles
-        propios = @atributos_persistibles || {}
-        persistibles_heredados.merge(propios)
+        persistibles_heredados.merge(persistibles_propios)
     end
 
     private
@@ -96,7 +101,10 @@ class Object
 
     #Enunciado
     def save!
+        save_attributes!
         tabla.persist(self)
+        save_relations!
+        self
     end
 
     #Enunciado
@@ -108,18 +116,22 @@ class Object
     #Enunciado
     def refresh!
         tabla.recuperar_de_db(self)
-
         self
     end
 
-    def valores_persistibles
-        self.class.atributos_persistibles
-            .map do |nombre, atributo|
-                [atributo, self.send(nombre)]
-            end
+    private
+    def save_attributes!
+        each_persistible {|atributo| atributo.persistir_de(self)}
     end
 
-    private
+    def save_relations!
+        each_persistible { |atributo| atributo.commit(self)}
+    end
+
+    def each_persistible(&block)
+        self.class.atributos_persistibles.each_value { |atributo| block.call(atributo) }
+    end
+
     def tabla
         self.class.tabla
     end

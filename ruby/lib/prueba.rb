@@ -77,3 +77,33 @@ class ClaseMuyCompuesta
         @mascota==otra.mascota and @atributoMuyCompuesto==otra.atributoMuyCompuesto
     end
 end
+
+class Pelicula
+    has_many Personaje, named: :personajes
+
+    def initialize
+        @personajes=[]
+        @criticas=[]
+    end
+
+    def agregarPersonaje(personaje)
+        @personajes << personaje
+    end
+
+    def agregarCritica(critica)
+        @criticas << critica
+    end
+end
+
+class Quiniela
+    has_many Numeric, named: :resultados
+
+    def initialize
+        @resultados = []
+    end
+
+    def conResultado(rdo)
+        @resultados << rdo
+        self
+    end
+end

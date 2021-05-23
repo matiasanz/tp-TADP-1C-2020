@@ -5,8 +5,6 @@ class Tabla
     def initialize(clase)
         @clase = clase
         @tablaTADB = TADB::DB.table(@clase.to_s)
-
-        @NULL_VALUE="$NULL"
     end
 
     #Se usa en save!
@@ -45,14 +43,12 @@ class Tabla
     private
     def formato_entrada(objeto)
         entrada = {}
-        objeto.valores_persistibles.each do
-            |atributo, valor|
-            atributo.agregar_a_entrada(valor, entrada)
-        end
 
-        id = objeto.id
-        entrada.transform_values! {|v| v.nil?? @NULL_VALUE: v}
-        entrada[:id] = id
+        @clase.atributos_persistibles.each do
+            |nombre, atributo|
+            persistible = objeto.send(nombre)
+            atributo.agregar_a_entrada(persistible, entrada) unless persistible.nil?
+        end
 
         entrada
     end
@@ -71,16 +67,31 @@ class Tabla
     def asignar_datos(objeto, datos)
         @clase.atributos_persistibles.each do
             |nombre, atributo|
-            valor = atributo.recuperar_de_fila(datos)
-            objeto.instance_variable_set(nombre.to_param, parse_nil(valor))
+            valor = atributo.recuperar_de_fila(datos, objeto)
+            objeto.send("#{nombre.to_s}=", valor)
         end
-    end
-
-    def parse_nil(valor)
-        (valor.is_a?(String) and valor==(@NULL_VALUE))? nil: valor
     end
 
     def find_entries_by(nombre, valor)
         @tablaTADB.entries.select{|e| e[nombre]==valor}
+    end
+end
+
+class TablaMultiple < Tabla
+    def initialize(tipo, claseCompuesta, parametro)
+        @clase = tipo
+        @tablaTADB = TADB::DB.table("#{claseCompuesta.to_s}_#{parametro.to_s}")
+    end
+
+    def insert(fila)
+        @tablaTADB.insert(fila)
+    end
+
+    def get_entradas_de_objeto(objeto)
+        find_entries_by(:idDuenio, objeto.id)
+    end
+
+    def delete_by_duenio(duenio)
+        get_entradas_de_objeto(duenio).each{|e| @tablaTADB.delete(e[:id])}
     end
 end

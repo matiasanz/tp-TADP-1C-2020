@@ -13,11 +13,6 @@ describe Prueba do
             expect(false).to be_a(Boolean)
         end
 
-        it 'parametro' do
-            expect(:@algo.param?).to be_truthy
-            expect(:algo.to_param).to be(:@algo)
-        end
-
         it 'Se especifica un tipo que no es una clase y falla' do
             expect {Class.has_one(:simbolo, named: :atributo) }.to raise_error(ClaseDesconocidaException)
         end
@@ -196,7 +191,6 @@ describe Prueba do
         end
 
         it 'un objeto compuesto se busca por un atributo idem y se encuentra' do
-            puts Mascota.all_instances.inspect
             encontrados = Mascota.find_by_duenio(@duenio)
             expect(encontrados.length).to be(1)
 
@@ -220,6 +214,35 @@ describe Prueba do
 
             expect(resultado).to eq(claseTodaviaMasCompuesta)
             expect(resultado.instance_variables).to match(claseTodaviaMasCompuesta.instance_variables)
+        end
+
+        describe 'has many' do
+
+            it 'clase con multiples atributos primitivos' do
+                q = Quiniela.new.conResultado(5).conResultado(3).save!
+                expect(q.id).to_not be_nil
+                leidos = Quiniela.find_by_id(q.id)
+                expect(leidos.length).to be(1)
+
+                expect(leidos.first.resultados).to include(5,3)
+            end
+
+            it 'clase con multiples atributos compuestos' do
+                pers1 = Personaje.new("Goku", 670)
+                pers2 = Personaje.new("Mr Satan", 45000)
+
+                dbz = Pelicula.new
+                dbz.agregarPersonaje(pers1)
+                dbz.agregarPersonaje(pers2)
+                dbz.save!
+                expect(dbz.id).not_to be_nil
+
+                resultados = Pelicula.find_by_id(dbz.id)
+
+                expect(resultados.length).to be(1)
+                resultado = resultados.first
+                expect(resultado.personajes).to include(pers1, pers2)
+            end
         end
     end
 
