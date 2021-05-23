@@ -27,7 +27,7 @@ module ClasePersistible
   #end
 
   def all_instances
-    return nil if @tabla.nil?
+    return nil unless @tabla
     @tabla.entries.map {|entrada| generar_instancia(entrada)}
   end
 
@@ -37,9 +37,9 @@ module ClasePersistible
     instancia.settear_atributos
   end
 
+  #naturalmente falla si el metodo tiene aridad != 0, porque asi esta definido en respond_to_missing?
   def method_missing(mensaje, *args, &bloque)
     if respond_to?(mensaje, false)
-      #naturalmente falla si el metodo tiene aridad != 0, porque asi esta definido en respond_to_missing?
       all_instances.select do |instancia|
         instancia.send(sin_find_by_(mensaje)) == args[0]
       end
@@ -60,6 +60,13 @@ module ClasePersistible
 
   def sin_find_by_(mensaje)
     mensaje.to_s.gsub("find_by_", "").to_sym
+  end
+
+
+
+
+  def inicializar_tabla
+    @tabla = TADB::DB.table(name)
   end
 
 end

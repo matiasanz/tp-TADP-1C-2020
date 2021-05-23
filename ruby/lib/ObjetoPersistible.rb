@@ -13,95 +13,31 @@ module ObjetoPersistible
     self.class.tabla
   end
 
-  def tabla=(tabla)
-    self.class.tabla = tabla
-  end
-
 =begin
-  # define metodos y accesors para las clases persistibles (tambien funciona para modulos)
+  # define metodos y accesors para las clases persistibles
   def self.included(clase)
     clase.singleton_class.send(:attr_reader, :atributos_persistibles)
     clase.singleton_class.send(:attr_accessor, :tabla)
-
-    clase.define_singleton_method(:has_one) do |tipo_atributo, named:|
-      attr_accessor named
-      @atributos_persistibles ||= {}
-      @atributos_persistibles[named] = tipo_atributo
-    end
-
-    #para test
-    clase.define_singleton_method(:tipo_de) do |nombre_atributo|
-      return nil if @atributos_persistibles.nil?
-      if @atributos_persistibles.has_key?(nombre_atributo)
-        return @atributos_persistibles[nombre_atributo]
-      end
-      nil
-    end
-
-    clase.define_singleton_method(:all_instances) do
-      return nil if @tabla.nil?
-      @tabla.entries.map {|entrada| generar_instancia(entrada)}
-    end
-
-    clase.define_singleton_method(:method_missing) do |mensaje, *args, &bloque|
-      if clase.respond_to?(mensaje, false)
-        #naturalmente falla si el metodo tiene aridad != 0, porque asi esta definido en respond_to_missing?
-        mensaje_a_enviar = mensaje.to_s.gsub("find_by_", "").to_sym
-        all_instances.select {|instancia| instancia.send(mensaje_a_enviar) == args[0]}
-      else
-        super(mensaje, *args, bloque)
-      end
-    end
-
-    clase.define_singleton_method(:respond_to_missing?) do |mensaje, priv = false|
-      instancia = clase.new
-      mensaje_a_instancia = mensaje.to_s.gsub("find_by_", "").to_sym    #mini logica repetida en :method_missing arriba TODO. podria se un util
-      if instancia.respond_to?(mensaje_a_instancia, false)
-        metodo = instancia.method(mensaje_a_instancia)
-        metodo.arity == 0 || super(mensaje, *priv)
-      else
-        super(mensaje, *priv)
-      end
-    end
-
-    # metodos auxiliares
-    clase.define_singleton_method(:generar_instancia) do |entrada_de_tabla|
-      instancia = clase.new
-      instancia.send(:id=, entrada_de_tabla[:id])
-      instancia.settear_atributos
-    end
-
   end
 =end
-  #self.instance_eval do
-  #  self.class.singleton_class.send(:attr_reader, :atributos_persistibles)
-  #  self.class.singleton_class.send(:attr_accessor, :tabla)
-  # end
 
-
-
-  # metodos de instancias de clases persistibles
   def save!
-    return nil if atributos_persistibles.nil?
-    self.tabla= TADB::DB.table(self.class.name) if tabla.nil?
-    if @id
-      id_temporal = @id
-      forget!   # lo actualiza si ya tenia un ID, para eso borro la entrada anterior
-      @id = tabla.insert(obtener_hash_para_insertar(id_temporal))
-    else
-      @id = tabla.insert(obtener_hash_para_insertar(@id))
-    end
+    raise SaveException.new(self) unless atributos_persistibles
+    self.class.inicializar_tabla unless tabla
+    hash = generar_hash_para_insertar
+    forget! if @id
+    @id = tabla.insert(hash)
     self
   end
 
   def refresh!
-    raise RefreshException.new(self) if @id == nil
+    raise RefreshException.new(self) unless @id
     settear_atributos
     self
   end
 
   def forget!
-    raise ForgetException.new(self) if @id == nil
+    raise ForgetException.new(self) unless @id
     tabla.delete(@id)
     @id = nil
     self
@@ -121,7 +57,7 @@ module ObjetoPersistible
     end
   end
 
-  def obtener_hash_para_insertar(id)  #deberia ser private? TODO
+  def generar_hash_para_insertar  #deberia ser private? TODO
     hash_para_insertar = {}
     has_many_attr = atributos_persistibles[:has_many_attr]
     atributos_persistibles.each do |key, value|       #logica repedida... TODO
@@ -140,7 +76,7 @@ module ObjetoPersistible
         hash_para_insertar[key] = send(key)
       end
     end
-    hash_para_insertar[:id] = id
+    hash_para_insertar[:id] = @id
     hash_para_insertar
   end
 
@@ -153,11 +89,11 @@ module ObjetoPersistible
       simbolo_setter = (simbolo.to_s << "=").to_sym
       if clase != String && clase != Numeric && clase != Boolean && has_many_attr != nil && has_many_attr.include?(simbolo)
         send(simbolo_setter, [])
-        atributos_persistidos[simbolo].split(",").each do
+        hash_atributos_persistidos[simbolo].split(",").each do
           |id| self.send(simbolo_setter, send(simbolo).push(clase.find_by_id(id)[0]))
         end
       elsif (clase == String || clase == Numeric || clase == Boolean) && has_many_attr != nil && has_many_attr.include?(simbolo)
-        array = atributos_persistidos[simbolo].split(",")
+        array = hash_atributos_persistidos[simbolo].split(",")
         if clase == Numeric
           array = array.map{ |elem| elem.to_i }
         elsif clase == Boolean
@@ -168,19 +104,17 @@ module ObjetoPersistible
         |valor| self.send(simbolo_setter, send(simbolo).push(valor))   #esto es provisorio, es hasta que tenga una tabla por relacion TODO
         end
       elsif clase != String && clase != Numeric && clase != Boolean  #logica repetida con obtener_hash_para_insertar TODO
-        self.send(simbolo_setter, clase.find_by_id(atributos_persistidos[simbolo])[0])
+        self.send(simbolo_setter, clase.find_by_id(hash_atributos_persistidos[simbolo])[0])
       else
-        self.send(simbolo_setter, atributos_persistidos[simbolo])
+        self.send(simbolo_setter, hash_atributos_persistidos[simbolo])
       end
     end
     self
   end
 
-  def atributos_persistidos
+  def hash_atributos_persistidos
     entradas = tabla.entries
-    entradas.each do |entrada|
-      return entrada if entrada.has_value?(@id)
-    end
+    entradas.each { |entrada| return entrada if entrada.has_value?(@id) }
     nil
   end
 

@@ -10,3 +10,9 @@ class ForgetException < StandardError
     super("No es posible ejecutar forget!(), el objeto " + objeto.to_s + " de la clase " + objeto.class.name + " no posee id")
   end
 end
+
+class SaveException < StandardError
+  def initialize(objeto)
+    super("No es posible ejecutar save!(), falta utilizar has_one o has_many")
+  end
+end

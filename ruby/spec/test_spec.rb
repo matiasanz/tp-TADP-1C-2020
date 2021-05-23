@@ -66,7 +66,7 @@ describe Prueba do
       p.last_name = "porcheto"
       p.save!
       puts Person.atributos_persistibles
-      puts p.obtener_hash_para_insertar(p.id)
+      puts p.generar_hash_para_insertar
     end
   end
 
@@ -103,7 +103,7 @@ describe Prueba do
       p.last_name = "puig"
       p.save!
       p.forget!
-      expect(p.atributos_persistidos).to eq nil
+      expect(p.hash_atributos_persistidos).to eq nil
       expect(p.id).to eq nil
     end
   end
