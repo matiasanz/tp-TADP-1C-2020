@@ -21,7 +21,7 @@ class ValidadorDeAtributo
     end
 
     def validar(dato)
-        raise BlankException.new unless cumple_no_blank?(dato)
+        raise BlankException.new(dato) unless cumple_no_blank?(dato)
         raise ValidateException.new(dato) unless cumple_validate?(dato)
         raise RangoExcedidoException.new(dato, @from, @to) unless cumple_rango?(dato)
     end
@@ -31,7 +31,7 @@ class ValidadorDeAtributo
     end
 
     def cumple_no_blank?(dato) #TODO mejorar la excepcion
-         @no_blank and not dato.nil?
+        not (@no_blank and dato.nil?)
     end
 
     def cumple_validate?(dato)

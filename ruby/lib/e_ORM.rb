@@ -123,6 +123,14 @@ class Object
         self
     end
 
+    def validate!
+        each_persistible do
+            |atributo|
+            valorActual = atributo.get_from(self)
+            atributo.validar_instancia(valorActual)
+        end
+    end
+
     private
     def save_attributes!
         each_persistible {|atributo| atributo.persistir_de(self)}

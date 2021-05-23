@@ -264,22 +264,44 @@ describe Prueba do
     end
 
     describe 'Validador' do
-        let(:validador) do
-            ValidadorDeAtributo.new(Numeric, no_blank: true, from: 0, to: 4, validate: lambda{|x| x<3})
+        describe 'Generalidades' do
+            it 'From/to en atributo no numerico' do
+                expect{ValidadorDeAtributo.new(String, from:2, to: 4)}.to raise_error(ValidacionNoAdmitidaException)
+            end
+
+            it 'Argumentos opcionales' do
+                expect { ValidadorDeAtributo.new(Personaje)}.to_not raise_error
+                expect { ValidadorDeAtributo.new(Personaje, no_blank: true, validate: ->{true})}.to_not raise_error
+                expect { ValidadorDeAtributo.new(Numeric, from: 1)}.to_not raise_error
+            end
         end
 
-        it 'Validar dato numerico correcto' do
-            dato = 2
-            expect(validador.cumple_no_blank?(dato)).to be_truthy
-            expect(validador.cumple_rango?(dato)).to be_truthy
-            expect(validador.cumple_validate?(dato)).to be_truthy
-            expect{validador.validar(dato)}.to_not raise_exception
+        describe 'Numeros' do
+            let(:validadorNumerico) do
+                ValidadorDeAtributo.new(Numeric, no_blank: true, from: 0, to: 4, validate: lambda{|x| x<3})
+            end
+
+            it 'Validar dato numerico correcto' do
+                dato = 2
+                expect(validadorNumerico.cumple_no_blank?(dato)).to be_truthy
+                expect(validadorNumerico.cumple_rango?(dato)).to be_truthy
+                expect(validadorNumerico.cumple_validate?(dato)).to be_truthy
+                expect{validadorNumerico.validar(dato)}.to_not raise_exception
+            end
+
+            it 'Validar dato numerico correcto' do
+                expect(validadorNumerico.cumple_no_blank?(nil)).to be_falsey
+                expect(validadorNumerico.cumple_rango?(-1)).to be_falsey
+                expect(validadorNumerico.cumple_validate?(4)).to be_falsey
+                expect{validadorNumerico.validar(4)}.to raise_error(ValidateException)
+            end
         end
 
-        it 'Validar dato numerico correcto' do
-            expect(validador.cumple_no_blank?(nil)).to be_falsey
-            expect(validador.cumple_rango?(-1)).to be_falsey
-            expect{validador.validar(4)}.to raise_error(ValidateException)
+        describe 'Clase simple' do
+            let(:validadorPersonajes) do
+                ValidadorDeAtributo.new(Personaje, no_blank: true, from: 0)
+            end
+
         end
     end
 

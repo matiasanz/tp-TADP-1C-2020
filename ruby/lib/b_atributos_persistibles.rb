@@ -11,7 +11,9 @@ module AtributoHelper
     def self.as_atribute(nombre, clase, default=nil)
         tipoAtributo = clase_primitiva?(clase)? AtributoSimple : AtributoCompuesto
         tipoAtributo.new(nombre, clase, default)
+
     end
+
 end
 
 #*********** Atributos Persistibles **************
@@ -23,9 +25,17 @@ class AtributoPersistible
         raise ClaseDesconocidaException.new(clase) unless clase.is_a?(Module)
         @nombre=nombre
         @clase=clase
-
-        @default=default
         validar_tipo(default)
+        @default=default
+    end
+
+    def set_validador(validador)
+        @validador = validador
+    end
+
+    def validar_instancia(valor)
+        validar_tipo(valor)
+        validador.validar(valor)
     end
 
     def validar_tipo(objeto) #TODO Mover a validador
@@ -91,15 +101,20 @@ class AtributoCompuesto < AtributoPersistible
     def recuperar_de_fila(fila, _)
         return @clase.find_by_id(fila[@nombre]).first
     end
+
+    def validar_instancia(valorActual)
+        super
+        valorActual.validate! unless valorActual.nil?
+    end
 end
 
 # Persistible Multiple *******************************
 
 class AtributoMultiple < AtributoPersistible
-    def initialize(nombre, tipo, default, claseCompuesta)
-        super(nombre, Array, default)
+    def initialize(nombre, tipo, default, claseContenedora)
+        super(nombre, Array, [default])
         @atributo = AtributoHelper.as_atribute(:elemento, tipo)
-        @TablaMultiple = Tabla.new_tabla_multiple(tipo, claseCompuesta, nombre)
+        @TablaMultiple = Tabla.new_tabla_multiple(tipo, claseContenedora, nombre)
     end
 
     def agregar_a_entrada(objeto, fila)
@@ -123,6 +138,11 @@ class AtributoMultiple < AtributoPersistible
 
     def recuperar_de_fila(_, duenio)
         @TablaMultiple.get_entradas_de_objeto(duenio).map{|e| @atributo.recuperar_de_fila(e, duenio)}
+    end
+
+    def validar_instancia(valorActual)
+        super
+        valorActual.each{|elem| @atributo.validar_instancia(elem)} unless valorActual.nil?
     end
 
     private

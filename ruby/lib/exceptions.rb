@@ -54,8 +54,8 @@ class RangoExcedidoException < StandardError
 end
 
 class BlankException < StandardError
-    def initialize
-        super('Un campo declarado no_blank es nil')
+    def initialize(dato)
+        super("Un campo declarado no_blank es #{dato.inspect}")
     end
 end
 
