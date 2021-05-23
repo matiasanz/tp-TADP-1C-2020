@@ -16,7 +16,7 @@ describe Prueba do
         has_one Numeric, named: :value # Pero ahora debe ser Numeric
       end
 
-      expect(Grade.tipo_de(:value)).to eq Numeric
+      expect(Grade.atributos_persistibles[:value]).to eq Numeric
     end
 
     it 'Los atributos persistibles deben poder leerse y setearse de forma normal' do

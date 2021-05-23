@@ -14,42 +14,35 @@ module ClasePersistible
     @atributos_persistibles[:has_many_attr].push(named)
   end
 
-  #def definir_getter(named)
-  #  class_eval
-  #
-  #  send(:define_method, initialize) do
-  #  end
-  #
-  #  send(:define_method, named) do
-  #    obj.instance_variable_set("@#{named.to_s}".to_sym, [])
-  #  end
-  #end
-
   def relacion(tipo_atributo, named)
     attr_accessor named
     @atributos_persistibles ||= {}
     @atributos_persistibles[named] = tipo_atributo
   end
 
-  #para test
-  def tipo_de(nombre_atributo)
-    return nil if @atributos_persistibles.nil?
-    if @atributos_persistibles.has_key?(nombre_atributo)
-      return @atributos_persistibles[nombre_atributo]
-    end
-    nil
-  end
+  #def definir_getter(named)
+  #  send(:define_method, named) do
+  #    obj.instance_variable_set("@#{named.to_s}".to_sym, [])
+  #  end
+  #end
 
   def all_instances
     return nil if @tabla.nil?
     @tabla.entries.map {|entrada| generar_instancia(entrada)}
   end
 
+  def generar_instancia(entrada_de_tabla)
+    instancia = self.new
+    instancia.send(:id=, entrada_de_tabla[:id])
+    instancia.settear_atributos
+  end
+
   def method_missing(mensaje, *args, &bloque)
     if respond_to?(mensaje, false)
       #naturalmente falla si el metodo tiene aridad != 0, porque asi esta definido en respond_to_missing?
-      mensaje_a_enviar = mensaje.to_s.gsub("find_by_", "").to_sym
-      all_instances.select {|instancia| instancia.send(mensaje_a_enviar) == args[0]}
+      all_instances.select do |instancia|
+        instancia.send(sin_find_by_(mensaje)) == args[0]
+      end
     else
       super
     end
@@ -57,20 +50,16 @@ module ClasePersistible
 
   def respond_to_missing?(mensaje, priv = false)
     instancia = self.new
-    mensaje_a_instancia = mensaje.to_s.gsub("find_by_", "").to_sym    #mini logica repetida en :method_missing arriba TODO. podria ser un util
-    if instancia.respond_to?(mensaje_a_instancia, false)
-      metodo = instancia.method(mensaje_a_instancia)
+    if instancia.respond_to?(sin_find_by_(mensaje), false)
+      metodo = instancia.method(sin_find_by_(mensaje))
       metodo.arity == 0 || super
     else
       super
     end
   end
 
-  # metodos auxiliares
-  def generar_instancia(entrada_de_tabla)
-    instancia = self.new
-    instancia.send(:id=, entrada_de_tabla[:id])
-    instancia.settear_atributos
+  def sin_find_by_(mensaje)
+    mensaje.to_s.gsub("find_by_", "").to_sym
   end
 
 end

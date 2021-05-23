@@ -19,6 +19,18 @@ module ORM
       end
     end
 
+    # Hace lo mismo que arriba
+    #clase.send(:define_method, :initialize) do
+    #  inicializar_has_many
+    #  super()
+    #end
+
+    # Hace lo mismo que arriba
+    #clase.define_singleton_method(:initialize) do
+    #  inicializar_has_many
+    #  super()
+    #end
+
   end
 
 end
