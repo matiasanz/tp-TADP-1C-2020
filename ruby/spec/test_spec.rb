@@ -281,7 +281,7 @@ describe Prueba do
         has_many Grade, named: :grades
 
         def initialize
-          inicializar_has_many(:grades)
+          inicializar_has_many
           super
         end
       end
@@ -332,11 +332,6 @@ describe Prueba do
         has_many Numeric, named: :numeros
         has_many Boolean, named: :booleanos
         has_many String, named: :cadenas
-
-        def initialize
-          inicializar_has_many(:numeros, :booleanos, :cadenas)
-          super
-        end
       end
 
       s = Student.new

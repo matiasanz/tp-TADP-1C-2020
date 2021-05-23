@@ -14,6 +14,17 @@ module ClasePersistible
     @atributos_persistibles[:has_many_attr].push(named)
   end
 
+  #def definir_getter(named)
+  #  class_eval
+  #
+  #  send(:define_method, initialize) do
+  #  end
+  #
+  #  send(:define_method, named) do
+  #    obj.instance_variable_set("@#{named.to_s}".to_sym, [])
+  #  end
+  #end
+
   def relacion(tipo_atributo, named)
     attr_accessor named
     @atributos_persistibles ||= {}

@@ -107,17 +107,19 @@ module ObjetoPersistible
     self
   end
 
-  def inicializar_has_many(*simbolos_many)
-    simbolos_many.each do |simbolo|
-      simbolo_setter = (simbolo.to_s << "=").to_sym #logica repetida TODO
-      send(simbolo_setter, [])
-    end
-  end
   #se usaria asi
   #def initialize
-  #  inicializar_has_many(:grados, :cartas, :libros)
+  #  inicializar_has_many
   #  super
   #end
+  def inicializar_has_many
+    if atributos_persistibles[:has_many_attr]
+      atributos_persistibles[:has_many_attr].each do |simbolo|
+        simbolo_setter = (simbolo.to_s << "=").to_sym #logica repetida TODO
+        send(simbolo_setter, [])
+      end
+    end
+  end
 
   def obtener_hash_para_insertar(id)  #deberia ser private? TODO
     hash_para_insertar = {}
