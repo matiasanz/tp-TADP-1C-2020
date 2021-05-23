@@ -281,7 +281,7 @@ describe Prueba do
         has_many Grade, named: :grades
 
         def initialize
-          inicializar_has_many
+          inicializar_has_many_attr
           super
         end
       end

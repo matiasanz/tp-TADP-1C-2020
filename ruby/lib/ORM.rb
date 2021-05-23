@@ -14,7 +14,7 @@ module ORM
     # si no define contructor, funciona TOD0 bien
     clase.class_eval do
       def initialize
-        inicializar_has_many
+        inicializar_has_many_attr
         super
       end
     end

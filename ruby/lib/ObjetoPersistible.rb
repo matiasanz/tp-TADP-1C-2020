@@ -48,13 +48,14 @@ module ObjetoPersistible
   #  inicializar_has_many
   #  super
   #end
-  def inicializar_has_many
+  def inicializar_has_many_attr
     if atributos_persistibles[:has_many_attr]
-      atributos_persistibles[:has_many_attr].each do |simbolo|
-        simbolo_setter = (simbolo.to_s << "=").to_sym #logica repetida TODO
-        send(simbolo_setter, [])
-      end
+      atributos_persistibles[:has_many_attr].each{ |simbolo| send(pasar_a_setter(simbolo), []) }
     end
+  end
+
+  def pasar_a_setter(simbolo)
+    (simbolo.to_s << "=").to_sym
   end
 
   def generar_hash_para_insertar  #deberia ser private? TODO
