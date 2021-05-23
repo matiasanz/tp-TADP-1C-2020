@@ -24,7 +24,7 @@ class Personaje
     end
 
     def ==(otro)
-        @id==otro.id and @nombre==otro.nombre and @comicidad==otro.comicidad
+        @nombre==otro.nombre and @comicidad==otro.comicidad
     end
 end
 
@@ -105,5 +105,14 @@ class Quiniela
     def conResultado(rdo)
         @resultados << rdo
         self
+    end
+end
+
+class ClaseDefault
+    has_one String, named: :nombre, default: "Anonimo"
+    has_one Personaje, named: :personaje, default: Personaje.new("Arbol", 0)
+    def initialize(nombre, personaje)
+        @nombre = nombre
+        @personaje=personaje
     end
 end

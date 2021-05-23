@@ -246,6 +246,23 @@ describe Prueba do
         end
     end
 
+    describe 'Default' do
+        it 'Valor default se respeta para atributo primitivo y no altera los demas' do
+            personaje = Personaje.new("Buckethead",500)
+            objetoDefault = ClaseDefault.new(nil, personaje)
+            objetoDefault.save!
+            expect(objetoDefault.nombre).to match "Anonimo"
+            expect(objetoDefault.personaje).to eq(personaje)
+        end
+
+        it 'Valor default se respeta para atributo compuesto y no altera los demas' do
+            objetoDefault = ClaseDefault.new("juan carlos", nil)
+            objetoDefault.save!
+            expect(objetoDefault.nombre).to match "juan carlos"
+            expect(objetoDefault.personaje).to eq(Personaje.new("Arbol", 0))
+        end
+    end
+
     after(:each) do
         TADB::DB.clear_all
     end

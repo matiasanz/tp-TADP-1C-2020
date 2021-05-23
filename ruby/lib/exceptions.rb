@@ -22,3 +22,9 @@ class PropertyNotFoundException < StandardError
         super("#{property.to_s} no es una property de la clase #{clase.to_s}")
     end
 end
+
+class MetodoAbstractoException < StandardError
+    def initialize
+        super("Se intento ejecutar un metodo que pretende ser abstracto, no sobrecargado")
+    end
+end

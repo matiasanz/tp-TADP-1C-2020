@@ -19,12 +19,12 @@ module ClasePersistible
     end
 
     #Enunciado
-    def has_one(tipo, named:, default: nil, no_blank: false, from: nil, to: nil, validate: ->{})
-        has(AtributoHelper.as_atribute(named, tipo))
+    def has_one(tipo, named:, default: nil, no_blank: false, from: nil, to: nil, validate: lambda{|_| true})
+        has(AtributoHelper.as_atribute(named, tipo, default))
     end
 
-    def has_many(tipo, named:, default: nil, no_blank: false, from: nil, to: nil, validate: ->{})
-        has(AtributoMultiple.new(named, tipo, self))
+    def has_many(tipo, named:, default: nil, no_blank: false, from: nil, to: nil, validate: lambda{|_| true})
+        has(AtributoMultiple.new(named, tipo, default, self))
     end
 
     private
