@@ -111,6 +111,7 @@ class Object
 
     #Enunciado
     def save!
+        set_defaults_on_empty
         save_attributes!
         tabla.persist(self)
         save_relations!
@@ -119,7 +120,7 @@ class Object
 
     #Enunciado
     def forget!
-        each_persistible {|p| p.clean}
+        each_persistible {|p| p.clean_relations}
         tabla.remove(self)
         self.id= nil
     end
@@ -145,6 +146,10 @@ class Object
 
     def save_relations!
         each_persistible { |atributo| atributo.persistir_relaciones(self)}
+    end
+
+    def set_defaults_on_empty
+        each_persistible {|atr| atr.set_default_on_empty(self)}
     end
 
     def each_persistible(&block)

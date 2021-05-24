@@ -51,10 +51,14 @@ class AtributoPersistible
         raise TipoErroneoException.new(objeto, @clase) unless objeto.is_a? @clase or objeto.nil?
     end
 
+    def set_default_on_empty(objeto)
+        persistible = get_from(objeto)
+        objeto.send("#{@nombre.to_s}=", @default) if persistible.nil?
+    end
+
     #Persiste el atributo previo a que se salve el objeto
     def persistir_de(objeto)
         persistible = get_from(objeto)
-        persistible = objeto.send("#{@nombre.to_s}=", @default) if persistible.nil?
         validar_instancia(persistible)
         persistir(persistible) unless persistible.nil?
     end
@@ -63,7 +67,7 @@ class AtributoPersistible
         #no hace nada
     end
 
-    def clean
+    def clean_relations
         #no hace nada
     end
 
@@ -132,7 +136,7 @@ class AtributoMultiple < AtributoPersistible
     end
 
     def persistir_relaciones(objeto)
-        clean(objeto)
+        clean_relations(objeto)
         lista = get_from(objeto)
         lista.each do
             |elemento|
@@ -142,7 +146,7 @@ class AtributoMultiple < AtributoPersistible
         end unless lista.nil?
     end
 
-    def clean(duenio)
+    def clean_relations(duenio)
         @TablaMultiple.delete_elements(duenio)
     end
 
