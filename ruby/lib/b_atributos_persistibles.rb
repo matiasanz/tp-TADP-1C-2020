@@ -44,7 +44,7 @@ class AtributoPersistible
     def validar_instancia(valor)
         validar_tipo(valor)
         raise ValidadorNilException.new if @validador.nil?
-        @validador.validar(valor)
+        @validador.validar(@nombre, valor)
     end
 
     def validar_tipo(objeto) #TODO Mover a validador

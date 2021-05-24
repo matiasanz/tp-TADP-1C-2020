@@ -20,17 +20,13 @@ class ValidadorDeAtributo
         raise CampoIncorrectoException.new(@validate, [Proc, Lambda], "validate") unless @validate.is_a?Proc or @validate.lambda?
     end
 
-    def validar(dato)
-        raise RangoExcedidoException.new(dato, @from, @to) unless cumple_rango?(dato)
-        raise BlankException.new(dato) unless cumple_no_blank?(dato)
-        raise ValidateException.new(dato) unless cumple_validate?(dato)
+    def validar(nombre, dato)
+        raise RangoExcedidoException.new(nombre, dato, @from, @to) unless cumple_rango?(dato)
+        raise BlankException.new(nombre, dato) unless cumple_no_blank?(dato)
+        raise ValidateException.new(nombre, dato) unless cumple_validate?(dato)
     end
 
-    def validar_tipo(objeto)
-        raise TipoErroneoException.new(objeto, @clase) unless objeto.is_a? @clase or objeto.nil?
-    end
-
-    def cumple_no_blank?(dato) #TODO mejorar la excepcion
+    def cumple_no_blank?(dato)
         not (@no_blank and dato.nil?)
     end
 

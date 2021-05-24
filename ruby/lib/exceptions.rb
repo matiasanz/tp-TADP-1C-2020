@@ -42,20 +42,20 @@ class ValidacionNoAdmitidaException < StandardError
 end
 
 class ValidateException < StandardError
-    def initialize(dato)
-        super("El elemento #{dato.inspect} no cumple con la condicion establecida como validate")
+    def initialize(nombre, dato)
+        super("El elemento #{dato.inspect} no cumple con la condicion validate establecida para el campo #{nombre.to_s}")
     end
 end
 
 class RangoExcedidoException < StandardError
-    def initialize(dato, from, to)
-        super("El campo #{dato.to_s} no se encuentra dentro del rango [#{from.to_s||"-inf"}; #{to.to_s||"+inf"}]")
+    def initialize(nombre, dato, from, to)
+        super("El campo #{nombre.to_s}=#{dato.to_s} no se encuentra dentro del rango [#{from.to_s||"-inf"}; #{to.to_s||"+inf"}]")
     end
 end
 
 class BlankException < StandardError
-    def initialize(dato)
-        super("Un campo declarado no_blank es #{dato.inspect}")
+    def initialize(nombre, dato)
+        super("Un campo #{nombre.to_s} declarado no_blank es #{dato.inspect}")
     end
 end
 

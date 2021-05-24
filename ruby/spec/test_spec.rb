@@ -286,14 +286,14 @@ describe Prueba do
                 expect(validadorNumerico.cumple_no_blank?(dato)).to be_truthy
                 expect(validadorNumerico.cumple_rango?(dato)).to be_truthy
                 expect(validadorNumerico.cumple_validate?(dato)).to be_truthy
-                expect{validadorNumerico.validar(dato)}.to_not raise_exception
+                expect{validadorNumerico.validar(:datoCorrecto, dato)}.to_not raise_exception
             end
 
             it 'Validar dato numerico correcto' do
                 expect(validadorNumerico.cumple_no_blank?(nil)).to be_falsey
                 expect(validadorNumerico.cumple_rango?(-1)).to be_falsey
                 expect(validadorNumerico.cumple_validate?(4)).to be_falsey
-                expect{validadorNumerico.validar(4)}.to raise_error(ValidateException)
+                expect{validadorNumerico.validar(:datoErroneo, 4)}.to raise_error(ValidateException)
             end
         end
     end
