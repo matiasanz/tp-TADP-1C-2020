@@ -3,21 +3,21 @@ require 'b_atributos_persistibles'
 class ValidadorDeAtributo
     attr_accessor :no_blank, :from, :to, :validate
 
-    def initialize(clase, no_blank: false, from: nil, to: nil, validate: lambda{|_| true})
-        raise CampoIncorrectoException.new(no_blank, Boolean, "no_blank") unless no_blank.is_a? Boolean
-        raise CampoIncorrectoException.new(from, Numeric, "from") unless from.is_a?Numeric or from.nil?
-        raise CampoIncorrectoException.new(to, Numeric, "to") unless to.is_a?Numeric or to.nil?
-        raise CampoIncorrectoException.new(validate, [Proc, Lambda], "validate") unless validate.is_a?Proc or validate.lambda?
+    def initialize(clase, validaciones)
+        @no_blank= validaciones[:no_blank] || false
+        @from= validaciones[:from]
+        @to=validaciones[:to]
+        @validate=validaciones[:validate] || lambda{|_| true}
+
+        raise CampoIncorrectoException.new(@no_blank, Boolean, "no_blank") unless @no_blank.is_a? Boolean
+        raise CampoIncorrectoException.new(@from, Numeric, "from") unless @from.is_a?Numeric or @from.nil?
+        raise CampoIncorrectoException.new(@to, Numeric, "to") unless @to.is_a?Numeric or @to.nil?
+        raise CampoIncorrectoException.new(@validate, [Proc, Lambda], "validate") unless @validate.is_a?Proc or @validate.lambda?
 
         unless clase <= Numeric
-            raise ValidacionNoAdmitidaException.new(clase, "from") unless from.nil?
-            raise ValidacionNoAdmitidaException.new(clase, "to") unless to.nil?
+            raise ValidacionNoAdmitidaException.new(clase, "from") unless @from.nil?
+            raise ValidacionNoAdmitidaException.new(clase, "to") unless @to.nil?
         end
-
-        @no_blank=no_blank
-        @from=from
-        @to=to
-        @validate=validate
     end
 
     def validar(dato)

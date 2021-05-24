@@ -66,9 +66,9 @@ class Tabla
     def formato_entrada(objeto)
         entrada = {}
 
-        @clase.atributos_persistibles.each do
-            |nombre, atributo|
-            persistible = objeto.send(nombre)
+        @clase.atributos_persistibles.each_value do
+            |atributo|
+            persistible = atributo.get_from(objeto)
             atributo.agregar_a_entrada(persistible, entrada) unless persistible.nil?
         end
 

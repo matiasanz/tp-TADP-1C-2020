@@ -7,7 +7,7 @@ end
 
 class ClaseDesconocidaException < StandardError
     def initialize(clase)
-        super("El nombre #{clase.to_s} no se reconoce como clase o modulo")
+        super("El nombre #{clase.to_s.inspect} no se reconoce como clase o modulo")
     end
 end
 
@@ -56,6 +56,18 @@ end
 class BlankException < StandardError
     def initialize(dato)
         super("Un campo declarado no_blank es #{dato.inspect}")
+    end
+end
+
+class HasArgsIncorrectosException < StandardError
+    def initialize(parametrosSobrantes)
+        super("Se ingresaron parametros incorrectos: #{parametrosSobrantes.to_s}")
+    end
+end
+
+class ValidadorNilException < StandardError
+    def initialize
+        super("Validador no seteado exception")
     end
 end
 

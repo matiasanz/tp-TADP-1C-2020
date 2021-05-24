@@ -19,20 +19,27 @@ module ClasePersistible
     end
 
     #Enunciado
-    def has_one(tipo, named:, default: nil, no_blank: false, from: nil, to: nil, validate: lambda{|_| true})
-        has(AtributoHelper.as_atribute(named, tipo, default))
+    def has_one(tipo, args)
+        has_attribute(tipo, args, false)
     end
 
-    def has_many(tipo, named:, default: nil, no_blank: false, from: nil, to: nil, validate: lambda{|_| true})
-        has(AtributoMultiple.new(named, tipo, default, self))
+    def has_many(tipo, args)
+        has_attribute(tipo, args, true)
     end
 
     private
-    def has(atributo)
-        nombre = atributo.nombre
-        attr_accessor nombre
-        persistibles_propios[nombre] = atributo
+    def has_attribute(tipo, args, many)
+        validar_has_args(args)
+        atributo = AtributoHelper.as_attribute(args, tipo, self, many)
+        attr_accessor atributo.nombre
+        persistibles_propios[atributo.nombre] = atributo
     end
+
+    def validar_has_args(args)
+        parametrosSobrantes = args.keys - [:named, :default, :from, :to, :no_blank, :validate]
+        raise HasArgsException.new(parametrosSobrantes) unless parametrosSobrantes.empty?
+    end
+
     public
 
     #Enunciado

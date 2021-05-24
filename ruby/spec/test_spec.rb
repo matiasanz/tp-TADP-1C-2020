@@ -270,7 +270,7 @@ describe Prueba do
             end
 
             it 'Argumentos opcionales' do
-                expect { ValidadorDeAtributo.new(Personaje)}.to_not raise_error
+                expect { ValidadorDeAtributo.new(Personaje, {})}.to_not raise_error
                 expect { ValidadorDeAtributo.new(Personaje, no_blank: true, validate: ->{true})}.to_not raise_error
                 expect { ValidadorDeAtributo.new(Numeric, from: 1)}.to_not raise_error
             end
@@ -295,13 +295,6 @@ describe Prueba do
                 expect(validadorNumerico.cumple_validate?(4)).to be_falsey
                 expect{validadorNumerico.validar(4)}.to raise_error(ValidateException)
             end
-        end
-
-        describe 'Clase simple' do
-            let(:validadorPersonajes) do
-                ValidadorDeAtributo.new(Personaje, no_blank: true, from: 0)
-            end
-
         end
     end
 

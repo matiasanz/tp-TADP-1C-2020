@@ -8,10 +8,18 @@ module AtributoHelper
         [String, Boolean, Numeric].include?(clase)
     end
 
-    def self.as_atribute(nombre, clase, default=nil)
+    def self.as_attribute(args, tipo, claseContenedora, many=false)
+        atributo = many ? AtributoMultiple.new(args[:named], tipo, args[:default], claseContenedora)
+                       : as_simple_attribute(args[:named], tipo, args[:default])
+
+        atributo.set_validador(ValidadorDeAtributo.new(tipo, args))
+
+        return atributo
+    end
+
+    def self.as_simple_attribute(nombre, clase, default=nil)
         tipoAtributo = clase_primitiva?(clase)? AtributoSimple : AtributoCompuesto
         tipoAtributo.new(nombre, clase, default)
-
     end
 
 end
@@ -35,7 +43,8 @@ class AtributoPersistible
 
     def validar_instancia(valor)
         validar_tipo(valor)
-        validador.validar(valor)
+        raise ValidadorNilException.new if @validador.nil?
+        @validador.validar(valor)
     end
 
     def validar_tipo(objeto) #TODO Mover a validador
@@ -46,6 +55,7 @@ class AtributoPersistible
     def persistir_de(objeto)
         persistible = get_from(objeto)
         persistible = objeto.send("#{@nombre.to_s}=", @default) if persistible.nil?
+        validar_instancia(persistible)
         persistir(persistible) unless persistible.nil?
     end
 
@@ -57,14 +67,13 @@ class AtributoPersistible
         #no hace nada
     end
 
-    protected
     def get_from(objeto)
         valorActual = objeto.send(@nombre)
         validar_tipo(valorActual)
         valorActual
     end
 
-
+    protected
     def persistir(persistible)
         raise MetodoAbstractoException.new
     end
@@ -113,7 +122,8 @@ end
 class AtributoMultiple < AtributoPersistible
     def initialize(nombre, tipo, default, claseContenedora)
         super(nombre, Array, [default])
-        @atributo = AtributoHelper.as_atribute(:elemento, tipo)
+        @atributo = AtributoHelper.as_simple_attribute(:elemento, tipo)
+
         @TablaMultiple = Tabla.new_tabla_multiple(tipo, claseContenedora, nombre)
     end
 
@@ -141,8 +151,12 @@ class AtributoMultiple < AtributoPersistible
     end
 
     def validar_instancia(valorActual)
-        super
+        validar_tipo(valorActual)
         valorActual.each{|elem| @atributo.validar_instancia(elem)} unless valorActual.nil?
+    end
+
+    def set_validador(validador)
+        @atributo.set_validador(validador)
     end
 
     private
