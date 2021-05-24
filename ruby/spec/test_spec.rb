@@ -102,9 +102,10 @@ describe Prueba do
       p.first_name = "arturo"
       p.last_name = "puig"
       p.save!
+      id = p.id
       p.forget!
-      expect(p.hash_atributos_persistidos).to eq nil
       expect(p.id).to eq nil
+      expect(Person.hash_atributos_persistidos(id)).to eq nil
     end
   end
 
@@ -281,7 +282,7 @@ describe Prueba do
         has_many Grade, named: :grades
 
         def initialize
-          inicializar_has_many_attr
+          inicializar_atributos_has_many
           super
         end
       end

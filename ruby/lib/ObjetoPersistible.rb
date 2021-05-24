@@ -9,10 +9,6 @@ module ObjetoPersistible
     self.class.atributos_persistibles
   end
 
-  def tabla
-    self.class.tabla
-  end
-
 =begin
   # define metodos y accesors para las clases persistibles
   def self.included(clase)
@@ -23,10 +19,10 @@ module ObjetoPersistible
 
   def save!
     raise SaveException.new(self) unless atributos_persistibles
-    self.class.inicializar_tabla unless tabla
+    self.class.inicializar_tabla unless self.class.tabla
     hash = generar_hash_para_insertar
     forget! if @id
-    @id = tabla.insert(hash)
+    @id = self.class.insertar_en_tabla(hash)
     self
   end
 
@@ -38,7 +34,7 @@ module ObjetoPersistible
 
   def forget!
     raise ForgetException.new(self) unless @id
-    tabla.delete(@id)
+    self.class.borrar_de_tabla(@id)
     @id = nil
     self
   end
@@ -48,78 +44,115 @@ module ObjetoPersistible
   #  inicializar_has_many
   #  super
   #end
-  def inicializar_has_many_attr
-    if atributos_persistibles[:has_many_attr]
-      atributos_persistibles[:has_many_attr].each{ |simbolo| send(pasar_a_setter(simbolo), []) }
+  def inicializar_atributos_has_many
+    if atributos_persistibles[:has_many]
+      atributos_persistibles[:has_many].each{ |simbolo| send(pasar_a_setter(simbolo), []) }
     end
+  end
+
+  def generar_hash_para_insertar
+    hash_para_insertar = {}
+    atr_persistibles_sin_has_many.each do |simbolo, clase|
+      hash_para_insertar[simbolo] = obtener_valor_a_insertar(simbolo, clase)
+    end
+    hash_para_insertar[:id] = @id
+    hash_para_insertar
+  end
+
+  def obtener_valor_a_insertar(simbolo, clase)
+    valor = send(simbolo)
+    if !valor
+      ""
+    elsif es_atributo_has_many(simbolo)
+      obtener_valor_has_many(valor, clase)
+    elsif es_tipo_primitivo(clase)
+      valor
+    else
+      valor.save!.id
+    end
+  end
+
+  def obtener_valor_has_many(valor, clase)
+    if  es_tipo_primitivo(clase)
+      valor.join(",")
+    else
+      valor.each{|instancia| instancia.save!.id}
+      valor.map{|instancia| instancia.id}.join(",")
+    end
+  end
+
+  #metodo extraido porque lo usa la clase y las instancias
+  def settear_atributos
+    atr_persistibles_sin_has_many.each do |simbolo, clase|
+      if self.class.hash_atributos_persistidos(@id)[simbolo] == "" && clase != String
+        #no debe hacer nada
+      else
+        settear_atributo(simbolo, clase)
+      end
+    end
+    self
+  end
+
+  def settear_atributo(simbolo, clase)
+    if es_atributo_has_many(simbolo)
+      settear_atributo_has_many(simbolo, clase)
+    else
+      if es_tipo_primitivo(clase)
+        valor_a_settear = self.class.hash_atributos_persistidos(@id)[simbolo]
+      else
+        valor_a_settear = clase.find_by_id(self.class.hash_atributos_persistidos(@id)[simbolo])[0]
+      end
+      send(pasar_a_setter(simbolo), valor_a_settear)
+    end
+  end
+
+  def settear_atributo_has_many(simbolo, clase)
+    send(pasar_a_setter(simbolo), [])
+    if es_tipo_primitivo(clase)
+      array_persistido_primitivo(simbolo, clase).each do |valor|
+        send(pasar_a_setter(simbolo), send(simbolo).push(valor))
+      end
+    else
+      array_persistido(simbolo).each do |id|
+        send(pasar_a_setter(simbolo), send(simbolo).push(clase.find_by_id(id)[0]))
+      end
+    end
+  end
+
+  def array_persistido(simbolo)
+    self.class.hash_atributos_persistidos(@id)[simbolo].split(",")
+  end
+
+  def array_persistido_primitivo(simbolo, clase)
+    if clase == Numeric
+      array_persistido(simbolo).map{ |elem| elem.to_i }
+    elsif clase == Boolean
+      array_persistido(simbolo).map{ |elem| elem == "true" ? true : false }
+    else
+      array_persistido(simbolo)
+    end
+  end
+
+
+  private
+  attr_writer :id
+
+  def es_tipo_primitivo(clase)
+    clase == String || clase == Numeric || clase == Boolean
+  end
+
+  def es_atributo_has_many(simbolo)
+    atributos_persistibles[:has_many] && atributos_persistibles[:has_many].include?(simbolo)
   end
 
   def pasar_a_setter(simbolo)
     (simbolo.to_s << "=").to_sym
   end
 
-  def generar_hash_para_insertar  #deberia ser private? TODO
-    hash_para_insertar = {}
-    has_many_attr = atributos_persistibles[:has_many_attr]
-    atributos_persistibles.each do |key, value|       #logica repedida... TODO
-      if key == :has_many_attr
-        hash_para_insertar[key] = value.to_s  #persisto las relaciones has_many para usar despues
-      elsif send(key) == nil                  #mejor deberia crear una tabla por relacion TODO
-        hash_para_insertar[key] = ""
-      elsif value != String && value != Numeric && value != Boolean && has_many_attr != nil && has_many_attr.include?(key)
-        send(key).each{|instancia| instancia.save!.id}
-        hash_para_insertar[key] = send(key).map{|instancia| instancia.id}.join(",")
-      elsif (value == String || value == Numeric || value == Boolean) && has_many_attr != nil && has_many_attr.include?(key)
-        hash_para_insertar[key] = send(key).join(",")    #esto es provisorio, es hasta que tenga una tabla por relacion TODO
-      elsif value != String && value != Numeric && value != Boolean
-        hash_para_insertar[key] = send(key).save!.id
-      else
-        hash_para_insertar[key] = send(key)
-      end
-    end
-    hash_para_insertar[:id] = @id
-    hash_para_insertar
-  end
-
-  #metodo extraido porque lo usa la clase y las instancias
-  def settear_atributos
-    has_many_attr = atributos_persistibles[:has_many_attr]
+  def atr_persistibles_sin_has_many
     atributos_persistibles_temp = atributos_persistibles.clone
-    atributos_persistibles_temp.delete(:has_many_attr)
-    atributos_persistibles_temp.each do |simbolo, clase|
-      simbolo_setter = (simbolo.to_s << "=").to_sym
-      if clase != String && clase != Numeric && clase != Boolean && has_many_attr != nil && has_many_attr.include?(simbolo)
-        send(simbolo_setter, [])
-        hash_atributos_persistidos[simbolo].split(",").each do
-          |id| self.send(simbolo_setter, send(simbolo).push(clase.find_by_id(id)[0]))
-        end
-      elsif (clase == String || clase == Numeric || clase == Boolean) && has_many_attr != nil && has_many_attr.include?(simbolo)
-        array = hash_atributos_persistidos[simbolo].split(",")
-        if clase == Numeric
-          array = array.map{ |elem| elem.to_i }
-        elsif clase == Boolean
-          array = array.map { |elem| elem == "true" ? true : false }
-        end
-        send(simbolo_setter, [])
-        array.each do
-        |valor| self.send(simbolo_setter, send(simbolo).push(valor))   #esto es provisorio, es hasta que tenga una tabla por relacion TODO
-        end
-      elsif clase != String && clase != Numeric && clase != Boolean  #logica repetida con obtener_hash_para_insertar TODO
-        self.send(simbolo_setter, clase.find_by_id(hash_atributos_persistidos[simbolo])[0])
-      else
-        self.send(simbolo_setter, hash_atributos_persistidos[simbolo])
-      end
-    end
-    self
+    atributos_persistibles_temp.delete(:has_many)
+    atributos_persistibles_temp
   end
-
-  def hash_atributos_persistidos
-    entradas = tabla.entries
-    entradas.each { |entrada| return entrada if entrada.has_value?(@id) }
-    nil
-  end
-
-  private
-  attr_writer :id
 
 end
