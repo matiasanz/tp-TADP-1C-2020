@@ -81,8 +81,21 @@ module ClasePersistible
   end
 
   def all_instances
-    return nil unless @tabla
-    @tabla.entries.map { |entrada| generar_instancia(entrada) }
+    if @tabla
+      all_instances_de_hijos + @tabla.entries.map { |entrada| generar_instancia(entrada) }
+    else
+      if is_a?(Class)
+        []
+      else
+        all_instances_de_hijos
+      end
+    end
+  end
+
+  def all_instances_de_hijos
+    array_aux = []
+    modulos_hijos.each { |modulo| array_aux = array_aux + modulo.all_instances }
+    array_aux
   end
 
   def generar_instancia(entrada_de_tabla)

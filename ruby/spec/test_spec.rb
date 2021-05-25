@@ -476,12 +476,53 @@ describe Prueba do
       puts "#{AssistantProfessor.singleton_class.ancestors}"
       puts ""
 
-
+      Grade.tabla.clear
+      Student.tabla.clear
+      AssistantProfessor.tabla.clear
     end
 
     it '3 c 2' do
 
+      module Persona
+        include ORM
+        has_one String, named: :full_name
+      end
 
+      class Grade
+        include ORM
+        has_one Numeric, named: :value
+      end
+
+      class Student
+        include Persona
+        has_one Grade, named: :grade
+      end
+
+      class AssistantProfessor < Student
+        has_one String, named: :type
+      end
+
+      g = Grade.new
+      g.value = 9
+      e = Student.new
+      e.grade = g
+      e.full_name = "javier sans"
+      e.save!
+
+      g2 = Grade.new
+      g2.value = 6
+      a = AssistantProfessor.new
+      a.grade = g2
+      a.full_name = "federico rioja"
+      a.type = "a"
+      a.save!
+
+      puts "DEL TEST 1 #{Persona.all_instances}"      #Trae todos los Estudiantes y Ayudantes
+      puts "DEL TEST 2 #{Grade.all_instances}"
+      puts "DEL TEST 3 #{Student.all_instances}"
+      puts "DEL TEST 4 #{AssistantProfessor.all_instances}"
+      Student.find_by_id("5") #Trae Estudiantes y Ayudantes con id "5"
+      Student.find_by_type("a") # Falla! No todos entienden type!
 
     end
   end

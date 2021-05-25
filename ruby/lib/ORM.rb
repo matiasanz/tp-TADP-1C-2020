@@ -10,6 +10,7 @@ module ORM
 
   def self.entregar_dependecias(modulo)
     modulo.extend(ClasePersistible)
+    modulo.incluye_orm = true
 
     if modulo.is_a?(Class)
       modulo.include(ObjetoPersistible) #asi no lo incluyen los modulos
@@ -34,10 +35,6 @@ module ORM
       #  inicializar_has_many
       #  super()
       #end
-    else
-      # esto es par si un modulo incluye al ORM
-      # asi, los que incluyan ese modulo van a ser ClasePersistible
-      modulo.incluye_orm = true # si es un modulo
     end
   end
 
@@ -53,10 +50,26 @@ class Module
     @incluye_orm ||= false
   end
 
+  def modulos_hijos
+    @modulos_hijos ||= []
+  end
+
   def included(modulo)
     if @incluye_orm
       ORM::entregar_dependecias(modulo)
+      modulos_hijos
+      @modulos_hijos.push(modulo)
     end
   end
 
+end
+
+class Class
+  def inherited(clase)
+    if @incluye_orm
+      modulos_hijos
+      @modulos_hijos.push(clase)
+      clase.incluye_orm = true
+    end
+  end
 end
