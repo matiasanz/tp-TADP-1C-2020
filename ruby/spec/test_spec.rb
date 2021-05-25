@@ -280,20 +280,23 @@ describe Prueba do
             let(:validadorNumerico) do
                 ValidadorDeAtributo.new(Numeric, no_blank: true, from: 0, to: 4, validate: lambda{|x| x<3})
             end
+            let (:atributoNumerico) do
+                AtributoHelper.as_simple_attribute(:atributo, Numeric)
+            end
 
             it 'Validar dato numerico correcto' do
                 dato = 2
                 expect(validadorNumerico.cumple_no_blank?(dato)).to be_truthy
                 expect(validadorNumerico.cumple_rango?(dato)).to be_truthy
                 expect(validadorNumerico.cumple_validate?(dato)).to be_truthy
-                expect{validadorNumerico.validar(:datoCorrecto, dato)}.to_not raise_exception
+                expect{validadorNumerico.validar(atributoNumerico, dato)}.to_not raise_exception
             end
 
             it 'Validar dato numerico correcto' do
                 expect(validadorNumerico.cumple_no_blank?(nil)).to be_falsey
                 expect(validadorNumerico.cumple_rango?(-1)).to be_falsey
                 expect(validadorNumerico.cumple_validate?(4)).to be_falsey
-                expect{validadorNumerico.validar(:datoErroneo, 4)}.to raise_error(ValidateException)
+                expect{validadorNumerico.validar(atributoNumerico, 4)}.to raise_error(ValidateException)
             end
         end
     end
