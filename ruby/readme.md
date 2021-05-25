@@ -1,6 +1,6 @@
 # Trabajo Práctico N°01: ORM
 
-## Integrantes: ✒️ 
+## ✒️ Integrantes:  
 * Anzorandía, Matías
 * Deheza, Alejandro
 * González, Emiliano
@@ -14,4 +14,4 @@
 - [X] Eliminar de la base de datos un objeto compuesto no elimina sus componentes
 
 ## Diagrama de Clases: :shipit:
-  ![Diagrama de clases](/ruby/Diagramas/uml.png)
+  ![Diagrama de clases](/Diagramas/uml.png)
