@@ -521,9 +521,23 @@ describe Prueba do
       puts "DEL TEST 2 #{Grade.all_instances}"
       puts "DEL TEST 3 #{Student.all_instances}"
       puts "DEL TEST 4 #{AssistantProfessor.all_instances}"
-      Student.find_by_id("5") #Trae Estudiantes y Ayudantes con id "5"
-      Student.find_by_type("a") # Falla! No todos entienden type!
 
+      e.send(:id=, "5")
+      a.send(:id=, "5")
+
+      e.save!
+      a.save!
+
+      puts e.id
+      puts a.id
+
+      puts "#{Student.find_by_id("5")}"  #Trae Estudiantes y Ayudantes con id "5"
+      puts "#{Student.full_name("federico rioja")}"
+      expect{Student.find_by_type("a")}.to raise_error(NoMethodError) # Falla! No todos entienden type!
+
+      Grade.tabla.clear
+      Student.tabla.clear
+      AssistantProfessor.tabla.clear
     end
   end
 
