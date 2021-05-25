@@ -4,33 +4,59 @@ require_relative 'ClasePersistible'
 
 module ORM
 
-  include ObjetoPersistible
+  def self.included(modulo)
+    entregar_dependecias(modulo)
+  end
 
-  def self.included(clase)
-    clase.extend(ClasePersistible)
+  def self.entregar_dependecias(modulo)
+    modulo.extend(ClasePersistible)
 
-    # esto inicializa los atributos que usan has_many con un array vacio []
-    # si el usuario define un contructor, solo tiene que escribir inicializar_has_many (si lo usa)
-    # si no define contructor, funciona TOD0 bien
-    clase.class_eval do
-      def initialize
-        inicializar_atributos_has_many
-        super
+    if modulo.is_a?(Class)
+      modulo.include(ObjetoPersistible) #asi no lo incluyen los modulos
+
+      # esto inicializa los atributos que usan has_many con un array vacio []
+      # si el usuario define un contructor, solo tiene que escribir inicializar_has_many (si lo usa)
+      # si no define contructor, funciona TOD0 bien
+      modulo.class_eval do
+        def initialize
+          inicializar_atributos_has_many
+          super
+        end
       end
+      # Hace lo mismo que arriba
+      #modulo.send(:define_method, :initialize) do
+      #  inicializar_has_many
+      #  super()
+      #end
+
+      # Hace lo mismo que arriba
+      #modulo.define_singleton_method(:initialize) do
+      #  inicializar_has_many
+      #  super()
+      #end
+    else
+      # esto es par si un modulo incluye al ORM
+      # asi, los que incluyan ese modulo van a ser ClasePersistible
+      modulo.incluye_orm = true # si es un modulo
     end
+  end
 
-    # Hace lo mismo que arriba
-    #clase.send(:define_method, :initialize) do
-    #  inicializar_has_many
-    #  super()
-    #end
+end
 
-    # Hace lo mismo que arriba
-    #clase.define_singleton_method(:initialize) do
-    #  inicializar_has_many
-    #  super()
-    #end
+class Module
 
+  def incluye_orm=(valor)
+    @incluye_orm = valor
+  end
+
+  def incluye_orm?
+    @incluye_orm ||= false
+  end
+
+  def included(modulo)
+    if @incluye_orm
+      ORM::entregar_dependecias(modulo)
+    end
   end
 
 end

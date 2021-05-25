@@ -1,7 +1,10 @@
 require 'tadb'
 require_relative 'Excepciones'
+require_relative 'Util'
 
 module ObjetoPersistible
+
+  include Util
 
   attr_reader :id
 
@@ -48,11 +51,12 @@ module ObjetoPersistible
     if atributos_persistibles[:has_many]
       atributos_persistibles[:has_many].each{ |simbolo| send(pasar_a_setter(simbolo), []) }
     end
+    self
   end
 
   def generar_hash_para_insertar
     hash_para_insertar = {}
-    atr_persistibles_sin_has_many.each do |simbolo, clase|
+    atr_persistibles_sin_has_many(atributos_persistibles).each do |simbolo, clase|
       hash_para_insertar[simbolo] = obtener_valor_a_insertar(simbolo, clase)
     end
     hash_para_insertar[:id] = @id
@@ -63,7 +67,7 @@ module ObjetoPersistible
     valor = send(simbolo)
     if !valor
       ""
-    elsif es_atributo_has_many(simbolo)
+    elsif es_atributo_has_many(atributos_persistibles, simbolo)
       obtener_valor_has_many(valor, clase)
     elsif es_tipo_primitivo(clase)
       valor
@@ -83,7 +87,7 @@ module ObjetoPersistible
 
   #metodo extraido porque lo usa la clase y las instancias
   def settear_atributos
-    atr_persistibles_sin_has_many.each do |simbolo, clase|
+    atr_persistibles_sin_has_many(atributos_persistibles).each do |simbolo, clase|
       if self.class.hash_atributos_persistidos(@id)[simbolo] == "" && clase != String
         #no debe hacer nada
       else
@@ -94,7 +98,7 @@ module ObjetoPersistible
   end
 
   def settear_atributo(simbolo, clase)
-    if es_atributo_has_many(simbolo)
+    if es_atributo_has_many(atributos_persistibles, simbolo)
       settear_atributo_has_many(simbolo, clase)
     else
       if es_tipo_primitivo(clase)
@@ -104,6 +108,7 @@ module ObjetoPersistible
       end
       send(pasar_a_setter(simbolo), valor_a_settear)
     end
+    self
   end
 
   def settear_atributo_has_many(simbolo, clase)
@@ -117,6 +122,7 @@ module ObjetoPersistible
         send(pasar_a_setter(simbolo), send(simbolo).push(clase.find_by_id(id)[0]))
       end
     end
+    self
   end
 
   def array_persistido(simbolo)
@@ -134,6 +140,7 @@ module ObjetoPersistible
   end
 
 
+
   private
   attr_writer :id
 
@@ -141,18 +148,8 @@ module ObjetoPersistible
     clase == String || clase == Numeric || clase == Boolean
   end
 
-  def es_atributo_has_many(simbolo)
-    atributos_persistibles[:has_many] && atributos_persistibles[:has_many].include?(simbolo)
-  end
-
   def pasar_a_setter(simbolo)
     (simbolo.to_s << "=").to_sym
-  end
-
-  def atr_persistibles_sin_has_many
-    atributos_persistibles_temp = atributos_persistibles.clone
-    atributos_persistibles_temp.delete(:has_many)
-    atributos_persistibles_temp
   end
 
 end

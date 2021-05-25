@@ -1,4 +1,8 @@
+require_relative 'Util'
+
 module ClasePersistible
+
+  include Util
 
   attr_reader :atributos_persistibles
   attr_accessor :tabla
@@ -25,8 +29,41 @@ module ClasePersistible
   #  end
   #end
 
+  def analizar_ancestros
+    ancestros = []
+    ancestors.each do |ancestro|
+      break if ancestro == ORM
+      ancestros.push(ancestro) if ancestro.is_a?(ClasePersistible)
+    end
+    ancestros.delete_at(0)
+    agregar_atributos_de_ancestros(ancestros) if ancestros.size > 0
+    self
+  end
+
+  def agregar_atributos_de_ancestros(ancestros)
+    ancestros.reverse!
+    atr_persistibles_original = @atributos_persistibles.clone
+    ancestros.each { |modulo| agregar_atributos_de(modulo.atributos_persistibles) }
+    agregar_atributos_de(atr_persistibles_original)
+    @atributos_persistibles[:has_many] = @atributos_persistibles[:has_many].uniq if @atributos_persistibles[:has_many]
+    self
+  end
+
+  def agregar_atributos_de(hash_atributos)
+    atr_persistibles_sin_has_many(hash_atributos).each do |nombre, tipo|
+      if es_atributo_has_many(hash_atributos, nombre)
+        has_many(tipo, named: nombre)
+      else
+        has_one(tipo, named: nombre)
+      end
+    end
+    self
+  end
+
   def inicializar_tabla
     @tabla = TADB::DB.table(name)
+    analizar_ancestros # tambien agrega atributos de clases padre
+    self
   end
 
   def insertar_en_tabla(hash)
@@ -35,6 +72,7 @@ module ClasePersistible
 
   def borrar_de_tabla(id)
     @tabla.delete(id)
+    self
   end
 
   def hash_atributos_persistidos(id)

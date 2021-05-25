@@ -400,5 +400,91 @@ describe Prueba do
     end
   end
 
+  describe 'test_punto_3' do
+    it '3 c 1' do
+
+      class Grade
+        include ORM
+        has_one Numeric, named: :value
+      end
+
+      module DummyModule
+        include ORM
+        has_one String, named: :un_dato
+      end
+
+      # No existe una tabla para las Personas, porque es un módulo.
+      module Persona
+        include DummyModule
+        #include ORM
+        has_one String, named: :full_name
+        has_many String, named: :cuadernos
+      end
+
+      # Hay una tabla para los Alumnos con los campos id, nombre y nota.
+      class Student
+        #include ORM
+        include Persona
+        has_one Grade, named: :grade
+      end
+
+      #puts Persona.is_a?(ClasePersistible)
+      #puts Student.is_a?(ClasePersistible)
+
+      #puts Class.is_a?(Module)
+      #puts Grade.incluye_orm?
+      #puts DummyModule.incluye_orm?
+      #puts Persona.incluye_orm?
+      #puts Student.incluye_orm?
+      #puts ObjetoPersistible.incluye_orm?
+      #puts ObjetoPersistible.is_a?(ClasePersistible)
+
+
+      g = Grade.new
+      g.value = 9
+      e = Student.new
+      e.grade = g
+      e.full_name = "javier sans"
+      e.save!
+      puts "#{Grade.ancestors}"
+      puts "#{Grade.singleton_class.ancestors}"
+      puts ""
+      puts "#{Persona.ancestors}"
+      puts "#{Persona.singleton_class.ancestors}"
+      puts ""
+      puts "#{Student.ancestors}"
+      puts "#{Student.singleton_class.ancestors}"
+      puts ""
+
+      # Hay una tabla para los Ayudantes con id, nombre, nota y tipo
+      class AssistantProfessor < Student
+        #include ORM
+        has_one String, named: :type
+        has_many String, named: :libretas
+      end
+
+      g2 = Grade.new
+      g2.value = 6
+      a = AssistantProfessor.new
+      a.grade = g2
+      a.full_name = "federico rioja"
+      a.type = "un tipo"
+      a.libretas.push("tadp")
+      a.save!
+
+      puts "#{AssistantProfessor.ancestors}"
+      puts "#{AssistantProfessor.singleton_class.ancestors}"
+      puts ""
+
+
+    end
+
+    it '3 c 2' do
+
+
+
+    end
+  end
+
 end
 
