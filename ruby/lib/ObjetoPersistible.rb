@@ -21,8 +21,11 @@ module ObjetoPersistible
 =end
 
   def save!
-    raise SaveException.new(self) unless atributos_persistibles
+    raise SaveException.new unless atributos_persistibles
     self.class.inicializar_tabla unless self.class.tabla
+    validate!                             # valida la instancia actual y las instancias asociadas
+    # el "generar_hash_para_insertar" tambien cascadea el validate! a las instancias asociadas porque se realiza save! a cada una
+    # osea, se realizan las validaciones 2 veces
     hash = generar_hash_para_insertar
     forget! if @id
     @id = self.class.insertar_en_tabla(hash)
@@ -42,6 +45,47 @@ module ObjetoPersistible
     self
   end
 
+  def validate!
+    atr_persistibles_sin_has_many(atributos_persistibles).each do |simbolo, clase|
+      valor = send(simbolo)
+      raise ValidateException.new(self, simbolo, clase) unless valor.class == NilClass || corresponde_tipo(simbolo, valor)
+    end
+    self
+  end
+
+  def corresponde_tipo(clave, valor)
+    if es_atributo_has_many(atributos_persistibles, clave)
+      array = valor # es para darle un poquito mas de expresividad. Si entra en este if, el valor es un array
+      if atributos_persistibles[clave] == Boolean
+        todos_son(array, Boolean)
+      elsif atributos_persistibles[clave] == Numeric
+        todos_son(array, Numeric)
+      elsif atributos_persistibles[clave] == String
+        todos_son(array, String)
+      else
+        if todos_son(array, ObjetoPersistible)
+          array.each { |elem| elem.validate! }
+        else
+          raise ValidateException.new(self, clave, atributos_persistibles[clave])
+        end
+      end
+    else
+      if atributos_persistibles[clave] == Boolean
+        valor.is_a?(Boolean)
+      elsif atributos_persistibles[clave] == Numeric
+        valor.is_a?(Numeric)
+      elsif atributos_persistibles[clave] == String
+        valor.is_a?(String)
+      else
+        if valor.is_a?(ObjetoPersistible)
+          valor.validate!
+        else
+          raise ValidateException.new(self, clave, atributos_persistibles[clave])
+        end
+      end
+    end
+  end
+
   #se usaria asi
   #def initialize
   #  inicializar_has_many
@@ -57,17 +101,15 @@ module ObjetoPersistible
   def generar_hash_para_insertar
     hash_para_insertar = {}
     atr_persistibles_sin_has_many(atributos_persistibles).each do |simbolo, clase|
-      hash_para_insertar[simbolo] = obtener_valor_a_insertar(simbolo, clase)
+      valor = send(simbolo)
+      hash_para_insertar[simbolo] = obtener_valor_a_insertar(simbolo, clase, valor) if valor.class != NilClass
     end
-    hash_para_insertar[:id] = @id
+    hash_para_insertar[:id] = @id if @id
     hash_para_insertar
   end
 
-  def obtener_valor_a_insertar(simbolo, clase)
-    valor = send(simbolo)
-    if !valor
-      ""
-    elsif es_atributo_has_many(atributos_persistibles, simbolo)
+  def obtener_valor_a_insertar(simbolo, clase, valor)
+    if es_atributo_has_many(atributos_persistibles, simbolo)
       obtener_valor_has_many(valor, clase)
     elsif es_tipo_primitivo(clase)
       valor
@@ -77,22 +119,17 @@ module ObjetoPersistible
   end
 
   def obtener_valor_has_many(valor, clase)
-    if  es_tipo_primitivo(clase)
+    if es_tipo_primitivo(clase)
       valor.join(",")
     else
-      valor.each{|instancia| instancia.save!.id}
-      valor.map{|instancia| instancia.id}.join(",")
+      valor.map{|instancia| instancia.save!.id}.join(",")
     end
   end
 
   #metodo extraido porque lo usa la clase y las instancias
   def settear_atributos
     atr_persistibles_sin_has_many(atributos_persistibles).each do |simbolo, clase|
-      if self.class.hash_atributos_persistidos(@id)[simbolo] == "" && clase != String
-        #no debe hacer nada
-      else
-        settear_atributo(simbolo, clase)
-      end
+      settear_atributo(simbolo, clase) if self.class.hash_atributos_persistidos(@id).has_key?(simbolo)
     end
     self
   end
@@ -150,6 +187,10 @@ module ObjetoPersistible
 
   def pasar_a_setter(simbolo)
     (simbolo.to_s << "=").to_sym
+  end
+
+  def todos_son(valor, tipo)
+    valor.all? { |elem| elem.is_a?(tipo) }
   end
 
 end

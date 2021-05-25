@@ -64,6 +64,8 @@ describe Prueba do
       p = Person.new
       p.first_name = "raul"
       p.last_name = "porcheto"
+      p.age = 24
+      p.admin = false
       p.save!
       puts Person.atributos_persistibles
       puts p.generar_hash_para_insertar
@@ -298,8 +300,8 @@ describe Prueba do
       s.grades.last.value = 5
       expect(s.grades.last.value).to eq 5
       puts Student.atributos_persistibles
-      puts Student.atributos_persistibles[:has_many_attr]
-      puts Student.atributos_persistibles[:has_many_attr].to_s
+      puts Student.atributos_persistibles[:has_many]
+      puts Student.atributos_persistibles[:has_many].to_s
       s.save!                        # Salva al estudiante Y sus notas
 
       puts s.grades.map{|g| g.value}
@@ -539,6 +541,78 @@ describe Prueba do
       Student.tabla.clear
       AssistantProfessor.tabla.clear
     end
+  end
+
+  describe 'test_punto_4' do
+
+    it 'a' do
+
+      class Grade
+        include ORM
+        has_one Numeric, named: :value
+      end
+
+      class Student
+        include ORM
+        has_one String, named: :full_name
+        has_one Grade, named: :grade
+      end
+
+      s = Student.new
+      s.full_name = 5
+      expect{s.save!}.to raise_error(ValidateException)     # Falla! El nombre no es un String!
+
+      s.full_name = "pepe botella"
+      s.save!                       # Pasa: grade es nil, pero eso vale.
+
+      s.grade = Grade.new
+      s.grade.value = "pepe"
+      expect{s.save!}.to raise_error(ValidateException)     # Falla! grade.value no es un Number
+
+      s.grade = "algo"
+      expect{s.save!}.to raise_error(ValidateException)
+
+      Student.tabla.clear
+    end
+
+    it 'a 2' do
+      class Grade
+        include ORM
+        has_one Numeric, named: :value
+        has_many Boolean, named: :cosas
+      end
+
+      class Student
+        include ORM
+        has_one String, named: :full_name
+        has_many Grade, named: :grades
+        has_many String, named: :cuadernos
+      end
+
+      s = Student.new
+      s.full_name = "pepe botella"
+      s.grades.push(Grade.new)
+      s.grades.last.value = 8
+      g = Grade.new
+      g.value = 9
+      g.cosas.push(true, false, true)
+      s.grades.push(g)
+      s.cuadernos.push("tadp", "am2", "gdd")
+      #tod0 ok hasta aca
+
+      s = Student.new
+      s.full_name = "pepe botella"
+      s.grades.push(Grade.new)
+      s.grades.last.value = 8
+      g = Grade.new
+      g.value = 9
+      g.cosas.push(true, 3, true)             #falla por esta linea
+      s.grades.push(g)
+      s.grades.push("algo")                   #falla por esta linea
+      s.cuadernos.push("tadp", "am2", true)   #falla por esta linea
+      expect{s.save!}.to raise_error(ValidateException)
+    end
+
   end
 
 end
