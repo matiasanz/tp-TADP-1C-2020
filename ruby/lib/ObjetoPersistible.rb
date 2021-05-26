@@ -12,14 +12,6 @@ module ObjetoPersistible
     self.class.atributos_persistibles
   end
 
-=begin
-  # define metodos y accesors para las clases persistibles
-  def self.included(clase)
-    clase.singleton_class.send(:attr_reader, :atributos_persistibles)
-    clase.singleton_class.send(:attr_accessor, :tabla)
-  end
-=end
-
   def save!
     raise SaveException.new unless atributos_persistibles
     self.class.inicializar_tabla unless self.class.tabla
@@ -107,7 +99,7 @@ module ObjetoPersistible
     end
   end
 
-  #se usaria asi
+  #se usaria asi, en el constructor de la clase
   #def initialize
   #  inicializar_has_many
   #  super

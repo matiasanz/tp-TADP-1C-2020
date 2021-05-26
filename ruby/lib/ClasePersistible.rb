@@ -20,22 +20,16 @@ module ClasePersistible
   def agregar_atributo(tipo_atributo, named, no_blank, from, to, validate)
     attr_accessor named
     @atributos_persistibles ||= {}
-    @atributos_persistibles[named] = tipo_atributo
     @no_blank ||= []
     @from ||= {}
     @to ||= {}
     @validate ||= {}
+    @atributos_persistibles[named] = tipo_atributo
     @no_blank.push(named) if no_blank
     @from[named] = from if from
     @to[named] = to if to
     @validate[named] = validate if validate
   end
-
-  #def definir_getter(named)
-  #  send(:define_method, named) do
-  #    obj.instance_variable_set("@#{named.to_s}".to_sym, [])
-  #  end
-  #end
 
   def analizar_ancestros
     ancestros = []

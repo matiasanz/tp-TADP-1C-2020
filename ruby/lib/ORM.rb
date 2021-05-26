@@ -24,17 +24,6 @@ module ORM
           super
         end
       end
-      # Hace lo mismo que arriba
-      #modulo.send(:define_method, :initialize) do
-      #  inicializar_has_many
-      #  super()
-      #end
-
-      # Hace lo mismo que arriba
-      #modulo.define_singleton_method(:initialize) do
-      #  inicializar_has_many
-      #  super()
-      #end
     end
   end
 
