@@ -15,12 +15,12 @@ module ORM
     if modulo.is_a?(Class)
       modulo.include(ObjetoPersistible) #asi no lo incluyen los modulos
 
-      # esto inicializa los atributos que usan has_many con un array vacio []
-      # si el usuario define un contructor, solo tiene que escribir inicializar_has_many (si lo usa)
+      # esto inicializa los atributos que usan has_many con un array vacio []. Tambien inicializa los defaults
+      # si el usuario define un contructor, solo tiene que escribir "inicializar_atributos" (si lo usa)
       # si no define contructor, funciona TOD0 bien
       modulo.class_eval do
         def initialize
-          inicializar_atributos_has_many
+          inicializar_atributos
           super
         end
       end

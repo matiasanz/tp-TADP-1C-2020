@@ -4,31 +4,33 @@ module ClasePersistible
 
   include Util
 
-  attr_reader :atributos_persistibles, :atributos_has_many, :no_blank, :from, :to, :validate
+  attr_reader :atributos_persistibles, :atributos_has_many, :no_blank, :from, :to, :validate, :default
   attr_accessor :tabla
 
-  def has_one(tipo_atributo, named:, no_blank: false, from: nil, to: nil, validate: nil)
-    agregar_atributo(tipo_atributo, named, no_blank, from, to, validate)
+  def has_one(tipo_atributo, named:, no_blank: false, from: nil, to: nil, validate: nil, default: nil)
+    agregar_atributo(tipo_atributo, named, no_blank, from, to, validate, default)
   end
 
-  def has_many(tipo_atributo, named:, no_blank: false, from: nil, to: nil, validate: nil)
-    agregar_atributo(tipo_atributo, named, no_blank, from, to, validate)
+  def has_many(tipo_atributo, named:, no_blank: false, from: nil, to: nil, validate: nil, default: nil)
+    agregar_atributo(tipo_atributo, named, no_blank, from, to, validate, default)
     @atributos_has_many ||= []
     @atributos_has_many.push(named)
   end
 
-  def agregar_atributo(tipo_atributo, named, no_blank, from, to, validate)
+  def agregar_atributo(tipo_atributo, named, no_blank, from, to, validate, default)
     attr_accessor named
     @atributos_persistibles ||= {}
     @no_blank ||= []
     @from ||= {}
     @to ||= {}
     @validate ||= {}
+    @default ||= {}
     @atributos_persistibles[named] = tipo_atributo
     @no_blank.push(named) if no_blank
     @from[named] = from if from
     @to[named] = to if to
     @validate[named] = validate if validate
+    @default[named] = default if default
   end
 
   def analizar_ancestros

@@ -104,9 +104,12 @@ module ObjetoPersistible
   #  inicializar_has_many
   #  super
   #end
-  def inicializar_atributos_has_many
+  def inicializar_atributos
     if self.class.atributos_has_many
       self.class.atributos_has_many.each{ |simbolo| send(pasar_a_setter(simbolo), []) }
+    end
+    if self.class.default
+      self.class.default.each{ |simbolo, valor_default| send(pasar_a_setter(simbolo), valor_default) }
     end
     self
   end
@@ -116,6 +119,7 @@ module ObjetoPersistible
     atributos_persistibles.each do |simbolo, clase|
       valor = send(simbolo)
       hash_para_insertar[simbolo] = obtener_valor_a_insertar(simbolo, clase, valor) unless valor.nil?
+      hash_para_insertar[simbolo] = self.class.default[simbolo] if valor.nil? && self.class.default && !self.class.default[simbolo].nil?
     end
     hash_para_insertar[:id] = @id if @id
     hash_para_insertar

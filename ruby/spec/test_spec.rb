@@ -284,7 +284,7 @@ describe Prueba do
         has_many Grade, named: :grades
 
         def initialize
-          inicializar_atributos_has_many
+          inicializar_atributos
           super
         end
       end
@@ -639,6 +639,32 @@ describe Prueba do
       s.grades.push(Grade.new)
       s.grades.last.value = -1
       expect{s.save!}.to raise_error(BlockValidateException)               # Falla! grade.value no es > 2!
+    end
+
+    it "4 c" do
+
+      class Grade
+        include ORM
+        has_one Numeric, named: :value
+      end
+
+      class Student4
+        include ORM
+        has_one String, named: :full_name, default: "natalia natalia"
+        has_one Grade, named: :grade, default: Grade.new, no_blank: true
+      end
+
+      s = Student4.new
+      expect(s.full_name).to eq "natalia natalia"
+      s.full_name = nil
+      puts "#{s.class.no_blank.include?(:full_name)}"
+      puts "#{s.class.no_blank}"
+      s.save!
+      s.refresh!
+      expect(s.full_name).to eq "natalia natalia"
+
+      Grade.tabla.clear
+      Student4.tabla.clear
     end
 
   end
