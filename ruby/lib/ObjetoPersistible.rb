@@ -23,7 +23,7 @@ module ObjetoPersistible
   def save!
     raise SaveException.new unless atributos_persistibles
     self.class.inicializar_tabla unless self.class.tabla
-    validate!                             # valida la instancia actual y las instancias asociadas
+    validate! # valida la instancia actual y las instancias asociadas
     # el "generar_hash_para_insertar" tambien cascadea el validate! a las instancias asociadas porque se realiza save! a cada una
     # osea, se realizan las validaciones 2 veces
     hash = generar_hash_para_insertar
@@ -48,41 +48,62 @@ module ObjetoPersistible
   def validate!
     atr_persistibles_sin_has_many(atributos_persistibles).each do |simbolo, clase|
       valor = send(simbolo)
-      raise ValidateException.new(self, simbolo, clase) unless valor.class == NilClass || corresponde_tipo(simbolo, valor)
+      if valor.is_a?(Array)
+        valor.each { |instancia| validar_todo(simbolo, clase, instancia) }
+      else
+        validar_todo(simbolo, clase, valor)
+      end
     end
     self
   end
 
-  def corresponde_tipo(clave, valor)
-    if es_atributo_has_many(atributos_persistibles, clave)
-      array = valor # es para darle un poquito mas de expresividad. Si entra en este if, el valor es un array
-      if atributos_persistibles[clave] == Boolean
-        todos_son(array, Boolean)
-      elsif atributos_persistibles[clave] == Numeric
-        todos_son(array, Numeric)
-      elsif atributos_persistibles[clave] == String
-        todos_son(array, String)
-      else
-        if todos_son(array, ObjetoPersistible)
-          array.each { |elem| elem.validate! }
-        else
-          raise ValidateException.new(self, clave, atributos_persistibles[clave])
-        end
-      end
+  def validar_todo(simbolo, clase, valor)
+    validar_tipo(simbolo, clase, valor)
+    validar_no_blank(simbolo, valor)
+    validar_from(simbolo, clase, valor)
+    validar_to(simbolo, clase, valor)
+    validar_block_validate(simbolo, valor)
+  end
+
+  def validar_tipo(clave, clase, valor)
+    if valor.nil?
+      # no debe hacer nada
+    elsif clase == Boolean
+      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(Boolean)
+    elsif clase == Numeric
+      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(Numeric)
+    elsif clase == String
+      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(String)
     else
-      if atributos_persistibles[clave] == Boolean
-        valor.is_a?(Boolean)
-      elsif atributos_persistibles[clave] == Numeric
-        valor.is_a?(Numeric)
-      elsif atributos_persistibles[clave] == String
-        valor.is_a?(String)
+      if valor.is_a?(ObjetoPersistible)
+        valor.validate!
       else
-        if valor.is_a?(ObjetoPersistible)
-          valor.validate!
-        else
-          raise ValidateException.new(self, clave, atributos_persistibles[clave])
-        end
+        raise TipoDeDatoException.new(self, clave, clase)
       end
+    end
+  end
+
+  def validar_no_blank(simbolo, valor)
+    if (valor.nil? || valor == "") && self.class.no_blank.include?(simbolo)
+      raise NoBlankException.new(self, simbolo)
+    end
+  end
+
+  def validar_from(simbolo, clase, valor)
+    if clase == Numeric && self.class.from && self.class.from[simbolo] && self.class.from[simbolo] > valor
+      raise FromException.new(self, simbolo, self.class.from[simbolo])
+    end
+  end
+
+  def validar_to(simbolo, clase, valor)
+    if clase == Numeric && self.class.to && self.class.to[simbolo] && self.class.to[simbolo] < valor
+      raise ToException.new(self, simbolo, self.class.to[simbolo])
+    end
+  end
+
+  def validar_block_validate(simbolo, valor)
+    if self.class.validate && self.class.validate[simbolo] && !valor.instance_eval(&self.class.validate[simbolo])
+      raise BlockValidateException.new(self, simbolo, self.class.validate[simbolo])
     end
   end
 
@@ -102,7 +123,7 @@ module ObjetoPersistible
     hash_para_insertar = {}
     atr_persistibles_sin_has_many(atributos_persistibles).each do |simbolo, clase|
       valor = send(simbolo)
-      hash_para_insertar[simbolo] = obtener_valor_a_insertar(simbolo, clase, valor) if valor.class != NilClass
+      hash_para_insertar[simbolo] = obtener_valor_a_insertar(simbolo, clase, valor) unless valor.nil?
     end
     hash_para_insertar[:id] = @id if @id
     hash_para_insertar
@@ -187,10 +208,6 @@ module ObjetoPersistible
 
   def pasar_a_setter(simbolo)
     (simbolo.to_s << "=").to_sym
-  end
-
-  def todos_son(valor, tipo)
-    valor.all? { |elem| elem.is_a?(tipo) }
   end
 
 end

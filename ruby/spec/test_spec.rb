@@ -560,17 +560,17 @@ describe Prueba do
 
       s = Student.new
       s.full_name = 5
-      expect{s.save!}.to raise_error(ValidateException)     # Falla! El nombre no es un String!
+      expect{s.save!}.to raise_error(TipoDeDatoException)     # Falla! El nombre no es un String!
 
       s.full_name = "pepe botella"
       s.save!                       # Pasa: grade es nil, pero eso vale.
 
       s.grade = Grade.new
       s.grade.value = "pepe"
-      expect{s.save!}.to raise_error(ValidateException)     # Falla! grade.value no es un Number
+      expect{s.save!}.to raise_error(TipoDeDatoException)     # Falla! grade.value no es un Number
 
       s.grade = "algo"
-      expect{s.save!}.to raise_error(ValidateException)
+      expect{s.save!}.to raise_error(TipoDeDatoException)
 
       Student.tabla.clear
     end
@@ -610,7 +610,35 @@ describe Prueba do
       s.grades.push(g)
       s.grades.push("algo")                   #falla por esta linea
       s.cuadernos.push("tadp", "am2", true)   #falla por esta linea
-      expect{s.save!}.to raise_error(ValidateException)
+      expect{s.save!}.to raise_error(TipoDeDatoException)
+    end
+
+    it "4 b" do
+
+      class Grade
+        include ORM
+        has_one Numeric, named: :value
+      end
+
+      class Student
+        include ORM
+        has_one String, named: :full_name, no_blank: true
+        has_one Numeric, named: :age, from: 18, to: 100
+        has_many Grade, named: :grades, validate: proc{ value > 2 }
+      end
+
+      s = Student.new
+      s.full_name = ""
+      expect{s.save!}.to raise_error(NoBlankException)     # Falla! El nombre está vacío!
+      s.full_name = "emanuel ortega"
+      s.age = 15
+      expect{s.save!}.to raise_error(FromException)                       # Falla! La edad es menor a 18!
+      s.age = 103
+      expect{s.save!}.to raise_error(ToException)                       # Falla! La edad es mayor a 100!
+      s.age = 22
+      s.grades.push(Grade.new)
+      s.grades.last.value = -1
+      expect{s.save!}.to raise_error(BlockValidateException)               # Falla! grade.value no es > 2!
     end
 
   end

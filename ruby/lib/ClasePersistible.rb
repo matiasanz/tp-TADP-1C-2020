@@ -4,23 +4,31 @@ module ClasePersistible
 
   include Util
 
-  attr_reader :atributos_persistibles
+  attr_reader :atributos_persistibles, :no_blank, :from, :to, :validate
   attr_accessor :tabla
 
-  def has_one(tipo_atributo, named:)
-    agregar_atributo(tipo_atributo, named)
+  def has_one(tipo_atributo, named:, no_blank: false, from: nil, to: nil, validate: nil)
+    agregar_atributo(tipo_atributo, named, no_blank, from, to, validate)
   end
 
-  def has_many(tipo_atributo, named:)
-    agregar_atributo(tipo_atributo, named)
+  def has_many(tipo_atributo, named:, no_blank: false, from: nil, to: nil, validate: nil)
+    agregar_atributo(tipo_atributo, named, no_blank, from, to, validate)
     @atributos_persistibles[:has_many] ||= []
     @atributos_persistibles[:has_many].push(named)
   end
 
-  def agregar_atributo(tipo_atributo, named)
+  def agregar_atributo(tipo_atributo, named, no_blank, from, to, validate)
     attr_accessor named
     @atributos_persistibles ||= {}
     @atributos_persistibles[named] = tipo_atributo
+    @no_blank ||= []
+    @from ||= {}
+    @to ||= {}
+    @validate ||= {}
+    @no_blank.push(named) if no_blank
+    @from[named] = from if from
+    @to[named] = to if to
+    @validate[named] = validate if validate
   end
 
   #def definir_getter(named)
