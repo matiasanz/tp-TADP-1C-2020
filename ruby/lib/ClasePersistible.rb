@@ -4,7 +4,7 @@ module ClasePersistible
 
   include Util
 
-  attr_reader :atributos_persistibles, :no_blank, :from, :to, :validate
+  attr_reader :atributos_persistibles, :atributos_has_many, :no_blank, :from, :to, :validate
   attr_accessor :tabla
 
   def has_one(tipo_atributo, named:, no_blank: false, from: nil, to: nil, validate: nil)
@@ -13,8 +13,8 @@ module ClasePersistible
 
   def has_many(tipo_atributo, named:, no_blank: false, from: nil, to: nil, validate: nil)
     agregar_atributo(tipo_atributo, named, no_blank, from, to, validate)
-    @atributos_persistibles[:has_many] ||= []
-    @atributos_persistibles[:has_many].push(named)
+    @atributos_has_many ||= []
+    @atributos_has_many.push(named)
   end
 
   def agregar_atributo(tipo_atributo, named, no_blank, from, to, validate)
@@ -51,15 +51,16 @@ module ClasePersistible
   def agregar_atributos_de_ancestros(ancestros)
     ancestros.reverse!
     atr_persistibles_original = @atributos_persistibles.clone
-    ancestros.each { |modulo| agregar_atributos_de(modulo.atributos_persistibles) }
-    agregar_atributos_de(atr_persistibles_original)
-    @atributos_persistibles[:has_many] = @atributos_persistibles[:has_many].uniq if @atributos_persistibles[:has_many]
+    atr_has_many_original = @atributos_has_many.clone
+    ancestros.each { |modulo| agregar_atributos_de(modulo.atributos_persistibles, modulo.atributos_has_many) }
+    agregar_atributos_de(atr_persistibles_original, atr_has_many_original)
+    @atributos_has_many = @atributos_has_many.uniq if @atributos_has_many
     self
   end
 
-  def agregar_atributos_de(hash_atributos)
-    atr_persistibles_sin_has_many(hash_atributos).each do |nombre, tipo|
-      if es_atributo_has_many(hash_atributos, nombre)
+  def agregar_atributos_de(hash_atributos, atributos_has_many)
+    hash_atributos.each do |nombre, tipo|
+      if es_atributo_has_many(atributos_has_many, nombre)
         has_many(tipo, named: nombre)
       else
         has_one(tipo, named: nombre)

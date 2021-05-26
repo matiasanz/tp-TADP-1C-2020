@@ -300,8 +300,8 @@ describe Prueba do
       s.grades.last.value = 5
       expect(s.grades.last.value).to eq 5
       puts Student.atributos_persistibles
-      puts Student.atributos_persistibles[:has_many]
-      puts Student.atributos_persistibles[:has_many].to_s
+      puts Student.atributos_has_many
+      puts Student.atributos_has_many.to_s
       s.save!                        # Salva al estudiante Y sus notas
 
       puts s.grades.map{|g| g.value}

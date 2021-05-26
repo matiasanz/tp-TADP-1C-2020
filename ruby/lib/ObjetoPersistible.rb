@@ -46,7 +46,7 @@ module ObjetoPersistible
   end
 
   def validate!
-    atr_persistibles_sin_has_many(atributos_persistibles).each do |simbolo, clase|
+    atributos_persistibles.each do |simbolo, clase|
       valor = send(simbolo)
       if valor.is_a?(Array)
         valor.each { |instancia| validar_todo(simbolo, clase, instancia) }
@@ -113,15 +113,15 @@ module ObjetoPersistible
   #  super
   #end
   def inicializar_atributos_has_many
-    if atributos_persistibles[:has_many]
-      atributos_persistibles[:has_many].each{ |simbolo| send(pasar_a_setter(simbolo), []) }
+    if self.class.atributos_has_many
+      self.class.atributos_has_many.each{ |simbolo| send(pasar_a_setter(simbolo), []) }
     end
     self
   end
 
   def generar_hash_para_insertar
     hash_para_insertar = {}
-    atr_persistibles_sin_has_many(atributos_persistibles).each do |simbolo, clase|
+    atributos_persistibles.each do |simbolo, clase|
       valor = send(simbolo)
       hash_para_insertar[simbolo] = obtener_valor_a_insertar(simbolo, clase, valor) unless valor.nil?
     end
@@ -130,7 +130,7 @@ module ObjetoPersistible
   end
 
   def obtener_valor_a_insertar(simbolo, clase, valor)
-    if es_atributo_has_many(atributos_persistibles, simbolo)
+    if es_atributo_has_many(self.class.atributos_has_many, simbolo)
       obtener_valor_has_many(valor, clase)
     elsif es_tipo_primitivo(clase)
       valor
@@ -149,14 +149,14 @@ module ObjetoPersistible
 
   #metodo extraido porque lo usa la clase y las instancias
   def settear_atributos
-    atr_persistibles_sin_has_many(atributos_persistibles).each do |simbolo, clase|
+    atributos_persistibles.each do |simbolo, clase|
       settear_atributo(simbolo, clase) if self.class.hash_atributos_persistidos(@id).has_key?(simbolo)
     end
     self
   end
 
   def settear_atributo(simbolo, clase)
-    if es_atributo_has_many(atributos_persistibles, simbolo)
+    if es_atributo_has_many(self.class.atributos_has_many, simbolo)
       settear_atributo_has_many(simbolo, clase)
     else
       if es_tipo_primitivo(clase)
