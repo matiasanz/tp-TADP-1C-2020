@@ -1,6 +1,6 @@
-require_relative 'Boleean'
-require_relative 'ObjetoPersistible'
-require_relative 'ClasePersistible'
+require_relative 'InstanciaPersistible'
+require_relative 'EntidadPersistible'
+require_relative 'AdministradorDeTabla'
 
 module ORM
 
@@ -9,12 +9,11 @@ module ORM
   end
 
   def self.entregar_dependecias(modulo)
-    modulo.extend(ClasePersistible)
+    modulo.extend(EntidadPersistible)
     modulo.incluye_orm = true
-
     if modulo.is_a?(Class)
-      modulo.include(ObjetoPersistible) #asi no lo incluyen los modulos
-
+      modulo.include(InstanciaPersistible)
+      modulo.extend(AdministradorDeTabla)
       # esto inicializa los atributos que usan has_many con un array vacio []. Tambien inicializa los defaults
       # si el usuario define un contructor, solo tiene que escribir "inicializar_atributos" (si lo usa)
       # si no define contructor, funciona TOD0 bien
@@ -31,13 +30,7 @@ end
 
 class Module
 
-  def incluye_orm=(valor)
-    @incluye_orm = valor
-  end
-
-  def incluye_orm?
-    @incluye_orm ||= false
-  end
+  attr_accessor :incluye_orm
 
   def modulos_hijos
     @modulos_hijos ||= []
@@ -46,8 +39,7 @@ class Module
   def included(modulo)
     if @incluye_orm
       ORM::entregar_dependecias(modulo)
-      modulos_hijos
-      @modulos_hijos.push(modulo)
+      modulos_hijos.push(modulo)
     end
   end
 
@@ -56,9 +48,8 @@ end
 class Class
   def inherited(clase)
     if @incluye_orm
-      modulos_hijos
-      @modulos_hijos.push(clase)
       clase.incluye_orm = true
+      modulos_hijos.push(clase)
     end
   end
 end

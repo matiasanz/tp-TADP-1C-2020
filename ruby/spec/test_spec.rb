@@ -168,7 +168,7 @@ describe Prueba do
       Point.all_instances.map {|elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
       puts ""
 
-      Point.tabla.clear
+      Point.borrar_tabla
     end
   end
 
@@ -233,7 +233,7 @@ describe Prueba do
       expect(Student.respond_to?(:find_by_promoted, false)).to eq true
       expect(Student.respond_to?(:t_has_last_name, false)).to eq false
 
-      Student.tabla.clear
+      Student.borrar_tabla
     end
 
   end
@@ -267,8 +267,8 @@ describe Prueba do
       puts s.refresh!.grade.class               # Retorna Grade(5)
       expect(s.refresh!.grade.value).to eq 5
 
-      Student.tabla.clear
-      Grade.tabla.clear
+      Student.borrar_tabla
+      Grade.borrar_tabla
     end
 
     it 'b' do
@@ -323,8 +323,8 @@ describe Prueba do
       expect(s.grades[1].value).to eq 6
       expect(s.grades[2]).to eq nil
 
-      Student.tabla.clear
-      Grade.tabla.clear
+      Student.borrar_tabla
+      Grade.borrar_tabla
     end
 
     it 'b 2' do
@@ -398,7 +398,7 @@ describe Prueba do
       expect(s.cadenas[2]).to eq "estas"
       expect(s.cadenas[3]).to eq nil
 
-      Student.tabla.clear
+      Student.borrar_tabla
     end
   end
 
@@ -478,9 +478,9 @@ describe Prueba do
       puts "#{AssistantProfessor.singleton_class.ancestors}"
       puts ""
 
-      Grade.tabla.clear
-      Student.tabla.clear
-      AssistantProfessor.tabla.clear
+      Grade.borrar_tabla
+      Student.borrar_tabla
+      AssistantProfessor.borrar_tabla
     end
 
     it '3 c 2' do
@@ -534,12 +534,12 @@ describe Prueba do
       puts a.id
 
       puts "#{Student.find_by_id("5")}"  #Trae Estudiantes y Ayudantes con id "5"
-      puts "#{Student.full_name("federico rioja")}"
+      puts "#{Student.find_by_full_name("federico rioja")}"
       expect{Student.find_by_type("a")}.to raise_error(NoMethodError) # Falla! No todos entienden type!
 
-      Grade.tabla.clear
-      Student.tabla.clear
-      AssistantProfessor.tabla.clear
+      Grade.borrar_tabla
+      Student.borrar_tabla
+      AssistantProfessor.borrar_tabla
     end
   end
 
@@ -572,7 +572,7 @@ describe Prueba do
       s.grade = "algo"
       expect{s.save!}.to raise_error(TipoDeDatoException)
 
-      Student.tabla.clear
+      Student.borrar_tabla
     end
 
     it 'a 2' do
@@ -663,8 +663,8 @@ describe Prueba do
       s.refresh!
       expect(s.full_name).to eq "natalia natalia"
 
-      Grade.tabla.clear
-      Student4.tabla.clear
+      Grade.borrar_tabla
+      Student4.borrar_tabla
     end
 
   end

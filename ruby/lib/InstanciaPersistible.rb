@@ -2,104 +2,13 @@ require 'tadb'
 require_relative 'Excepciones'
 require_relative 'Util'
 
-module ObjetoPersistible
+module InstanciaPersistible
 
   include Util
 
   attr_reader :id
 
-  def atributos_persistibles
-    self.class.atributos_persistibles
-  end
-
-  def save!
-    raise SaveException.new unless atributos_persistibles
-    self.class.inicializar_tabla unless self.class.tabla
-    validate! # valida la instancia actual y las instancias asociadas
-    # el "generar_hash_para_insertar" tambien cascadea el validate! a las instancias asociadas porque se realiza save! a cada una
-    # osea, se realizan las validaciones 2 veces
-    hash = generar_hash_para_insertar
-    forget! if @id
-    @id = self.class.insertar_en_tabla(hash)
-    self
-  end
-
-  def refresh!
-    raise RefreshException.new(self) unless @id
-    settear_atributos
-    self
-  end
-
-  def forget!
-    raise ForgetException.new(self) unless @id
-    self.class.borrar_de_tabla(@id)
-    @id = nil
-    self
-  end
-
-  def validate!
-    atributos_persistibles.each do |simbolo, clase|
-      valor = send(simbolo)
-      if valor.is_a?(Array)
-        valor.each { |instancia| validar_todo(simbolo, clase, instancia) }
-      else
-        validar_todo(simbolo, clase, valor)
-      end
-    end
-    self
-  end
-
-  def validar_todo(simbolo, clase, valor)
-    validar_tipo(simbolo, clase, valor)
-    validar_no_blank(simbolo, valor)
-    validar_from(simbolo, clase, valor)
-    validar_to(simbolo, clase, valor)
-    validar_block_validate(simbolo, valor)
-  end
-
-  def validar_tipo(clave, clase, valor)
-    if valor.nil?
-      # no debe hacer nada
-    elsif clase == Boolean
-      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(Boolean)
-    elsif clase == Numeric
-      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(Numeric)
-    elsif clase == String
-      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(String)
-    else
-      if valor.is_a?(ObjetoPersistible)
-        valor.validate!
-      else
-        raise TipoDeDatoException.new(self, clave, clase)
-      end
-    end
-  end
-
-  def validar_no_blank(simbolo, valor)
-    if (valor.nil? || valor == "") && self.class.no_blank.include?(simbolo)
-      raise NoBlankException.new(self, simbolo)
-    end
-  end
-
-  def validar_from(simbolo, clase, valor)
-    if clase == Numeric && self.class.from && self.class.from[simbolo] && self.class.from[simbolo] > valor
-      raise FromException.new(self, simbolo, self.class.from[simbolo])
-    end
-  end
-
-  def validar_to(simbolo, clase, valor)
-    if clase == Numeric && self.class.to && self.class.to[simbolo] && self.class.to[simbolo] < valor
-      raise ToException.new(self, simbolo, self.class.to[simbolo])
-    end
-  end
-
-  def validar_block_validate(simbolo, valor)
-    if self.class.validate && self.class.validate[simbolo] && !valor.instance_eval(&self.class.validate[simbolo])
-      raise BlockValidateException.new(self, simbolo, self.class.validate[simbolo])
-    end
-  end
-
-  #se usaria asi, en el constructor de la clase
+  # en el constructor de la clase se usaria asi
   #def initialize
   #  inicializar_has_many
   #  super
@@ -114,9 +23,48 @@ module ObjetoPersistible
     self
   end
 
+  def save!
+    raise SaveException.new unless self.class.atributos_persistibles
+    self.class.inicializar_tabla unless self.class.tiene_tabla
+    validate! # valida la instancia actual y las instancias asociadas
+    # el "generar_hash_para_insertar" tambien cascadea el validate! a las instancias asociadas porque se realiza save! a cada una
+    # osea, se realizan las validaciones 2 veces
+    hash = generar_hash_para_insertar
+    forget! if @id
+    @id = self.class.insertar_en_tabla(hash)
+    self
+  end
+
+  def refresh!
+    raise RefreshException.new(self) unless @id
+    self.class.atributos_persistibles.each do |simbolo, clase|
+      settear_atributo(simbolo, clase) if self.class.hash_atributos_persistidos(@id).has_key?(simbolo)
+    end
+    self
+  end
+
+  def forget!
+    raise ForgetException.new(self) unless @id
+    self.class.borrar_de_tabla(@id)
+    @id = nil
+    self
+  end
+
+  def validate!
+    self.class.atributos_persistibles.each do |simbolo, clase|
+      valor = send(simbolo)
+      if valor.is_a?(Array)
+        valor.each { |instancia| validar_todo(simbolo, clase, instancia) }
+      else
+        validar_todo(simbolo, clase, valor)
+      end
+    end
+    self
+  end
+
   def generar_hash_para_insertar
     hash_para_insertar = {}
-    atributos_persistibles.each do |simbolo, clase|
+    self.class.atributos_persistibles.each do |simbolo, clase|
       valor = send(simbolo)
       hash_para_insertar[simbolo] = obtener_valor_a_insertar(simbolo, clase, valor) unless valor.nil?
       hash_para_insertar[simbolo] = self.class.default[simbolo] if valor.nil? && self.class.default && !self.class.default[simbolo].nil?
@@ -141,14 +89,6 @@ module ObjetoPersistible
     else
       valor.map{|instancia| instancia.save!.id}.join(",")
     end
-  end
-
-  #metodo extraido porque lo usa la clase y las instancias
-  def settear_atributos
-    atributos_persistibles.each do |simbolo, clase|
-      settear_atributo(simbolo, clase) if self.class.hash_atributos_persistidos(@id).has_key?(simbolo)
-    end
-    self
   end
 
   def settear_atributo(simbolo, clase)
@@ -193,17 +133,59 @@ module ObjetoPersistible
     end
   end
 
+  def validar_todo(simbolo, clase, valor)
+    validar_tipo(simbolo, clase, valor)
+    validar_no_blank(simbolo, valor)
+    validar_from(simbolo, clase, valor)
+    validar_to(simbolo, clase, valor)
+    validar_block_validate(simbolo, valor)
+  end
+
+  def validar_tipo(clave, clase, valor)
+    if valor.nil?
+      # no debe hacer nada
+    elsif clase == Boolean
+      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(Boolean)
+    elsif clase == Numeric
+      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(Numeric)
+    elsif clase == String
+      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(String)
+    else
+      if valor.is_a?(InstanciaPersistible)
+        valor.validate!
+      else
+        raise TipoDeDatoException.new(self, clave, clase)
+      end
+    end
+  end
+
+  def validar_no_blank(simbolo, valor)
+    if (valor.nil? || valor == "") && self.class.no_blank.include?(simbolo)
+      raise NoBlankException.new(self, simbolo)
+    end
+  end
+
+  def validar_from(simbolo, clase, valor)
+    if clase == Numeric && self.class.from && self.class.from[simbolo] && self.class.from[simbolo] > valor
+      raise FromException.new(self, simbolo, self.class.from[simbolo])
+    end
+  end
+
+  def validar_to(simbolo, clase, valor)
+    if clase == Numeric && self.class.to && self.class.to[simbolo] && self.class.to[simbolo] < valor
+      raise ToException.new(self, simbolo, self.class.to[simbolo])
+    end
+  end
+
+  def validar_block_validate(simbolo, valor)
+    if self.class.validate && self.class.validate[simbolo] && !valor.instance_eval(&self.class.validate[simbolo])
+      raise BlockValidateException.new(self, simbolo, self.class.validate[simbolo])
+    end
+  end
+
 
 
   private
   attr_writer :id
-
-  def es_tipo_primitivo(clase)
-    clase == String || clase == Numeric || clase == Boolean
-  end
-
-  def pasar_a_setter(simbolo)
-    (simbolo.to_s << "=").to_sym
-  end
 
 end
