@@ -14,17 +14,12 @@ module InstanciaPersistible
   #  super
   #end
   def inicializar_atributos
-    if self.class.atributos_has_many
-      self.class.atributos_has_many.each{ |simbolo| send(pasar_a_setter(simbolo), []) }
-    end
-    if self.class.default
-      self.class.default.each{ |simbolo, valor_default| send(pasar_a_setter(simbolo), valor_default) }
-    end
+    self.class.atributos_has_many.each{ |simbolo| send(pasar_a_setter(simbolo), []) }
+    self.class.default.each{ |simbolo, valor_default| send(pasar_a_setter(simbolo), valor_default) }
     self
   end
 
   def save!
-    raise SaveException.new unless self.class.atributos_persistibles
     self.class.inicializar_tabla unless self.class.tiene_tabla
     validate! # valida la instancia actual y las instancias asociadas
     # el "generar_hash_para_insertar" tambien cascadea el validate! a las instancias asociadas porque se realiza save! a cada una
@@ -51,12 +46,12 @@ module InstanciaPersistible
   end
 
   def validate!
-    self.class.atributos_persistibles.each do |simbolo, clase|
+    self.class.atributos_persistibles.each do |simbolo, _|
       valor = send(simbolo)
       if valor.is_a?(Array)
-        valor.each { |instancia| validar_todo(simbolo, clase, instancia) }
+        valor.each { |instancia| self.class.validar_todo(simbolo, instancia) }
       else
-        validar_todo(simbolo, clase, valor)
+        self.class.validar_todo(simbolo, valor)
       end
     end
     self
@@ -64,35 +59,17 @@ module InstanciaPersistible
 
   def generar_hash_para_insertar
     hash_para_insertar = {}
-    self.class.atributos_persistibles.each do |simbolo, clase|
+    self.class.atributos_persistibles.each do |simbolo, _|
       valor = send(simbolo)
-      hash_para_insertar[simbolo] = obtener_valor_a_insertar(simbolo, clase, valor) unless valor.nil?
-      hash_para_insertar[simbolo] = self.class.default[simbolo] if valor.nil? && self.class.default && !self.class.default[simbolo].nil?
+      hash_para_insertar[simbolo] = self.class.obtener_valor_a_insertar(simbolo, valor) unless valor.nil?
+      hash_para_insertar[simbolo] = self.class.default[simbolo] if self.class.tiene_valor_default(simbolo, valor)
     end
     hash_para_insertar[:id] = @id if @id
     hash_para_insertar
   end
 
-  def obtener_valor_a_insertar(simbolo, clase, valor)
-    if es_atributo_has_many(self.class.atributos_has_many, simbolo)
-      obtener_valor_has_many(valor, clase)
-    elsif es_tipo_primitivo(clase)
-      valor
-    else
-      valor.save!.id
-    end
-  end
-
-  def obtener_valor_has_many(valor, clase)
-    if es_tipo_primitivo(clase)
-      valor.join(",")
-    else
-      valor.map{|instancia| instancia.save!.id}.join(",")
-    end
-  end
-
   def settear_atributo(simbolo, clase)
-    if es_atributo_has_many(self.class.atributos_has_many, simbolo)
+    if self.class.atributos_has_many.include?(simbolo)
       settear_atributo_has_many(simbolo, clase)
     else
       if es_tipo_primitivo(clase)
@@ -119,10 +96,6 @@ module InstanciaPersistible
     self
   end
 
-  def array_persistido(simbolo)
-    self.class.hash_atributos_persistidos(@id)[simbolo].split(",")
-  end
-
   def array_persistido_primitivo(simbolo, clase)
     if clase == Numeric
       array_persistido(simbolo).map{ |elem| elem.to_i }
@@ -133,54 +106,8 @@ module InstanciaPersistible
     end
   end
 
-  def validar_todo(simbolo, clase, valor)
-    validar_tipo(simbolo, clase, valor)
-    validar_no_blank(simbolo, valor)
-    validar_from(simbolo, clase, valor)
-    validar_to(simbolo, clase, valor)
-    validar_block_validate(simbolo, valor)
-  end
-
-  def validar_tipo(clave, clase, valor)
-    if valor.nil?
-      # no debe hacer nada
-    elsif clase == Boolean
-      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(Boolean)
-    elsif clase == Numeric
-      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(Numeric)
-    elsif clase == String
-      raise TipoDeDatoException.new(self, clave, clase) unless valor.is_a?(String)
-    else
-      if valor.is_a?(InstanciaPersistible)
-        valor.validate!
-      else
-        raise TipoDeDatoException.new(self, clave, clase)
-      end
-    end
-  end
-
-  def validar_no_blank(simbolo, valor)
-    if (valor.nil? || valor == "") && self.class.no_blank.include?(simbolo)
-      raise NoBlankException.new(self, simbolo)
-    end
-  end
-
-  def validar_from(simbolo, clase, valor)
-    if clase == Numeric && self.class.from && self.class.from[simbolo] && self.class.from[simbolo] > valor
-      raise FromException.new(self, simbolo, self.class.from[simbolo])
-    end
-  end
-
-  def validar_to(simbolo, clase, valor)
-    if clase == Numeric && self.class.to && self.class.to[simbolo] && self.class.to[simbolo] < valor
-      raise ToException.new(self, simbolo, self.class.to[simbolo])
-    end
-  end
-
-  def validar_block_validate(simbolo, valor)
-    if self.class.validate && self.class.validate[simbolo] && !valor.instance_eval(&self.class.validate[simbolo])
-      raise BlockValidateException.new(self, simbolo, self.class.validate[simbolo])
-    end
+  def array_persistido(simbolo)
+    self.class.hash_atributos_persistidos(@id)[simbolo].split(",")
   end
 
 

@@ -4,34 +4,53 @@ module EntidadPersistible
 
   include Util
 
-  attr_reader :atributos_persistibles, :atributos_has_many, :no_blank, :from, :to, :validate, :default
-
-  def has_one(tipo_atributo, named:, no_blank: false, from: nil, to: nil, validate: nil, default: nil)
-    agregar_atributo(tipo_atributo, named, no_blank, from, to, validate, default)
-    self
-  end
-
-  def has_many(tipo_atributo, named:, no_blank: false, from: nil, to: nil, validate: nil, default: nil)
-    agregar_atributo(tipo_atributo, named, no_blank, from, to, validate, default)
-    @atributos_has_many ||= []
-    @atributos_has_many.push(named)
-    self
-  end
-
-  def agregar_atributo(tipo_atributo, named, no_blank, from, to, validate, default)
-    attr_accessor named
+  def atributos_persistibles
     @atributos_persistibles ||= {}
+  end
+
+  def atributos_has_many
+    @atributos_has_many ||= []
+  end
+
+  def no_blank
     @no_blank ||= []
+  end
+
+  def from
     @from ||= {}
+  end
+
+  def to
     @to ||= {}
+  end
+
+  def validate
     @validate ||= {}
+  end
+
+  def default
     @default ||= {}
-    @atributos_persistibles[named] = tipo_atributo
-    @no_blank.push(named) if no_blank
-    @from[named] = from if from
-    @to[named] = to if to
-    @validate[named] = validate if validate
-    @default[named] = default if default
+  end
+
+  def has_one(tipo_atributo, params)
+    agregar_atributo(tipo_atributo, params)
+    self
+  end
+
+  def has_many(tipo_atributo, params)
+    agregar_atributo(tipo_atributo, params)
+    atributos_has_many.push(params[:named])
+    self
+  end
+
+  def agregar_atributo(tipo_atributo, params)
+    attr_accessor params[:named]
+    self.atributos_persistibles[params[:named]] = tipo_atributo
+    self.no_blank.push(params[:named]) if params[:no_blank]
+    self.from[params[:named]] = params[:from] if params[:from]
+    self.to[params[:named]] = params[:to] if params[:to]
+    self.validate[params[:named]] = params[:validate] unless params[:validate].nil?
+    self.default[params[:named]] = params[:default] unless params[:default].nil?
     self
   end
 
@@ -45,22 +64,99 @@ module EntidadPersistible
     array_aux
   end
 
+  def respond_to_missing?(mensaje, priv = false)
+    instancia = self.new
+    if mensaje.to_s.start_with?("find_by_") && instancia.respond_to?(sin_find_by_(mensaje), false)
+      metodo = instancia.method(sin_find_by_(mensaje))
+      metodo.arity == 0 || super
+    else
+      super
+    end
+  end
+
   #naturalmente falla si el metodo tiene aridad != 0, porque asi esta definido en "respond_to_missing?"
   def method_missing(mensaje, *args, &bloque)
-    if respond_to?(mensaje, false) && mensaje.to_s.start_with?("find_by_")
+    if respond_to?(mensaje, false)
       all_instances.select { |instancia| instancia.send(sin_find_by_(mensaje)) == args[0] }
     else
       super
     end
   end
 
-  def respond_to_missing?(mensaje, priv = false)
-    instancia = self.new
-    if instancia.respond_to?(sin_find_by_(mensaje), false)
-      metodo = instancia.method(sin_find_by_(mensaje))
-      metodo.arity == 0 || super
+# ESTABA EN INSTANCIAPERSISTIBLE
+
+  def obtener_valor_a_insertar(simbolo, valor)
+    if atributos_has_many.include?(simbolo)
+      obtener_valor_has_many(simbolo, valor)
+    elsif es_tipo_primitivo(atributos_persistibles[simbolo])
+      valor
     else
-      super
+      valor.save!.id
+    end
+  end
+
+  def obtener_valor_has_many(simbolo, valor)
+    if es_tipo_primitivo(atributos_persistibles[simbolo])
+      valor.join(",")
+    else
+      valor.map{|instancia| instancia.save!.id}.join(",")
+    end
+  end
+
+  def tiene_valor_default(simbolo, valor)
+    valor.nil? && !default[simbolo].nil?
+  end
+
+
+# VALIDACIONES  << ---------------------------------------
+
+  def validar_todo(atributo, valor)
+    validar_tipo(atributo, valor)
+    validar_no_blank(atributo, valor)
+    validar_from(atributo, valor)
+    validar_to(atributo, valor)
+    validar_block_validate(atributo, valor)
+  end
+
+  def validar_tipo(atributo, valor)
+    if valor.nil?
+      # no debe hacer nada
+    elsif atributos_persistibles[atributo] == Boolean
+      raise TipoDeDatoException.new(self, atributo, atributos_persistibles[atributo]) unless valor.is_a?(Boolean)
+    elsif atributos_persistibles[atributo] == Numeric
+      raise TipoDeDatoException.new(self, atributo, atributos_persistibles[atributo]) unless valor.is_a?(Numeric)
+    elsif atributos_persistibles[atributo] == String
+      raise TipoDeDatoException.new(self, atributo, atributos_persistibles[atributo]) unless valor.is_a?(String)
+    else
+      if valor.is_a?(InstanciaPersistible)
+        valor.validate!
+      else
+        raise TipoDeDatoException.new(self, atributo, atributos_persistibles[atributo])
+      end
+    end
+  end
+
+  def validar_no_blank(atributo, valor)
+    if (valor.nil? || valor == "") && no_blank.include?(atributo)
+      raise NoBlankException.new(self, atributo)
+    end
+  end
+
+  def validar_from(atributo, valor)
+    if atributos_persistibles[atributo] == Numeric && from[atributo] && from[atributo] > valor
+      raise FromException.new(self, atributo, from[atributo])
+    end
+  end
+
+  def validar_to(atributo, valor)
+    if atributos_persistibles[atributo] == Numeric && to[atributo] && to[atributo] < valor
+      raise ToException.new(self, atributo, to[atributo])
+    end
+  end
+
+  def validar_block_validate(atributo, valor)
+    if validate[atributo] && !valor.instance_eval(&validate[atributo])
+      raise BlockValidateException.new(self, atributo, validate[atributo])
     end
   end
 

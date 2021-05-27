@@ -61,13 +61,13 @@ module AdministradorDeTabla
     atr_has_many_original = atributos_has_many.clone
     ancestros.each { |modulo| agregar_atributos_de(modulo.atributos_persistibles, modulo.atributos_has_many) }
     agregar_atributos_de(atr_persistibles_original, atr_has_many_original)
-    atributos_has_many = atributos_has_many.uniq if atributos_has_many
+    atributos_has_many = self.atributos_has_many.uniq
     self
   end
 
   def agregar_atributos_de(hash_atributos, atributos_has_many)
     hash_atributos.each do |nombre, tipo|
-      if es_atributo_has_many(atributos_has_many, nombre)
+      if atributos_has_many.include?(nombre)
         has_many(tipo, named: nombre)
       else
         has_one(tipo, named: nombre)
