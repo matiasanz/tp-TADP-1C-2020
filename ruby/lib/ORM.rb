@@ -17,17 +17,17 @@ module ORM
   def self.dependencias_modulos_y_clases(modulo)
     modulo.extend(EntidadPersistible)
     modulo.module_eval do
-      def self.included(modulo)
-        ORM::entregar_dependecias(modulo)
-        modulos_hijos.push(modulo)
+      def self.included(otro_modulo)
+        ORM::entregar_dependecias(otro_modulo)
+        modulos_hijos.push(otro_modulo)
       end
     end
   end
 
   def self.dependencias_de_clases(clase)
-    modulo.include(InstanciaPersistible)
-    modulo.extend(AdministradorDeTabla)
-    modulo.class_eval do
+    clase.include(InstanciaPersistible)
+    clase.extend(AdministradorDeTabla)
+    clase.class_eval do
       # esto inicializa los atributos que usan has_many con un array vacio []. Tambien inicializa los defaults
       # si el usuario define un contructor, solo tiene que escribir "inicializar_atributos" (si lo usa)
       # si no define contructor, funciona TOD0 bien
@@ -36,9 +36,10 @@ module ORM
         super
       end
 
-      def self.inherited(clase)
-        modulos_hijos.push(clase)
+      def self.inherited(otra_clase)
+        modulos_hijos.push(otra_clase)
       end
+
     end
   end
 
