@@ -1,4 +1,5 @@
 require_relative 'Util'
+require_relative 'Atributos'
 
 module EntidadPersistible
 
@@ -87,12 +88,28 @@ module EntidadPersistible
     end
   end
 
+  def atributos_persistibles_totales
+    if ancestors[1].is_a?(EntidadPersistible)
+      atributos_persistibles.merge(ancestors[1].atributos_persistibles_totales)
+    else
+      atributos_persistibles
+    end
+  end
+
+  def atributos_has_many_totales
+    if ancestors[1].is_a?(EntidadPersistible)
+      (atributos_has_many + ancestors[1].atributos_has_many_totales).uniq
+    else
+      atributos_has_many
+    end
+  end
+
 # ESTABA EN INSTANCIAPERSISTIBLE
 
   def obtener_valor_a_insertar(simbolo, valor)
-    if atributos_has_many.include?(simbolo)
+    if atributos_has_many_totales.include?(simbolo)
       obtener_valor_has_many(simbolo, valor)
-    elsif es_tipo_primitivo(atributos_persistibles[simbolo])
+    elsif es_tipo_primitivo(atributos_persistibles_totales[simbolo])
       valor
     else
       valor.save!.id
@@ -100,7 +117,7 @@ module EntidadPersistible
   end
 
   def obtener_valor_has_many(simbolo, valor)
-    if es_tipo_primitivo(atributos_persistibles[simbolo])
+    if es_tipo_primitivo(atributos_persistibles_totales[simbolo])
       valor.join(",")
     else
       valor.map{|instancia| instancia.save!.id}.join(",")
@@ -125,17 +142,17 @@ module EntidadPersistible
   def validar_tipo(atributo, valor)
     if valor.nil?
       # no debe hacer nada
-    elsif atributos_persistibles[atributo] == Boolean
-      raise TipoDeDatoException.new(self, atributo, atributos_persistibles[atributo]) unless valor.is_a?(Boolean)
-    elsif atributos_persistibles[atributo] == Numeric
-      raise TipoDeDatoException.new(self, atributo, atributos_persistibles[atributo]) unless valor.is_a?(Numeric)
-    elsif atributos_persistibles[atributo] == String
-      raise TipoDeDatoException.new(self, atributo, atributos_persistibles[atributo]) unless valor.is_a?(String)
+    elsif atributos_persistibles_totales[atributo] == Boolean
+      raise TipoDeDatoException.new(self, atributo, atributos_persistibles_totales[atributo]) unless valor.is_a?(Boolean)
+    elsif atributos_persistibles_totales[atributo] == Numeric
+      raise TipoDeDatoException.new(self, atributo, atributos_persistibles_totales[atributo]) unless valor.is_a?(Numeric)
+    elsif atributos_persistibles_totales[atributo] == String
+      raise TipoDeDatoException.new(self, atributo, atributos_persistibles_totales[atributo]) unless valor.is_a?(String)
     else
       if valor.is_a?(InstanciaPersistible)
         valor.validate!
       else
-        raise TipoDeDatoException.new(self, atributo, atributos_persistibles[atributo])
+        raise TipoDeDatoException.new(self, atributo, atributos_persistibles_totales[atributo])
       end
     end
   end
@@ -147,13 +164,13 @@ module EntidadPersistible
   end
 
   def validar_from(atributo, valor)
-    if atributos_persistibles[atributo] == Numeric && from[atributo] && from[atributo] > valor
+    if atributos_persistibles_totales[atributo] == Numeric && from[atributo] && from[atributo] > valor
       raise FromException.new(self, atributo, from[atributo])
     end
   end
 
   def validar_to(atributo, valor)
-    if atributos_persistibles[atributo] == Numeric && to[atributo] && to[atributo] < valor
+    if atributos_persistibles_totales[atributo] == Numeric && to[atributo] && to[atributo] < valor
       raise ToException.new(self, atributo, to[atributo])
     end
   end

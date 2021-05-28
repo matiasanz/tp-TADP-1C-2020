@@ -14,7 +14,7 @@ module InstanciaPersistible
   #  super
   #end
   def inicializar_atributos
-    self.class.atributos_has_many.each{ |simbolo| send(pasar_a_setter(simbolo), []) }
+    self.class.atributos_has_many_totales.each{ |simbolo| send(pasar_a_setter(simbolo), []) }
     self.class.default.each{ |simbolo, valor_default| send(pasar_a_setter(simbolo), valor_default) }
     self
   end
@@ -32,7 +32,7 @@ module InstanciaPersistible
 
   def refresh!
     raise RefreshException.new(self) unless @id
-    self.class.atributos_persistibles.each do |simbolo, clase|
+    self.class.atributos_persistibles_totales.each do |simbolo, clase|
       settear_atributo(simbolo, clase) if self.class.hash_atributos_persistidos(@id).has_key?(simbolo)
     end
     self
@@ -46,7 +46,7 @@ module InstanciaPersistible
   end
 
   def validate!
-    self.class.atributos_persistibles.each do |simbolo, _|
+    self.class.atributos_persistibles_totales.each do |simbolo, _|
       valor = send(simbolo)
       if valor.is_a?(Array)
         valor.each { |instancia| self.class.validar_todo(simbolo, instancia) }
@@ -59,7 +59,7 @@ module InstanciaPersistible
 
   def generar_hash_para_insertar
     hash_para_insertar = {}
-    self.class.atributos_persistibles.each do |simbolo, _|
+    self.class.atributos_persistibles_totales.each do |simbolo, _|
       valor = send(simbolo)
       hash_para_insertar[simbolo] = self.class.obtener_valor_a_insertar(simbolo, valor) unless valor.nil?
       hash_para_insertar[simbolo] = self.class.default[simbolo] if self.class.tiene_valor_default(simbolo, valor)
@@ -69,7 +69,7 @@ module InstanciaPersistible
   end
 
   def settear_atributo(simbolo, clase)
-    if self.class.atributos_has_many.include?(simbolo)
+    if self.class.atributos_has_many_totales.include?(simbolo)
       settear_atributo_has_many(simbolo, clase)
     else
       if es_tipo_primitivo(clase)

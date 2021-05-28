@@ -73,3 +73,39 @@ class Class
   end
 end
 =end
+
+
+# estaba en AdministradorDeTabla
+=begin
+def analizar_ancestros
+  ancestros = []
+  ancestors.each do |ancestro|
+    break if ancestro == ORM
+    ancestros.push(ancestro) if ancestro.is_a?(EntidadPersistible)
+  end
+  ancestros.delete_at(0)
+  agregar_atributos_de_ancestros(ancestros) if ancestros.size > 0
+  self
+end
+
+def agregar_atributos_de_ancestros(ancestros)
+  ancestros.reverse!
+  atr_persistibles_original = atributos_persistibles.clone
+  atr_has_many_original = atributos_has_many.clone
+  ancestros.each { |modulo| agregar_atributos_de(modulo.atributos_persistibles, modulo.atributos_has_many) }
+  agregar_atributos_de(atr_persistibles_original, atr_has_many_original)
+  atributos_has_many = self.atributos_has_many.uniq
+  self
+end
+
+def agregar_atributos_de(hash_atributos, atributos_has_many)
+  hash_atributos.each do |nombre, tipo|
+    if atributos_has_many.include?(nombre)
+      has_many(tipo, named: nombre)
+    else
+      has_one(tipo, named: nombre)
+    end
+  end
+  self
+end
+=end
