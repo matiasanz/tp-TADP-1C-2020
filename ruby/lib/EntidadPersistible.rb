@@ -5,6 +5,21 @@ module EntidadPersistible
     @modulos_hijos ||= []
   end
 
+  def atributos_persistibles_totales
+    ancestros = ancestors
+    ancestros.delete_at(0)
+    padre = nil
+    unless ancestros.nil?
+      padre = ancestros.find { |a| a.is_a?(EntidadPersistible) }
+    end
+    if padre.nil?
+      atributos_persistibles    # arreglar TODO
+    else
+      totales = atributos_persistibles + padre.atributos_persistibles_totales  # arreglar TODO
+      totales.uniq {|atr| atr.nombre}   # arreglar TODO
+    end
+  end
+
   # en AdministradorDeTabla redefino este metodo
   def all_instances
     all_instances_de_hijos
