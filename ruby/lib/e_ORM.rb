@@ -1,5 +1,48 @@
 require 'd_adapter'
 
+module ORM  # el usuario debe incluir este modulo para poder usar nuestro ORM. Y hacer el require_relative ".." correspondiente
+
+    def self.included(modulo)
+        entregar_dependecias(modulo)
+    end
+
+    def self.entregar_dependecias(modulo)
+        dependencias_modulos_y_clases(modulo)
+        dependencias_de_clases(clase) if modulo.is_a?(Class)
+    end
+
+    private
+    def dependencias_modulos_y_clases(modulo)
+        modulo.extend(EntidadPersistible)   #logica que entienden los modulos y las clases
+        modulo.module_eval do
+            def self.included(otro_modulo)
+                ORM::entregar_dependecias(otro_modulo)
+                modulos_hijos.push(otro_modulo)
+            end
+        end
+    end
+
+    def dependencias_de_clases(clase)
+        clase.include(InstanciaPersistible)
+        clase.extend(AdministradorDeTabla)     #logica que solo entienden las clases
+        clase.class_eval do
+            # esto inicializa los atributos que usan has_many con un array vacio []. Tambien inicializa los defaults
+            # si el usuario define un contructor, solo tiene que escribir "inicializar_atributos" (si lo usa)
+            # si no define contructor, funciona TOD0 bien
+            def initialize
+                inicializar_atributos   #TODO ?
+                super
+            end
+
+            def self.inherited(otra_clase)
+                modulos_hijos.push(otra_clase)
+            end
+
+        end
+    end
+
+end
+
 module ClasePersistible
 
     def inherited(modulo)
