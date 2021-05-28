@@ -1,6 +1,6 @@
 require 'd_adapter'
 
-module ORM
+module ORM  # el usuario debe incluir este modulo para poder usar nuestro ORM. Y hacer el require_relative ".." correspondiente
 
     def self.included(modulo)
         entregar_dependecias(modulo)
