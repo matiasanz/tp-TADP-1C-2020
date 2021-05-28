@@ -14,7 +14,7 @@ describe Prueba do
         end
 
         it 'Se especifica un tipo que no es una clase y falla' do
-            expect {Class.has_one(:simbolo, named: :atributo) }.to raise_error(ClaseDesconocidaException)
+            expect {Personaje.has_one(:simbolo, named: :atributo) }.to raise_error(ClaseDesconocidaException)
         end
 
         it 'Las subclases de una clase persistible se obtienen correctamente' do

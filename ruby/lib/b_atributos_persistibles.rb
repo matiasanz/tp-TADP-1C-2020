@@ -9,6 +9,9 @@ module AtributoHelper
     end
 
     def self.as_attribute(args, tipo, claseContenedora, many=false)
+
+        raise ClaseDesconocidaException.new(tipo) unless tipo.is_a?(ClasePersistible) or clase_primitiva?(tipo)
+
         atributo = many ? AtributoMultiple.new(args[:named], tipo, args[:default], claseContenedora)
                        : as_simple_attribute(args[:named], tipo, args[:default])
 
@@ -30,7 +33,6 @@ end
 class AtributoPersistible
     attr_reader :nombre, :clase
     def initialize(nombre, clase, default=nil)
-        raise ClaseDesconocidaException.new(clase) unless clase.is_a?(Module)
         @nombre=nombre
         @clase=clase
         validar_tipo(default)

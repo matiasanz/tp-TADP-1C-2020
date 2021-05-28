@@ -7,7 +7,7 @@ class Prueba
 end
 
 class Personaje
-    extend ClasePersistible
+    include ObjetoPersistible
 
     has_one String, named: :nombre
     has_one Numeric, named: :comicidad
@@ -29,6 +29,8 @@ class Personaje
 end
 
 class Ladron < Personaje
+    include ObjetoPersistible
+
     has_one Numeric, named: :sigilo
 
     def initialize(nombre, comicidad, sigilo)
@@ -43,12 +45,15 @@ class Ladron < Personaje
 end
 
 class LadronDeSonrisas < Ladron
+
     def initialize
         super('pepe argento', 370, 95)
     end
 end
 
 class Mascota
+    include ObjetoPersistible
+
     has_one String, named: :nombre
     has_one Personaje, named: :duenio
     has_one Boolean, named: :hambriento
@@ -65,6 +70,8 @@ class Mascota
 end
 
 class ClaseMuyCompuesta
+    include ObjetoPersistible
+
     has_one ClaseMuyCompuesta, named: :atributoMuyCompuesto
     has_one Mascota, named: :mascota
 
@@ -79,6 +86,8 @@ class ClaseMuyCompuesta
 end
 
 class Pelicula
+    include ObjetoPersistible
+
     has_many Personaje, named: :personajes
 
     def initialize
@@ -96,6 +105,8 @@ class Pelicula
 end
 
 class Quiniela
+    include ObjetoPersistible
+
     has_many Numeric, named: :resultados
 
     def initialize
@@ -109,6 +120,8 @@ class Quiniela
 end
 
 class ClaseDefault
+    include ObjetoPersistible
+
     has_one String, named: :nombre, default: "Anonimo"
     has_one Personaje, named: :personaje, default: Personaje.new("Arbol", 0)
     def initialize(nombre, personaje)

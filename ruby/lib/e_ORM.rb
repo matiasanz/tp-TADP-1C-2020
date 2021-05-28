@@ -53,7 +53,7 @@ module ClasePersistible
 
     private
     def persistibles_heredados
-        (superclass == BasicObject)? {} : superclass.atributos_persistibles
+        (superclass.is_a? ClasePersistible)? superclass.atributos_persistibles: {}
     end
 
     #Enunciado: Find by
@@ -104,10 +104,13 @@ module ClasePersistible
     end
 end
 
-class Object
+module ObjetoPersistible
     extend ClasePersistible
 
-    has_one String, named: :id
+    def self.included(modulo)
+        modulo.extend ClasePersistible
+        modulo.has_one String, named: :id
+    end
 
     #Enunciado
     def save!
