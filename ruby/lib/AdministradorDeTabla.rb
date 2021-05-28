@@ -7,7 +7,6 @@ module AdministradorDeTabla
 
   def inicializar_tabla
     @tabla = TADB::DB.table(name)
-    #analizar_ancestros
     self
   end
 
@@ -29,7 +28,7 @@ module AdministradorDeTabla
     nil
   end
 
-  # redefino "all_instances" con respecto a EntidadPersistible
+  # redefino "all_instances" con respecto a EntidadPersistible para cortar con la recursion
   def all_instances
     if @tabla
       all_instances_de_hijos + @tabla.entries.map { |entrada| generar_instancia(entrada) }

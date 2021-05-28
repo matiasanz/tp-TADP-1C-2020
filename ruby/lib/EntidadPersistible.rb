@@ -6,11 +6,7 @@ module EntidadPersistible
   include Util
 
   def atributos_persistibles
-    @atributos_persistibles ||= {}
-  end
-
-  def atributos_has_many
-    @atributos_has_many ||= []
+    @atributos_persistibles ||= []
   end
 
   def no_blank
@@ -38,19 +34,19 @@ module EntidadPersistible
   end
 
   def has_one(tipo_atributo, params)
-    agregar_atributo(tipo_atributo, params)
+    agregar_atributo(AtributoSimple.new(params[:named], tipo_atributo), params)
     self
   end
 
   def has_many(tipo_atributo, params)
-    agregar_atributo(tipo_atributo, params)
-    atributos_has_many.push(params[:named])
+    agregar_atributo(AtributoMultiple.new(params[:named], tipo_atributo), params)
     self
   end
 
-  def agregar_atributo(tipo_atributo, params)
+  def agregar_atributo(atributo, params)
     attr_accessor params[:named]
-    self.atributos_persistibles[params[:named]] = tipo_atributo
+    self.atributos_persistibles.each { |atr| atributos_persistibles.delete(atr) if atr.nombre == params[:named]}
+    self.atributos_persistibles.push(atributo)
     self.no_blank.push(params[:named]) if params[:no_blank]
     self.from[params[:named]] = params[:from] if params[:from]
     self.to[params[:named]] = params[:to] if params[:to]
@@ -59,6 +55,7 @@ module EntidadPersistible
     self
   end
 
+  # en AdministradorDeTabla redefino este metodo
   def all_instances
     all_instances_de_hijos
   end
@@ -90,42 +87,16 @@ module EntidadPersistible
 
   def atributos_persistibles_totales
     if ancestors[1].is_a?(EntidadPersistible)
-      atributos_persistibles.merge(ancestors[1].atributos_persistibles_totales)
+      (atributos_persistibles + ancestors[1].atributos_persistibles_totales).uniq
     else
       atributos_persistibles
     end
   end
 
-  def atributos_has_many_totales
-    if ancestors[1].is_a?(EntidadPersistible)
-      (atributos_has_many + ancestors[1].atributos_has_many_totales).uniq
-    else
-      atributos_has_many
-    end
-  end
-
 # ESTABA EN INSTANCIAPERSISTIBLE
 
-  def obtener_valor_a_insertar(simbolo, valor)
-    if atributos_has_many_totales.include?(simbolo)
-      obtener_valor_has_many(simbolo, valor)
-    elsif es_tipo_primitivo(atributos_persistibles_totales[simbolo])
-      valor
-    else
-      valor.save!.id
-    end
-  end
-
-  def obtener_valor_has_many(simbolo, valor)
-    if es_tipo_primitivo(atributos_persistibles_totales[simbolo])
-      valor.join(",")
-    else
-      valor.map{|instancia| instancia.save!.id}.join(",")
-    end
-  end
-
-  def tiene_valor_default(simbolo, valor)
-    valor.nil? && !default[simbolo].nil?
+  def tiene_valor_default(atributo, valor)
+    valor.nil? && !default[atributo.nombre].nil?
   end
 
 
@@ -133,51 +104,51 @@ module EntidadPersistible
 
   def validar_todo(atributo, valor)
     validar_tipo(atributo, valor)
-    validar_no_blank(atributo, valor)
+    validar_no_blank(atributo.nombre, valor)
     validar_from(atributo, valor)
     validar_to(atributo, valor)
-    validar_block_validate(atributo, valor)
+    validar_block_validate(atributo.nombre, valor)
   end
 
   def validar_tipo(atributo, valor)
     if valor.nil?
       # no debe hacer nada
-    elsif atributos_persistibles_totales[atributo] == Boolean
-      raise TipoDeDatoException.new(self, atributo, atributos_persistibles_totales[atributo]) unless valor.is_a?(Boolean)
-    elsif atributos_persistibles_totales[atributo] == Numeric
-      raise TipoDeDatoException.new(self, atributo, atributos_persistibles_totales[atributo]) unless valor.is_a?(Numeric)
-    elsif atributos_persistibles_totales[atributo] == String
-      raise TipoDeDatoException.new(self, atributo, atributos_persistibles_totales[atributo]) unless valor.is_a?(String)
+    elsif atributo.tipo == Boolean
+      raise TipoDeDatoException.new(self, atributo.nombre, atributo.tipo) unless valor.is_a?(Boolean)
+    elsif atributo.tipo == Numeric
+      raise TipoDeDatoException.new(self, atributo.nombre, atributo.tipo) unless valor.is_a?(Numeric)
+    elsif atributo.tipo == String
+      raise TipoDeDatoException.new(self, atributo.nombre, atributo.tipo) unless valor.is_a?(String)
     else
       if valor.is_a?(InstanciaPersistible)
         valor.validate!
       else
-        raise TipoDeDatoException.new(self, atributo, atributos_persistibles_totales[atributo])
+        raise TipoDeDatoException.new(self, atributo.nombre, atributo.tipo)
       end
     end
   end
 
-  def validar_no_blank(atributo, valor)
-    if (valor.nil? || valor == "") && no_blank.include?(atributo)
-      raise NoBlankException.new(self, atributo)
+  def validar_no_blank(nombre_atributo, valor)
+    if (valor.nil? || valor == "") && no_blank.include?(nombre_atributo)
+      raise NoBlankException.new(self, nombre_atributo)
     end
   end
 
   def validar_from(atributo, valor)
-    if atributos_persistibles_totales[atributo] == Numeric && from[atributo] && from[atributo] > valor
-      raise FromException.new(self, atributo, from[atributo])
+    if atributo.tipo == Numeric && from[atributo.nombre] && from[atributo.nombre] > valor
+      raise FromException.new(self, atributo.nombre, from[atributo.nombre])
     end
   end
 
   def validar_to(atributo, valor)
-    if atributos_persistibles_totales[atributo] == Numeric && to[atributo] && to[atributo] < valor
-      raise ToException.new(self, atributo, to[atributo])
+    if atributo.tipo == Numeric && to[atributo.nombre] && to[atributo.nombre] < valor
+      raise ToException.new(self, atributo.nombre, to[atributo.nombre])
     end
   end
 
-  def validar_block_validate(atributo, valor)
-    if validate[atributo] && !valor.instance_eval(&validate[atributo])
-      raise BlockValidateException.new(self, atributo, validate[atributo])
+  def validar_block_validate(nombre_atributo, valor)
+    if validate[nombre_atributo] && !valor.instance_eval(&validate[nombre_atributo])
+      raise BlockValidateException.new(self, nombre_atributo, validate[nombre_atributo])
     end
   end
 
