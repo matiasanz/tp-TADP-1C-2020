@@ -1,5 +1,6 @@
 require_relative 'Util'
 
+# clase abstracta
 class Atributo
 
   include Util
@@ -16,53 +17,67 @@ end
 class AtributoSimple < Atributo
 
   def initialize(nombre, tipo)
+    if es_tipo_primitivo(tipo)
+      self.extend(SimpleBasico) # se inserta entre la instancia y su clase -> Instancia, SimpleBasico, AtributoSimple
+    else
+      self.extend(SimpleComplejo)
+    end
     super(nombre, tipo)
   end
 
+end
+
+module SimpleBasico
+
   def obtener_valor_para_insertar(valor)
-    if es_tipo_primitivo(@tipo)
-      valor
-    else
-      valor.save!.id
-    end
+    valor
   end
 
   def settear(instancia)
-    if es_tipo_primitivo(@tipo)
-      valor_a_settear = instancia.class.hash_atributos_persistidos(instancia.id)[@nombre]
-    else
-      valor_a_settear = @tipo.find_by_id(instancia.class.hash_atributos_persistidos(instancia.id)[@nombre])[0]
-    end
+    valor_a_settear = instancia.class.hash_atributos_persistidos(instancia.id)[@nombre]
     instancia.send(pasar_a_setter(@nombre), valor_a_settear)
   end
+end
 
+module SimpleComplejo
 
+  def obtener_valor_para_insertar(valor)
+    valor.save!.id
+  end
+
+  def settear(instancia)
+    valor_a_settear = @tipo.find_by_id(instancia.class.hash_atributos_persistidos(instancia.id)[@nombre])[0]
+    instancia.send(pasar_a_setter(@nombre), valor_a_settear)
+  end
 end
 
 class AtributoMultiple < Atributo
 
   def initialize(nombre, tipo)
+    if es_tipo_primitivo(tipo)
+      self.extend(MultipleBasico)
+    else
+      self.extend(MultipleComplejo)
+    end
     super(nombre, tipo)
   end
 
+  def array_persistido(instancia)
+    instancia.class.hash_atributos_persistidos(instancia.id)[@nombre].split(",")
+  end
+
+end
+
+module MultipleBasico
+
   def obtener_valor_para_insertar(valor)
-    if es_tipo_primitivo(@tipo)
-      valor.join(",")
-    else
-      valor.map{|instancia| instancia.save!.id}.join(",")
-    end
+    valor.join(",")
   end
 
   def settear(instancia)
     instancia.send(pasar_a_setter(@nombre), [])
-    if es_tipo_primitivo(@tipo)
-      array_persistido_primitivo(instancia).each do |valor|
-        instancia.send(pasar_a_setter(@nombre), instancia.send(@nombre).push(valor))
-      end
-    else
-      array_persistido(instancia).each do |id|
-        instancia.send(pasar_a_setter(@nombre), instancia.send(@nombre).push(@tipo.find_by_id(id)[0]))
-      end
+    array_persistido_primitivo(instancia).each do |valor|
+      instancia.send(pasar_a_setter(@nombre), instancia.send(@nombre).push(valor))
     end
     self
   end
@@ -77,22 +92,20 @@ class AtributoMultiple < Atributo
     end
   end
 
-  def array_persistido(instancia)
-    instancia.class.hash_atributos_persistidos(instancia.id)[@nombre].split(",")
+end
+
+module MultipleComplejo
+
+  def obtener_valor_para_insertar(valor)
+    valor.map{|instancia| instancia.save!.id}.join(",")
+  end
+
+  def settear(instancia)
+    instancia.send(pasar_a_setter(@nombre), [])
+    array_persistido(instancia).each do |id|
+      instancia.send(pasar_a_setter(@nombre), instancia.send(@nombre).push(@tipo.find_by_id(id)[0]))
+    end
+    self
   end
 
 end
-
-#class AtributoCompuesto < Atributo
-
-#  attr_accessor :atributo
-
-#  def initialize(nombre, tipo)
-#    super(nombre, tipo)
-#  end
-
-#  def obtener_valor_para_insertar(valor)
-
-#  end
-
-#end

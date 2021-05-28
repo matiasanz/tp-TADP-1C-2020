@@ -86,10 +86,17 @@ module EntidadPersistible
   end
 
   def atributos_persistibles_totales
-    if ancestors[1].is_a?(EntidadPersistible)
-      (atributos_persistibles + ancestors[1].atributos_persistibles_totales).uniq
-    else
+    ancestros = ancestors
+    ancestros.delete_at(0)
+    padre = nil
+    unless ancestros.nil?
+      padre = ancestros.find { |a| a.is_a?(EntidadPersistible) }
+    end
+    if padre.nil?
       atributos_persistibles
+    else
+      totales = atributos_persistibles + padre.atributos_persistibles_totales
+      totales.uniq {|atr| atr.nombre}
     end
   end
 
@@ -103,17 +110,25 @@ module EntidadPersistible
 # VALIDACIONES  << ---------------------------------------
 
   def validar_todo(atributo, valor)
-    validar_tipo(atributo, valor)
     validar_no_blank(atributo.nombre, valor)
-    validar_from(atributo, valor)
-    validar_to(atributo, valor)
-    validar_block_validate(atributo.nombre, valor)
+    unless valor.nil?
+      validar_tipo(atributo, valor)
+      if atributo.tipo == Numeric
+        validar_from(atributo, valor)
+        validar_to(atributo, valor)
+      end
+      validar_block_validate(atributo.nombre, valor)
+    end
+  end
+
+  def validar_no_blank(nombre_atributo, valor)
+    if (valor.nil? || valor == "") && no_blank.include?(nombre_atributo)
+      raise NoBlankException.new(self, nombre_atributo)
+    end
   end
 
   def validar_tipo(atributo, valor)
-    if valor.nil?
-      # no debe hacer nada
-    elsif atributo.tipo == Boolean
+    if atributo.tipo == Boolean
       raise TipoDeDatoException.new(self, atributo.nombre, atributo.tipo) unless valor.is_a?(Boolean)
     elsif atributo.tipo == Numeric
       raise TipoDeDatoException.new(self, atributo.nombre, atributo.tipo) unless valor.is_a?(Numeric)
@@ -128,20 +143,14 @@ module EntidadPersistible
     end
   end
 
-  def validar_no_blank(nombre_atributo, valor)
-    if (valor.nil? || valor == "") && no_blank.include?(nombre_atributo)
-      raise NoBlankException.new(self, nombre_atributo)
-    end
-  end
-
   def validar_from(atributo, valor)
-    if atributo.tipo == Numeric && from[atributo.nombre] && from[atributo.nombre] > valor
+    if from[atributo.nombre] && from[atributo.nombre] > valor
       raise FromException.new(self, atributo.nombre, from[atributo.nombre])
     end
   end
 
   def validar_to(atributo, valor)
-    if atributo.tipo == Numeric && to[atributo.nombre] && to[atributo.nombre] < valor
+    if to[atributo.nombre] && to[atributo.nombre] < valor
       raise ToException.new(self, atributo.nombre, to[atributo.nombre])
     end
   end

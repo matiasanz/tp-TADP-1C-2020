@@ -9,19 +9,6 @@ module InstanciaPersistible
 
   attr_reader :id
 
-  # en el constructor de la clase se usaria asi
-  #def initialize
-  #  inicializar_has_many
-  #  super
-  #end
-  def inicializar_atributos
-    self.class.atributos_persistibles_totales.each do |atributo|
-      send(pasar_a_setter(atributo.nombre), []) if atributo.is_a?(AtributoMultiple)
-    end
-    self.class.default.each{ |simbolo, valor_default| send(pasar_a_setter(simbolo), valor_default) }
-    self
-  end
-
   def save!
     self.class.inicializar_tabla unless self.class.tiene_tabla
     validate! # valida la instancia actual y las instancias asociadas
@@ -75,5 +62,18 @@ module InstanciaPersistible
 
   private
   attr_writer :id
+
+  # en el constructor de la clase se usaria asi
+  #def initialize
+  #  inicializar_has_many
+  #  super
+  #end
+  def inicializar_atributos
+    self.class.atributos_persistibles_totales.each do |atributo|
+      send(pasar_a_setter(atributo.nombre), []) if atributo.is_a?(AtributoMultiple)
+    end
+    self.class.default.each{ |simbolo, valor_default| send(pasar_a_setter(simbolo), valor_default) }
+    self
+  end
 
 end

@@ -359,6 +359,11 @@ describe Prueba do
       expect(s.numeros[0]).to eq 1
       expect(s.numeros[1]).to eq 2
       expect(s.numeros[2]).to eq 3
+
+      puts "#{s.numeros[3]}"
+      puts "#{s.numeros[4]}"
+      puts "#{s.numeros[5]}"
+      puts "#{s.numeros[6]}"
       expect(s.numeros[3]).to eq nil
 
       expect(s.booleanos[0]).to eq true
@@ -475,6 +480,14 @@ describe Prueba do
 
       puts "#{AssistantProfessor.ancestors}"
       puts "#{AssistantProfessor.singleton_class.ancestors}"
+      puts ""
+
+      puts "#{AssistantProfessor.ancestors.select { |anc| anc.is_a?(EntidadPersistible) }}"
+      puts "#{AssistantProfessor.atributos_persistibles_totales}"
+      AssistantProfessor.atributos_persistibles_totales.each do |atr|
+        puts "#{atr.singleton_class.ancestors}"
+        puts "#{atr.class.ancestors}"
+      end
       puts ""
 
       Grade.borrar_tabla
