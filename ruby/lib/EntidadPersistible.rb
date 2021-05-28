@@ -32,6 +32,10 @@ module EntidadPersistible
     @default ||= {}
   end
 
+  def modulos_hijos
+    @modulos_hijos ||= []
+  end
+
   def has_one(tipo_atributo, params)
     agregar_atributo(tipo_atributo, params)
     self

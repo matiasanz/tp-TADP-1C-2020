@@ -41,3 +41,35 @@ end
 #  inicializar_has_many
 #  super()
 #end
+
+
+# estaba en ORM
+#modulo.incluye_orm = true
+#
+=begin
+class Module
+
+  attr_accessor :incluye_orm
+
+  def modulos_hijos
+    @modulos_hijos ||= []
+  end
+
+  def included(modulo)
+    if @incluye_orm
+      ORM::entregar_dependecias(modulo)
+      modulos_hijos.push(modulo)
+    end
+  end
+
+end
+
+class Class
+  def inherited(clase)
+    if @incluye_orm
+      clase.incluye_orm = true
+      modulos_hijos.push(clase)
+    end
+  end
+end
+=end
