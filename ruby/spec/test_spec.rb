@@ -328,6 +328,28 @@ describe Prueba do
                 expect(Atacante.find_by_danio(25)).to match_array(@vegeta)
             end
 
+            it 'mixin que incluye mixin persistible se persiste correctamente' do
+                module Intermediario
+                    include Atacante
+                end
+
+                class Alguien
+                    include Intermediario
+                    has_one String, named: :algo
+
+                    def initialize(algo)
+                        @algo = algo
+                        super()
+                    end
+                end
+
+                a = Alguien.new("salame").save!
+
+                atacantes = Atacante.all_instances
+                expect(atacantes.size).to be(3)
+                expect(atacantes.map{|at| at.id}).to include(a.id)
+                expect(Atacante.find_by_id(a.id).first.algo).to match "salame"
+            end
         end
     end
 

@@ -13,6 +13,8 @@ module ORM
 
             if modulo.is_a? Class
                 modulo.include ObjetoPersistible
+            else
+                modulo.extend ModuloPersistible
             end
         end
 
@@ -26,6 +28,8 @@ module ORM
                 @submodulos             ||= []
                 @atributos_persistibles ||= {}
             end
+
+            modulo.has_one String, named: :id
         end
 
         def tabla
@@ -128,11 +132,9 @@ module ORM
     #************************** Objeto Persistible ************************
 
     module ObjetoPersistible
-        extend ModuloPersistible
 
         def self.included(modulo)
             modulo.extend ModuloPersistible
-            modulo.has_one String, named: :id
         end
 
         #Enunciado
