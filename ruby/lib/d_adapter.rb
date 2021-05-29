@@ -2,13 +2,7 @@ require 'tadb'
 require 'b_atributos_persistibles'
 
 class Tabla
-    private
-    def initialize(clase, nombre)
-        @clase = clase
-        @tablaTADB = TADB::DB.table(nombre)
-    end
 
-    public
     def self.new_tabla_unica(tipo)
         new(tipo, tipo.to_s)
     end
@@ -17,15 +11,20 @@ class Tabla
         new(tipo, "#{claseCompuesta.to_s}_#{parametro.to_s}")
     end
 
+    def initialize(clase, nombre)
+        @clase = clase
+        @tablaTADB = TADB::DB.table(nombre)
+    end
+
     #Se usa en save!
-    def persist(objeto)
+    def save(objeto)
         @tablaTADB.delete(objeto.id) unless  objeto.id.nil?
         id = insert(formato_entrada(objeto))
         objeto.id = id
     end
 
     #Se usa en forget!
-    def remove(objeto)
+    def forget(objeto)
         @tablaTADB.delete(objeto.id)
     end
 
@@ -35,12 +34,12 @@ class Tabla
     end
 
     #Se usa en all_instances
-    def get_all
+    def get_all_instances
         @tablaTADB.entries.map {|entry| to_instance(entry)}
     end
 
     #Se usa en refresh!
-    def recuperar_de_db(objeto)
+    def refresh(objeto)
         datos = find_entries_by(:id, objeto.id).first
 
         if datos.nil?

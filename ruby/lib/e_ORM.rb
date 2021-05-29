@@ -48,7 +48,7 @@ module ClasePersistible
 
     #Enunciado
     def all_instances
-        tabla.get_all + @subclases.flat_map{|s| s.all_instances}
+        tabla.get_all_instances + @subclases.flat_map{|s| s.all_instances}
     end
 
     def atributos_persistibles
@@ -123,7 +123,7 @@ module ObjetoPersistible
     def save!
         set_defaults_on_empty
         save_attributes!
-        tabla.persist(self)
+        tabla.save(self)
         save_relations!
         self
     end
@@ -131,13 +131,13 @@ module ObjetoPersistible
     #Enunciado
     def forget!
         each_persistible {|p| p.forget_relaciones!}
-        tabla.remove(self)
+        tabla.forget(self)
         self.id= nil
     end
 
     #Enunciado
     def refresh!
-        tabla.recuperar_de_db(self)
+        tabla.refresh(self)
         self
     end
 
