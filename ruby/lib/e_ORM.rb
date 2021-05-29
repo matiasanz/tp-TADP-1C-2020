@@ -2,20 +2,24 @@ require 'd_adapter'
 
 module ClasePersistible
 
-    def inherited(modulo)
-        subclasses << modulo
+    def self.extended(modulo)
+        ClasePersistible.init(modulo)
     end
 
-    def subclasses
-        @subclases||=[]
+    def inherited(modulo)
+        @subclases << modulo
+        ClasePersistible.init(modulo)
+    end
+
+    def self.init(modulo)
+        modulo.instance_eval do
+            @subclases||=[]
+            @atributos_persistibles ||= {}
+        end
     end
 
     def tabla
         @tabla||=Tabla.new_tabla_unica(self)
-    end
-
-    def persistibles_propios
-        @atributos_persistibles||={}
     end
 
     #Enunciado
@@ -32,7 +36,7 @@ module ClasePersistible
         validar_has_args(args)
         atributo = AtributoHelper.as_attribute(args, tipo, self, many)
         attr_accessor atributo.nombre
-        persistibles_propios[atributo.nombre] = atributo
+        @atributos_persistibles[atributo.nombre] = atributo
     end
 
     def validar_has_args(args)
@@ -44,11 +48,11 @@ module ClasePersistible
 
     #Enunciado
     def all_instances
-        tabla.get_all + subclasses.flat_map{|s| s.all_instances}
+        tabla.get_all + @subclases.flat_map{|s| s.all_instances}
     end
 
     def atributos_persistibles
-        persistibles_heredados.merge(persistibles_propios)
+        persistibles_heredados.merge(@atributos_persistibles)
     end
 
     private
@@ -97,7 +101,7 @@ module ClasePersistible
     protected
     def find_by(property, value)
         if entrada_de_tabla?(property)
-            return tabla.find_by(property, value) + subclasses.flat_map{|c|c.find_by(property, value)}
+            return tabla.find_by(property, value) + @subclases.flat_map{|c|c.find_by(property, value)}
         else
             return all_instances.select{|i| i.send(property)==value}
         end

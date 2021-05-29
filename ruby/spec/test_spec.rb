@@ -18,7 +18,7 @@ describe Prueba do
         end
 
         it 'Las subclases de una clase persistible se obtienen correctamente' do
-            expect(Personaje.send(:subclasses)).to include(Ladron)
+            expect(Personaje.instance_variable_get(:@subclases)).to include(Ladron)
         end
     end
 
