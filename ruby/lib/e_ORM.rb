@@ -6,20 +6,29 @@ module ClasePersistible
         ClasePersistible.init(modulo)
     end
 
+    def included(modulo)
+        @submodulos ||= []
+        @submodulos << modulo
+
+        if modulo.is_a? Class
+            modulo.include ObjetoPersistible
+        end
+    end
+
     def inherited(modulo)
-        @subclases << modulo
+        @submodulos << modulo
         ClasePersistible.init(modulo)
     end
 
     def self.init(modulo)
         modulo.instance_eval do
-            @subclases||=[]
+            @submodulos             ||= []
             @atributos_persistibles ||= {}
         end
     end
 
     def tabla
-        @tabla||=Tabla.new_tabla_unica(self)
+        @tabla ||= Tabla.new_tabla_unica(self)
     end
 
     #Enunciado
@@ -27,6 +36,7 @@ module ClasePersistible
         has_attribute(tipo, args, false)
     end
 
+    #Enunciado
     def has_many(tipo, args)
         has_attribute(tipo, args, true)
     end
@@ -48,7 +58,7 @@ module ClasePersistible
 
     #Enunciado
     def all_instances
-        tabla.get_all_instances + @subclases.flat_map{|s| s.all_instances}
+        tabla.get_all_instances + @submodulos.flat_map{|s| s.all_instances}
     end
 
     def atributos_persistibles
@@ -61,8 +71,11 @@ module ClasePersistible
     end
 
     def persistibles_incluidos
-        modulos_persistibles = self.included_modules.select {|m| m.is_a?(MixinPersistible)}
-        modulos_persistibles.flat_map{|m| m.atributos_persistibles}.reduce Hash.new, :merge
+        modulos_persistibles.flat_map{|m| m.atributos_persistibles}.reduce(Hash.new, :merge)
+    end
+
+    def modulos_persistibles
+        included_modules.select {|m| m.is_a?(ClasePersistible)}
     end
 
     #Enunciado: Find by
@@ -104,12 +117,14 @@ module ClasePersistible
     public
     def find_by(property, value)
         if entrada_de_tabla?(property)
-            return tabla.find_by(property, value) + @subclases.flat_map{|c|c.find_by(property, value)}
+            return tabla.find_by(property, value) + @submodulos.flat_map{|c|c.find_by(property, value)}
         else
             return all_instances.select{|i| i.send(property)==value}
         end
     end
 end
+
+#************************** Objeto Persistible ************************
 
 module ObjetoPersistible
     extend ClasePersistible
@@ -141,6 +156,7 @@ module ObjetoPersistible
         self
     end
 
+    #Enunciado
     def validate!
         each_persistible do
             |atributo|
@@ -168,30 +184,5 @@ module ObjetoPersistible
 
     def tabla
         self.class.tabla
-    end
-end
-
-module MixinPersistible
-    include ClasePersistible
-
-    def self.extended(modulo)
-        ClasePersistible.init(modulo)
-    end
-
-    def included(modulo)
-        @inclusivos ||= []
-        @inclusivos << modulo
-
-        if modulo.is_a? Class
-            modulo.include ObjetoPersistible
-        end
-    end
-
-    def all_instances
-        super + @inclusivos.flat_map{ |m| m.all_instances }
-    end
-
-    def find_by(property, value)
-        @inclusivos.flat_map{|mod| mod.find_by(property, value)}
     end
 end

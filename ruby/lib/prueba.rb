@@ -131,7 +131,7 @@ class ClaseDefault
 end
 
 module Atacante
-    extend MixinPersistible
+    extend ClasePersistible
 
     has_one Numeric, named: :danio
 
