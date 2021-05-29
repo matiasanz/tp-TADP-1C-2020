@@ -40,6 +40,7 @@ class AtributoSimple < Atributo
 
   def validar_todo(valor, nombre_clase_error)
     @validador.validar(valor, nombre_clase_error)
+    self
   end
 
 end
@@ -81,6 +82,7 @@ class AtributoMultiple < Atributo
 
   def validar_todo(valor, nombre_clase_error)
     valor.each { |instancia| @validador.validar(instancia, nombre_clase_error) }
+    self
   end
 
   private
@@ -113,6 +115,7 @@ module MultipleBasico
 
   def settear(instancia)
     super(instancia) { |elem| elem }
+    self
   end
 
 end
@@ -125,6 +128,7 @@ module MultipleComplejo
 
   def settear(instancia)
     super(instancia) { |elem| @tipo_atributo.find_by_id(elem)[0] }
+    self
   end
 
 end

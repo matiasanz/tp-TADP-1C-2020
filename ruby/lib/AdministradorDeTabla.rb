@@ -15,6 +15,7 @@ module AdministradorDeTabla
 
   def borrar_tabla
     tabla.clear
+    self
   end
 
   def hash_atributos_persistidos(id)
