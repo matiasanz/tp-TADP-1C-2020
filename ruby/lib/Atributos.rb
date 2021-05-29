@@ -1,4 +1,5 @@
 require_relative 'Util'
+require_relative 'ValidadorAtributos'
 
 # "CLASE ABSTACTA"
 
@@ -6,72 +7,17 @@ class Atributo
 
   include Util
 
-  attr_reader :tipo, :nombre  #, :params
-
-  def valor_default
-    @params[:default]
-  end
+  attr_reader :nombre, :tipo, :default
 
   def initialize(tipo, params)
     @nombre = params[:named]
     @tipo = tipo
-    @params = params
-  end
-
-  def tiene_valor_default(valor)
-    valor.nil? && !@params[:default].nil?
+    @default = params[:default]
+    @validador = ValidadorAtributos.new(params, tipo)
   end
 
   def validar_todo(valor, nombre_clase_error)
-    validar_no_blank(valor, nombre_clase_error)
-    unless valor.nil?
-      validar_tipo(valor, nombre_clase_error)
-      validar_block_validate(valor, nombre_clase_error)
-      if @tipo == Numeric
-        validar_from(valor, nombre_clase_error)
-        validar_to(valor, nombre_clase_error)
-      end
-    end
-  end
-
-  def validar_no_blank(valor, nombre_clase_error)
-    if (valor.nil? || valor == "") && @params[:no_blank]
-      raise NoBlankException.new(nombre_clase_error, @nombre)
-    end
-  end
-
-  def validar_tipo(valor, nombre_clase_error)
-    if @tipo == Boolean
-      raise TipoDeDatoException.new(nombre_clase_error, @nombre, @tipo) unless valor.is_a?(Boolean)
-    elsif @tipo == Numeric
-      raise TipoDeDatoException.new(nombre_clase_error, @nombre, @tipo) unless valor.is_a?(Numeric)
-    elsif @tipo == String
-      raise TipoDeDatoException.new(nombre_clase_error, @nombre, @tipo) unless valor.is_a?(String)
-    else
-      if valor.is_a?(InstanciaPersistible)
-        valor.validate!
-      else
-        raise TipoDeDatoException.new(nombre_clase_error, @nombre, @tipo)
-      end
-    end
-  end
-
-  def validar_from(valor, nombre_clase_error)
-    if @params[:from] && @params[:from] > valor
-      raise FromException.new(nombre_clase_error, @nombre, @params[:from])
-    end
-  end
-
-  def validar_to(valor, nombre_clase_error)
-    if @params[:to] && @params[:to] < valor
-      raise ToException.new(nombre_clase_error, @nombre, @params[:to])
-    end
-  end
-
-  def validar_block_validate(valor, nombre_clase_error)
-    if @params[:validate] && !valor.instance_eval(&@params[:validate])
-      raise BlockValidateException.new(nombre_clase_error, @nombre, @params[:validate])
-    end
+    @validador.validar(valor, nombre_clase_error)
   end
 
   private
@@ -122,9 +68,6 @@ module SimpleComplejo
   end
 
   def settear(instancia)
-    puts "#{instancia}"
-    puts "#{@nombre}"
-    puts "#{@tipo}"
     setter_generico(instancia, @tipo.find_by_id(valor_persistido(instancia))[0])
     self
   end

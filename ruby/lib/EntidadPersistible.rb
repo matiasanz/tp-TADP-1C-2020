@@ -8,27 +8,7 @@ module EntidadPersistible
   def atributos_persistibles
     @atributos_persistibles ||= []
   end
-=begin
-  def no_blank
-    @no_blank ||= []
-  end
 
-  def from
-    @from ||= {}
-  end
-
-  def to
-    @to ||= {}
-  end
-
-  def validate
-    @validate ||= {}
-  end
-
-  def default
-    @default ||= {}
-  end
-=end
   def modulos_hijos
     @modulos_hijos ||= []
   end
@@ -47,12 +27,6 @@ module EntidadPersistible
     attr_accessor atributo.nombre
     self.atributos_persistibles.each { |atr| atributos_persistibles.delete(atr) if atr.nombre == atributo.nombre }
     self.atributos_persistibles.push(atributo)
-
-    #self.no_blank.push(params[:named]) if params[:no_blank]
-    #self.from[params[:named]] = params[:from] if params[:from]
-    #self.to[params[:named]] = params[:to] if params[:to]
-    #self.validate[params[:named]] = params[:validate] unless params[:validate].nil?
-    #self.default[params[:named]] = params[:default] unless params[:default].nil?
     self
   end
 
