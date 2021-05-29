@@ -9,15 +9,7 @@ class ValidadorDeAtributo
         @to=validaciones[:to]
         @validate=validaciones[:validate] || lambda{|_| true}
 
-        unless clase <= Numeric
-            raise ValidacionNoAdmitidaException.new(clase, "from") unless @from.nil?
-            raise ValidacionNoAdmitidaException.new(clase, "to") unless @to.nil?
-        end
-
-        raise CampoIncorrectoException.new(@no_blank, Boolean, "no_blank") unless @no_blank.is_a? Boolean
-        raise CampoIncorrectoException.new(@from, Numeric, "from") unless @from.is_a?Numeric or @from.nil?
-        raise CampoIncorrectoException.new(@to, Numeric, "to") unless @to.is_a?Numeric or @to.nil?
-        raise CampoIncorrectoException.new(@validate, [Proc, Lambda], "validate") unless @validate.is_a?Proc or @validate.lambda?
+        autovalidarse(clase)
     end
 
     def validar(atributo, dato)
@@ -42,5 +34,17 @@ class ValidadorDeAtributo
 
     def cumple_rango?(dato)
         (@from.nil? or @from<=dato) and (@to.nil? or dato<=@to)
+    end
+
+    def autovalidarse(clase)
+        unless clase <= Numeric
+            raise ValidacionNoAdmitidaException.new(clase, "from") unless @from.nil?
+            raise ValidacionNoAdmitidaException.new(clase, "to") unless @to.nil?
+        end
+
+        raise CampoIncorrectoException.new(@no_blank, Boolean, "no_blank") unless @no_blank.is_a? Boolean
+        raise CampoIncorrectoException.new(@from, Numeric, "from") unless @from.is_a?Numeric or @from.nil?
+        raise CampoIncorrectoException.new(@to, Numeric, "to") unless @to.is_a?Numeric or @to.nil?
+        raise CampoIncorrectoException.new(@validate, [Proc, Lambda], "validate") unless @validate.is_a?Proc or @validate.lambda?
     end
 end
