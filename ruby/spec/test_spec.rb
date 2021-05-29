@@ -82,7 +82,7 @@ describe Prueba do
 
     it 'usar refresh! sin save! genera una excepcion' do
       # Falla! Este objeto no tiene id!
-      expect{Person.new.refresh!}.to raise_error(RefreshException)
+      expect { Person.new.refresh! }.to raise_error(RefreshException)
     end
 
     it 'refresh!() debe actualizar el estado del objeto en base a lo que se haya guardado en la base' do
@@ -117,6 +117,7 @@ describe Prueba do
         include ORM
         has_one Numeric, named: :x
         has_one Numeric, named: :y
+
         def add(other)
           self.x = self.x + other.x
           self.y = self.y + other.y
@@ -143,7 +144,7 @@ describe Prueba do
       expect(Point.all_instances[1].x).to eq 1
       expect(Point.all_instances[1].y).to eq 3
       expect(Point.all_instances[2]).to eq nil
-      Point.all_instances.map {|elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
+      Point.all_instances.map { |elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
       puts ""
 
       p4 = Point.all_instances.first
@@ -156,7 +157,7 @@ describe Prueba do
       expect(Point.all_instances[1].x).to eq 3
       expect(Point.all_instances[1].y).to eq 8
       expect(Point.all_instances[2]).to eq nil
-      Point.all_instances.map {|elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
+      Point.all_instances.map { |elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
       puts ""
 
       p2.forget!
@@ -165,7 +166,7 @@ describe Prueba do
       expect(Point.all_instances[0].x).to eq 3
       expect(Point.all_instances[0].y).to eq 8
       expect(Point.all_instances[1]).to eq nil
-      Point.all_instances.map {|elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
+      Point.all_instances.map { |elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
       puts ""
 
       Point.borrar_tabla
@@ -225,9 +226,9 @@ describe Prueba do
       expect(Student.find_by_promoted(false).length).to eq 2
 
       # Falla! No existe el mensaje porque has_last_name recibe args.
-      expect{Student.find_by_has_last_name("puente")}.to raise_error(NoMethodError)
+      expect { Student.find_by_has_last_name("puente") }.to raise_error(NoMethodError)
 
-      expect{Student.by_has_last_name("algo")}.to raise_error(NoMethodError)
+      expect { Student.by_has_last_name("algo") }.to raise_error(NoMethodError)
 
       expect(Student.respond_to?(:find_by_has_last_name, false)).to eq false
       expect(Student.respond_to?(:find_by_promoted, false)).to eq true
@@ -256,15 +257,15 @@ describe Prueba do
       s.full_name = "leo sbaraglia"
       s.grade = Grade.new
       s.grade.value = 8
-      s.save!                        # Salva al estudiante Y su nota
+      s.save! # Salva al estudiante Y su nota
 
-      g = s.grade                    # Retorna Grade(8)
+      g = s.grade # Retorna Grade(8)
       expect(g.value).to eq 8
 
       g.value = 5
       g.save!
 
-      puts s.refresh!.grade.class               # Retorna Grade(5)
+      puts s.refresh!.grade.class # Retorna Grade(5)
       expect(s.refresh!.grade.value).to eq 5
 
       Student.borrar_tabla
@@ -292,7 +293,7 @@ describe Prueba do
       s = Student.new
       s.full_name = "leo sbaraglia"
       puts " =>> #{s.grades}"
-      expect(s.grades).to eq []                # Retorna []
+      expect(s.grades).to eq [] # Retorna []
       s.grades.push(Grade.new)
       s.grades.last.value = 8
       expect(s.grades.last.value).to eq 8
@@ -300,13 +301,13 @@ describe Prueba do
       s.grades.last.value = 5
       expect(s.grades.last.value).to eq 5
       puts Student.atributos_persistibles
-      puts "#{Student.atributos_persistibles.select { |atr| atr.is_a?(AtributoMultiple)}.map { |atr| atr.nombre.to_s } }"
-      s.save!                        # Salva al estudiante Y sus notas
+      puts "#{Student.atributos_persistibles.select { |atr| atr.is_a?(AtributoMultiple) }.map { |atr| atr.nombre.to_s } }"
+      s.save! # Salva al estudiante Y sus notas
 
-      puts s.grades.map{|g| g.value}
+      puts s.grades.map { |g| g.value }
       puts ""
-      s.refresh!              # Retorna [Grade(8), Grade(5)]
-      puts s.grades.map{|g| g.value}
+      s.refresh! # Retorna [Grade(8), Grade(5)]
+      puts s.grades.map { |g| g.value }
       puts ""
       expect(s.grades[0].value).to eq 8
       expect(s.grades[1].value).to eq 5
@@ -316,7 +317,7 @@ describe Prueba do
       g.value = 6
       g.save!
 
-      s.refresh!            # Retorna [Grade(8), Grade(6)]
+      s.refresh! # Retorna [Grade(8), Grade(6)]
       puts s.grades
       expect(s.grades[0].value).to eq 8
       expect(s.grades[1].value).to eq 6
@@ -340,7 +341,7 @@ describe Prueba do
       s.full_name = "leo sbaraglia"
       expect(s.numeros).to eq []
       expect(s.booleanos).to eq []
-      expect(s.cadenas).to eq []      # Retorna []
+      expect(s.cadenas).to eq [] # Retorna []
       s.numeros.push(1)
       s.numeros.push(2)
       s.numeros.push(3)
@@ -378,7 +379,7 @@ describe Prueba do
 
       s.numeros[2] = 4
       s.booleanos[2] = false
-      s.cadenas[2]= "te va"
+      s.cadenas[2] = "te va"
 
       puts s.numeros
       puts s.booleanos
@@ -444,7 +445,6 @@ describe Prueba do
       #puts Student.incluye_orm?
       #puts ObjetoPersistible.incluye_orm?
       #puts ObjetoPersistible.is_a?(ClasePersistible)
-
 
       g = Grade.new
       g.value = 9
@@ -531,7 +531,7 @@ describe Prueba do
       a.type = "a"
       a.save!
 
-      puts "DEL TEST 1 #{Persona.all_instances}"      #Trae todos los Estudiantes y Ayudantes
+      puts "DEL TEST 1 #{Persona.all_instances}" #Trae todos los Estudiantes y Ayudantes
       puts "DEL TEST 2 #{Grade.all_instances}"
       puts "DEL TEST 3 #{Student.all_instances}"
       puts "DEL TEST 4 #{AssistantProfessor.all_instances}"
@@ -545,9 +545,9 @@ describe Prueba do
       puts e.id
       puts a.id
 
-      puts "#{Student.find_by_id("5")}"  #Trae Estudiantes y Ayudantes con id "5"
+      puts "#{Student.find_by_id("5")}" #Trae Estudiantes y Ayudantes con id "5"
       puts "#{Student.find_by_full_name("federico rioja")}"
-      expect{Student.find_by_type("a")}.to raise_error(NoMethodError) # Falla! No todos entienden type!
+      expect { Student.find_by_type("a") }.to raise_error(NoMethodError) # Falla! No todos entienden type!
 
       Grade.borrar_tabla
       Student.borrar_tabla
@@ -572,17 +572,17 @@ describe Prueba do
 
       s = Student.new
       s.full_name = 5
-      expect{s.save!}.to raise_error(TipoDeDatoException)     # Falla! El nombre no es un String!
+      expect { s.save! }.to raise_error(TipoDeDatoException) # Falla! El nombre no es un String!
 
       s.full_name = "pepe botella"
-      s.save!                       # Pasa: grade es nil, pero eso vale.
+      s.save! # Pasa: grade es nil, pero eso vale.
 
       s.grade = Grade.new
       s.grade.value = "pepe"
-      expect{s.save!}.to raise_error(TipoDeDatoException)     # Falla! grade.value no es un Number
+      expect { s.save! }.to raise_error(TipoDeDatoException) # Falla! grade.value no es un Number
 
       s.grade = "algo"
-      expect{s.save!}.to raise_error(TipoDeDatoException)
+      expect { s.save! }.to raise_error(TipoDeDatoException)
 
       Student.borrar_tabla
     end
@@ -618,11 +618,11 @@ describe Prueba do
       s.grades.last.value = 8
       g = Grade.new
       g.value = 9
-      g.cosas.push(true, 3, true)             #falla por esta linea
+      g.cosas.push(true, 3, true) #falla por esta linea
       s.grades.push(g)
-      s.grades.push("algo")                   #falla por esta linea
-      s.cuadernos.push("tadp", "am2", true)   #falla por esta linea
-      expect{s.save!}.to raise_error(TipoDeDatoException)
+      s.grades.push("algo") #falla por esta linea
+      s.cuadernos.push("tadp", "am2", true) #falla por esta linea
+      expect { s.save! }.to raise_error(TipoDeDatoException)
     end
 
     it "4 b" do
@@ -636,21 +636,21 @@ describe Prueba do
         include ORM
         has_one String, named: :full_name, no_blank: true
         has_one Numeric, named: :age, from: 18, to: 100
-        has_many Grade, named: :grades, validate: proc{ value > 2 }
+        has_many Grade, named: :grades, validate: proc { value > 2 }
       end
 
       s = Student.new
       s.full_name = ""
-      expect{s.save!}.to raise_error(NoBlankException)     # Falla! El nombre está vacío!
+      expect { s.save! }.to raise_error(NoBlankException) # Falla! El nombre está vacío!
       s.full_name = "emanuel ortega"
       s.age = 15
-      expect{s.save!}.to raise_error(FromException)                       # Falla! La edad es menor a 18!
+      expect { s.save! }.to raise_error(FromException) # Falla! La edad es menor a 18!
       s.age = 103
-      expect{s.save!}.to raise_error(ToException)                       # Falla! La edad es mayor a 100!
+      expect { s.save! }.to raise_error(ToException) # Falla! La edad es mayor a 100!
       s.age = 22
       s.grades.push(Grade.new)
       s.grades.last.value = -1
-      expect{s.save!}.to raise_error(BlockValidateException)               # Falla! grade.value no es > 2!
+      expect { s.save! }.to raise_error(BlockValidateException) # Falla! grade.value no es > 2!
     end
 
     it "4 c" do

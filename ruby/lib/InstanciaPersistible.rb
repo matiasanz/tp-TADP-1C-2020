@@ -53,8 +53,8 @@ module InstanciaPersistible
     hash_para_insertar
   end
 
-
   private
+
   attr_writer :id
 
   # en el constructor de la clase se usaria asi

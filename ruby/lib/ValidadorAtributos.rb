@@ -1,4 +1,3 @@
-
 class ValidadorAtributos
 
   def initialize(params, tipo)

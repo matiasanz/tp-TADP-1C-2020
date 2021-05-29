@@ -18,7 +18,7 @@ module AdministradorDeTabla
   end
 
   def hash_atributos_persistidos(id)
-    tabla.entries.each{ |entrada| return entrada if entrada.has_value?(id) }
+    tabla.entries.each { |entrada| return entrada if entrada.has_value?(id) }
     nil
   end
 

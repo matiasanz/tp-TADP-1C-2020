@@ -14,6 +14,7 @@ module ORM
   end
 
   private
+
   def self.dependencias_modulos_y_clases(modulo)
     modulo.extend(EntidadPersistible)
     modulo.module_eval do

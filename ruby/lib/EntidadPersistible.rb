@@ -69,7 +69,7 @@ module EntidadPersistible
       atributos_persistibles
     else
       totales = atributos_persistibles + padre.atributos_persistibles_totales
-      totales.uniq {|atr| atr.nombre}
+      totales.uniq { |atr| atr.nombre }
     end
   end
 

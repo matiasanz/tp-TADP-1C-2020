@@ -17,6 +17,7 @@ class Atributo
   end
 
   private
+
   def valor_persistido(instancia)
     instancia.class.hash_atributos_persistidos(instancia.id)[@nombre]
   end
@@ -27,7 +28,6 @@ class Atributo
   end
 
 end
-
 
 # ATRIBUTO SIMPLE <-------------------------------------
 
@@ -70,7 +70,6 @@ module SimpleComplejo
 
 end
 
-
 # ATRIBUTO MULTIPLE <-------------------------------------
 
 class AtributoMultiple < Atributo
@@ -85,6 +84,7 @@ class AtributoMultiple < Atributo
   end
 
   private
+
   def settear(instancia, &bloque)
     setter_generico(instancia, [])
     array_persistido(instancia).each do |elem|
@@ -95,9 +95,9 @@ class AtributoMultiple < Atributo
 
   def array_persistido(instancia)
     if @tipo_atributo == Numeric
-      valor_persistido(instancia).split(",").map{ |elem| elem.to_i }
+      valor_persistido(instancia).split(",").map { |elem| elem.to_i }
     elsif @tipo_atributo == Boolean
-      valor_persistido(instancia).split(",").map{ |elem| elem == "true" ? true : false }
+      valor_persistido(instancia).split(",").map { |elem| elem == "true" ? true : false }
     else
       valor_persistido(instancia).split(",")
     end
@@ -112,7 +112,7 @@ module MultipleBasico
   end
 
   def settear(instancia)
-    super(instancia){ |elem| elem }
+    super(instancia) { |elem| elem }
   end
 
 end
@@ -120,11 +120,11 @@ end
 module MultipleComplejo
 
   def obtener_valor_para_insertar(dato)
-    dato.map{|instancia| instancia.save!.id}.join(",")
+    dato.map { |instancia| instancia.save!.id }.join(",")
   end
 
   def settear(instancia)
-    super(instancia){ |elem| @tipo_atributo.find_by_id(elem)[0] }
+    super(instancia) { |elem| @tipo_atributo.find_by_id(elem)[0] }
   end
 
 end
