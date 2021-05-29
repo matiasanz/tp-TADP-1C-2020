@@ -129,3 +129,37 @@ class ClaseDefault
         @personaje=personaje
     end
 end
+
+module Atacante
+    extend ModuloPersistible
+
+    has_one Numeric, named: :danio
+
+    def atacar(alguien)
+        alguien.recibir_danio(@danio)
+    end
+end
+
+class Misil
+    include Atacante
+
+    def initialize(danio)
+        @danio=danio
+    end
+end
+
+class Guerrero < Personaje
+    include Atacante
+
+    attr_accessor :vida
+
+    def initialize(nombre, comicidad, danio)
+        super(nombre, comicidad)
+        @vida = 100
+        @danio = danio
+    end
+
+    def recibir_danio(danio)
+        @vida -=danio
+    end
+end

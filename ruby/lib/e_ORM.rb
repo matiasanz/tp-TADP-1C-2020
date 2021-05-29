@@ -1,68 +1,33 @@
 require 'd_adapter'
+module ModuloPersistible
 
-module ORM  # el usuario debe incluir este modulo para poder usar nuestro ORM. Y hacer el require_relative ".." correspondiente
-
-    def self.included(modulo)
-        entregar_dependecias(modulo)
+    def self.extended(modulo) #Se usa desde los mixines
+        ModuloPersistible.init(modulo)
     end
 
-    def self.entregar_dependecias(modulo)
-        dependencias_modulos_y_clases(modulo)
-        dependencias_de_clases(clase) if modulo.is_a?(Class)
-    end
+    def included(modulo) #Aplica a los mixines que incluyen otros persistibles
+        @submodulos ||= []
+        @submodulos << modulo
 
-    private
-    def dependencias_modulos_y_clases(modulo)
-        modulo.extend(EntidadPersistible)   #logica que entienden los modulos y las clases
-        modulo.module_eval do
-            def self.included(otro_modulo)
-                ORM::entregar_dependecias(otro_modulo)
-                modulos_hijos.push(otro_modulo)
-            end
+        if modulo.is_a? Class
+            modulo.include ObjetoPersistible
         end
     end
 
-    def dependencias_de_clases(clase)
-        clase.include(InstanciaPersistible)
-        clase.extend(AdministradorDeTabla)     #logica que solo entienden las clases
-        clase.class_eval do
-            # esto inicializa los atributos que usan has_many con un array vacio []. Tambien inicializa los defaults
-            # si el usuario define un contructor, solo tiene que escribir "inicializar_atributos" (si lo usa)
-            # si no define contructor, funciona TOD0 bien
-            def initialize
-                inicializar_atributos   #TODO ?
-                super
-            end
-
-            def self.inherited(otra_clase)
-                modulos_hijos.push(otra_clase)
-            end
-
-        end
-    end
-
-end
-
-module ClasePersistible
-
-    def self.extended(modulo)
-        ClasePersistible.init(modulo)
-    end
-
-    def inherited(modulo)
-        @subclases << modulo
-        ClasePersistible.init(modulo)
+    def inherited(modulo) #Aplica a las clases que heredan de clases persistibles
+        @submodulos << modulo
+        ModuloPersistible.init(modulo)
     end
 
     def self.init(modulo)
         modulo.instance_eval do
-            @subclases||=[]
+            @submodulos             ||= []
             @atributos_persistibles ||= {}
         end
     end
 
     def tabla
-        @tabla||=Tabla.new_tabla_unica(self)
+        @tabla ||= Tabla.new_tabla_unica(self)
     end
 
     #Enunciado
@@ -70,6 +35,7 @@ module ClasePersistible
         has_attribute(tipo, args, false)
     end
 
+    #Enunciado
     def has_many(tipo, args)
         has_attribute(tipo, args, true)
     end
@@ -91,16 +57,24 @@ module ClasePersistible
 
     #Enunciado
     def all_instances
-        tabla.get_all + @subclases.flat_map{|s| s.all_instances}
+        tabla.get_all_instances + @submodulos.flat_map{|s| s.all_instances}
     end
 
     def atributos_persistibles
-        persistibles_heredados.merge(@atributos_persistibles)
+        persistibles_heredados.merge(persistibles_incluidos).merge(@atributos_persistibles)
     end
 
     private
     def persistibles_heredados
-        (superclass.is_a? ClasePersistible)? superclass.atributos_persistibles: {}
+        (superclass.is_a? ModuloPersistible)? superclass.atributos_persistibles: {}
+    end
+
+    def persistibles_incluidos
+        modulos_persistibles.flat_map{|m| m.atributos_persistibles}.reduce(Hash.new, :merge)
+    end
+
+    def modulos_persistibles
+        included_modules.select {|m| m.is_a?(ModuloPersistible)}
     end
 
     #Enunciado: Find by
@@ -110,8 +84,6 @@ module ClasePersistible
             validar_busqueda(property)
             return find_by(property, *args)
         end
-
-        super
     end
 
     def respond_to_missing?(*args)
@@ -141,21 +113,23 @@ module ClasePersistible
         atributos_persistibles[property].is_a? AtributoSimple
     end
 
-    protected
+    public
     def find_by(property, value)
         if entrada_de_tabla?(property)
-            return tabla.find_by(property, value) + @subclases.flat_map{|c|c.find_by(property, value)}
+            return tabla.find_by(property, value) + @submodulos.flat_map{|c|c.find_by(property, value)}
         else
             return all_instances.select{|i| i.send(property)==value}
         end
     end
 end
 
+#************************** Objeto Persistible ************************
+
 module ObjetoPersistible
-    extend ClasePersistible
+    extend ModuloPersistible
 
     def self.included(modulo)
-        modulo.extend ClasePersistible
+        modulo.extend ModuloPersistible
         modulo.has_one String, named: :id
     end
 
@@ -163,24 +137,25 @@ module ObjetoPersistible
     def save!
         set_defaults_on_empty
         save_attributes!
-        tabla.persist(self)
+        tabla.save(self)
         save_relations!
         self
     end
 
     #Enunciado
     def forget!
-        each_persistible {|p| p.clean_relations}
-        tabla.remove(self)
+        each_persistible {|p| p.forget_relaciones!}
+        tabla.forget(self)
         self.id= nil
     end
 
     #Enunciado
     def refresh!
-        tabla.recuperar_de_db(self)
+        tabla.refresh(self)
         self
     end
 
+    #Enunciado
     def validate!
         each_persistible do
             |atributo|

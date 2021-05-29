@@ -18,7 +18,7 @@ describe Prueba do
         end
 
         it 'Las subclases de una clase persistible se obtienen correctamente' do
-            expect(Personaje.instance_variable_get(:@subclases)).to include(Ladron)
+            expect(Personaje.instance_variable_get(:@submodulos)).to include(Ladron)
         end
     end
 
@@ -91,7 +91,7 @@ describe Prueba do
 
     describe 'Persistencia de subclases' do
         it 'Una subclase puede ser a su vez clase persistible' do
-            expect(Ladron).to be_a(ClasePersistible)
+            expect(Ladron).to be_a(ModuloPersistible)
         end
 
         it 'atributos persistibles se heredan' do
@@ -281,7 +281,7 @@ describe Prueba do
                 ValidadorDeAtributo.new(Numeric, no_blank: true, from: 0, to: 4, validate: lambda{|x| x<3})
             end
             let (:atributoNumerico) do
-                AtributoHelper.as_simple_attribute(:atributo, Numeric)
+                AtributoHelper.as_simple_attribute(:atributo, Numeric, validadorNumerico)
             end
 
             it 'Validar dato numerico correcto' do
@@ -298,6 +298,36 @@ describe Prueba do
                 expect(validadorNumerico.cumple_validate?(4)).to be_falsey
                 expect{validadorNumerico.validar(atributoNumerico, 4)}.to raise_error(ValidateException)
             end
+        end
+    end
+
+    describe 'mixines persistibles' do
+
+        it 'son persistibles' do
+            expect(Guerrero.atributos_persistibles.keys).to include(:id, :nombre, :comicidad, :enojon, :danio)
+        end
+
+        it 'clase que incluye mixin persistible se persiste correctamente' do
+            misil = Misil.new(7000).save!
+            expect(misil.id).to_not be_nil
+            expect(misil.refresh!.danio).to be(7000)
+            expect(Misil.find_by_id(misil.id).first.danio).to be(7000)
+        end
+
+        describe 'metodos del Modulo' do
+            before(:each) do
+                @goku = Guerrero.new("goku", 2000, 20).save!
+                @vegeta = Guerrero.new("vegeta", 400, 25).save!
+            end
+
+            it 'all instances desde un mixin' do
+                expect(Atacante.all_instances).to include(@goku, @vegeta)
+            end
+
+            it 'find by desde un mixin' do
+                expect(Atacante.find_by_danio(25)).to match_array(@vegeta)
+            end
+
         end
     end
 
