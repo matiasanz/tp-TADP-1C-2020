@@ -669,8 +669,6 @@ describe Prueba do
       s = Student4.new
       expect(s.full_name).to eq "natalia natalia"
       s.full_name = nil
-      puts "#{s.class.no_blank.include?(:full_name)}"
-      puts "#{s.class.no_blank}"
       s.save!
       s.refresh!
       expect(s.full_name).to eq "natalia natalia"

@@ -8,7 +8,7 @@ module EntidadPersistible
   def atributos_persistibles
     @atributos_persistibles ||= []
   end
-
+=begin
   def no_blank
     @no_blank ||= []
   end
@@ -28,30 +28,31 @@ module EntidadPersistible
   def default
     @default ||= {}
   end
-
+=end
   def modulos_hijos
     @modulos_hijos ||= []
   end
 
   def has_one(tipo_atributo, params)
-    agregar_atributo(AtributoSimple.new(params[:named], tipo_atributo), params)
+    agregar_atributo(AtributoSimple.new(tipo_atributo, params))
     self
   end
 
   def has_many(tipo_atributo, params)
-    agregar_atributo(AtributoMultiple.new(params[:named], tipo_atributo), params)
+    agregar_atributo(AtributoMultiple.new(tipo_atributo, params))
     self
   end
 
-  def agregar_atributo(atributo, params)
-    attr_accessor params[:named]
-    self.atributos_persistibles.each { |atr| atributos_persistibles.delete(atr) if atr.nombre == params[:named]}
+  def agregar_atributo(atributo)
+    attr_accessor atributo.nombre
+    self.atributos_persistibles.each { |atr| atributos_persistibles.delete(atr) if atr.nombre == atributo.nombre }
     self.atributos_persistibles.push(atributo)
-    self.no_blank.push(params[:named]) if params[:no_blank]
-    self.from[params[:named]] = params[:from] if params[:from]
-    self.to[params[:named]] = params[:to] if params[:to]
-    self.validate[params[:named]] = params[:validate] unless params[:validate].nil?
-    self.default[params[:named]] = params[:default] unless params[:default].nil?
+
+    #self.no_blank.push(params[:named]) if params[:no_blank]
+    #self.from[params[:named]] = params[:from] if params[:from]
+    #self.to[params[:named]] = params[:to] if params[:to]
+    #self.validate[params[:named]] = params[:validate] unless params[:validate].nil?
+    #self.default[params[:named]] = params[:default] unless params[:default].nil?
     self
   end
 
@@ -89,75 +90,12 @@ module EntidadPersistible
     ancestros = ancestors
     ancestros.delete_at(0)
     padre = nil
-    unless ancestros.nil?
-      padre = ancestros.find { |a| a.is_a?(EntidadPersistible) }
-    end
+    padre = ancestros.find { |a| a.is_a?(EntidadPersistible) } unless ancestros.nil?
     if padre.nil?
       atributos_persistibles
     else
       totales = atributos_persistibles + padre.atributos_persistibles_totales
       totales.uniq {|atr| atr.nombre}
-    end
-  end
-
-# ESTABA EN INSTANCIAPERSISTIBLE
-
-  def tiene_valor_default(atributo, valor)
-    valor.nil? && !default[atributo.nombre].nil?
-  end
-
-
-# VALIDACIONES  << ---------------------------------------
-
-  def validar_todo(atributo, valor)
-    validar_no_blank(atributo.nombre, valor)
-    unless valor.nil?
-      validar_tipo(atributo, valor)
-      if atributo.tipo == Numeric
-        validar_from(atributo, valor)
-        validar_to(atributo, valor)
-      end
-      validar_block_validate(atributo.nombre, valor)
-    end
-  end
-
-  def validar_no_blank(nombre_atributo, valor)
-    if (valor.nil? || valor == "") && no_blank.include?(nombre_atributo)
-      raise NoBlankException.new(self, nombre_atributo)
-    end
-  end
-
-  def validar_tipo(atributo, valor)
-    if atributo.tipo == Boolean
-      raise TipoDeDatoException.new(self, atributo.nombre, atributo.tipo) unless valor.is_a?(Boolean)
-    elsif atributo.tipo == Numeric
-      raise TipoDeDatoException.new(self, atributo.nombre, atributo.tipo) unless valor.is_a?(Numeric)
-    elsif atributo.tipo == String
-      raise TipoDeDatoException.new(self, atributo.nombre, atributo.tipo) unless valor.is_a?(String)
-    else
-      if valor.is_a?(InstanciaPersistible)
-        valor.validate!
-      else
-        raise TipoDeDatoException.new(self, atributo.nombre, atributo.tipo)
-      end
-    end
-  end
-
-  def validar_from(atributo, valor)
-    if from[atributo.nombre] && from[atributo.nombre] > valor
-      raise FromException.new(self, atributo.nombre, from[atributo.nombre])
-    end
-  end
-
-  def validar_to(atributo, valor)
-    if to[atributo.nombre] && to[atributo.nombre] < valor
-      raise ToException.new(self, atributo.nombre, to[atributo.nombre])
-    end
-  end
-
-  def validar_block_validate(nombre_atributo, valor)
-    if validate[nombre_atributo] && !valor.instance_eval(&validate[nombre_atributo])
-      raise BlockValidateException.new(self, nombre_atributo, validate[nombre_atributo])
     end
   end
 

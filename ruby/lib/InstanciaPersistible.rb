@@ -20,7 +20,7 @@ module InstanciaPersistible
   end
 
   def refresh!
-    raise RefreshException.new(self) unless @id
+    raise RefreshException.new(self.class.name) unless @id
     self.class.atributos_persistibles_totales.each do |atributo|
       atributo.settear(self) if self.class.hash_atributos_persistidos(@id).has_key?(atributo.nombre)
     end
@@ -28,7 +28,7 @@ module InstanciaPersistible
   end
 
   def forget!
-    raise ForgetException.new(self) unless @id
+    raise ForgetException.new(self.class.name) unless @id
     self.class.borrar_de_tabla(@id)
     @id = nil
     self
@@ -38,9 +38,9 @@ module InstanciaPersistible
     self.class.atributos_persistibles_totales.each do |atributo|
       valor = send(atributo.nombre)
       if valor.is_a?(Array)
-        valor.each { |instancia| self.class.validar_todo(atributo, instancia) }
+        valor.each { |instancia| atributo.validar_todo(instancia, self.class.name) }
       else
-        self.class.validar_todo(atributo, valor)
+        atributo.validar_todo(valor, self.class.name)
       end
     end
     self
@@ -51,7 +51,7 @@ module InstanciaPersistible
     self.class.atributos_persistibles_totales.each do |atributo|
       dato = send(atributo.nombre)
       hash_para_insertar[atributo.nombre] = atributo.obtener_valor_para_insertar(dato) unless dato.nil?
-      hash_para_insertar[atributo.nombre] = self.class.default[atributo.nombre] if self.class.tiene_valor_default(atributo, dato)
+      hash_para_insertar[atributo.nombre] = atributo.valor_default if atributo.tiene_valor_default(dato)
     end
     hash_para_insertar[:id] = @id if @id
     hash_para_insertar
@@ -70,8 +70,9 @@ module InstanciaPersistible
   def inicializar_atributos
     self.class.atributos_persistibles_totales.each do |atributo|
       send(pasar_a_setter(atributo.nombre), []) if atributo.is_a?(AtributoMultiple)
+      dato = send(atributo.nombre)
+      send(pasar_a_setter(atributo.nombre), atributo.valor_default) if atributo.tiene_valor_default(dato)
     end
-    self.class.default.each{ |simbolo, valor_default| send(pasar_a_setter(simbolo), valor_default) }
     self
   end
 
