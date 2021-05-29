@@ -19,7 +19,7 @@ class Tabla
 
     #Se usa en save!
     def persist(objeto)
-        @tablaTADB.delete(objeto.id)
+        @tablaTADB.delete(objeto.id) unless  objeto.id.nil?
         id = insert(formato_entrada(objeto))
         objeto.id = id
     end

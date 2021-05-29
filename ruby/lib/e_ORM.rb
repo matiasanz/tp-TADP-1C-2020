@@ -52,12 +52,17 @@ module ClasePersistible
     end
 
     def atributos_persistibles
-        persistibles_heredados.merge(@atributos_persistibles)
+        persistibles_heredados.merge(persistibles_incluidos).merge(@atributos_persistibles)
     end
 
     private
     def persistibles_heredados
         (superclass.is_a? ClasePersistible)? superclass.atributos_persistibles: {}
+    end
+
+    def persistibles_incluidos
+        modulos_persistibles = self.included_modules.select {|m| m.is_a?(MixinPersistible)}
+        modulos_persistibles.flat_map{|m| m.atributos_persistibles}.reduce Hash.new, :merge
     end
 
     #Enunciado: Find by
@@ -67,8 +72,6 @@ module ClasePersistible
             validar_busqueda(property)
             return find_by(property, *args)
         end
-
-        super
     end
 
     def respond_to_missing?(*args)
@@ -98,7 +101,7 @@ module ClasePersistible
         atributos_persistibles[property].is_a? AtributoSimple
     end
 
-    protected
+    public
     def find_by(property, value)
         if entrada_de_tabla?(property)
             return tabla.find_by(property, value) + @subclases.flat_map{|c|c.find_by(property, value)}
@@ -165,5 +168,30 @@ module ObjetoPersistible
 
     def tabla
         self.class.tabla
+    end
+end
+
+module MixinPersistible
+    include ClasePersistible
+
+    def self.extended(modulo)
+        ClasePersistible.init(modulo)
+    end
+
+    def included(modulo)
+        @inclusivos ||= []
+        @inclusivos << modulo
+
+        if modulo.is_a? Class
+            modulo.include ObjetoPersistible
+        end
+    end
+
+    def all_instances
+        super + @inclusivos.flat_map{ |m| m.all_instances }
+    end
+
+    def find_by(property, value)
+        @inclusivos.flat_map{|mod| mod.find_by(property, value)}
     end
 end

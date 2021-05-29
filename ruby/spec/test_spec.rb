@@ -301,6 +301,36 @@ describe Prueba do
         end
     end
 
+    describe 'mixines persistibles' do
+
+        it 'son persistibles' do
+            expect(Guerrero.atributos_persistibles.keys).to include(:id, :nombre, :comicidad, :enojon, :danio)
+        end
+
+        it 'clase que incluye mixin persistible se persiste correctamente' do
+            misil = Misil.new(7000).save!
+            expect(misil.id).to_not be_nil
+            expect(misil.refresh!.danio).to be(7000)
+            expect(Misil.find_by_id(misil.id).first.danio).to be(7000)
+        end
+
+        describe 'metodos del Modulo' do
+            before(:each) do
+                @goku = Guerrero.new("goku", 2000, 20).save!
+                @vegeta = Guerrero.new("vegeta", 400, 25).save!
+            end
+
+            it 'all instances desde un mixin' do
+                expect(Atacante.all_instances).to include(@goku, @vegeta)
+            end
+
+            it 'find by desde un mixin' do
+                expect(Atacante.find_by_danio(25)).to match_array(@vegeta)
+            end
+
+        end
+    end
+
     after(:each) do
         TADB::DB.clear_all
     end
