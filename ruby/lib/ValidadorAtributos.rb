@@ -3,7 +3,7 @@ class ValidadorAtributos
 
   def initialize(params, tipo)
     @params = params
-    @tipo = tipo
+    @tipo_atributo = tipo
   end
 
   def validar(valor, nombre_clase_error)
@@ -11,7 +11,7 @@ class ValidadorAtributos
     unless valor.nil?
       validar_tipo(valor, nombre_clase_error)
       validar_block_validate(valor, nombre_clase_error)
-      if @tipo == Numeric
+      if @tipo_atributo == Numeric
         validar_from(valor, nombre_clase_error)
         validar_to(valor, nombre_clase_error)
       end
@@ -25,17 +25,17 @@ class ValidadorAtributos
   end
 
   def validar_tipo(valor, nombre_clase_error)
-    if @tipo == Boolean
-      raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo) unless valor.is_a?(Boolean)
-    elsif @tipo == Numeric
-      raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo) unless valor.is_a?(Numeric)
-    elsif @tipo == String
-      raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo) unless valor.is_a?(String)
+    if @tipo_atributo == Boolean
+      raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(Boolean)
+    elsif @tipo_atributo == Numeric
+      raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(Numeric)
+    elsif @tipo_atributo == String
+      raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(String)
     else
       if valor.is_a?(InstanciaPersistible)
         valor.validate!
       else
-        raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo)
+        raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo)
       end
     end
   end

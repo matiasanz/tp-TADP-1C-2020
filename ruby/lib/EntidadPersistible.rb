@@ -25,8 +25,8 @@ module EntidadPersistible
 
   def agregar_atributo(atributo)
     attr_accessor atributo.nombre
-    self.atributos_persistibles.each { |atr| atributos_persistibles.delete(atr) if atr.nombre == atributo.nombre }
-    self.atributos_persistibles.push(atributo)
+    atributos_persistibles.each { |atr| atributos_persistibles.delete(atr) if atr.nombre == atributo.nombre }
+    atributos_persistibles.push(atributo)
     self
   end
 

@@ -7,17 +7,13 @@ class Atributo
 
   include Util
 
-  attr_reader :nombre, :tipo, :default
+  attr_reader :nombre, :tipo_atributo, :default
 
   def initialize(tipo, params)
     @nombre = params[:named]
-    @tipo = tipo
+    @tipo_atributo = tipo
     @default = params[:default]
     @validador = ValidadorAtributos.new(params, tipo)
-  end
-
-  def validar_todo(valor, nombre_clase_error)
-    @validador.validar(valor, nombre_clase_error)
   end
 
   private
@@ -38,12 +34,12 @@ end
 class AtributoSimple < Atributo
 
   def initialize(tipo, params)
-    if es_tipo_primitivo(tipo)
-      self.extend(SimpleBasico) # se inserta entre la instancia y su clase -> Instancia, SimpleBasico, AtributoSimple
-    else
-      self.extend(SimpleComplejo)
-    end
-    super(tipo, params)
+    if es_tipo_primitivo(tipo) then extend(SimpleBasico) else extend(SimpleComplejo) end
+    super(tipo, params) # se inserta entre la instancia y su clase -> Instancia, SimpleBasico, AtributoSimple
+  end
+
+  def validar_todo(valor, nombre_clase_error)
+    @validador.validar(valor, nombre_clase_error)
   end
 
 end
@@ -68,7 +64,7 @@ module SimpleComplejo
   end
 
   def settear(instancia)
-    setter_generico(instancia, @tipo.find_by_id(valor_persistido(instancia))[0])
+    setter_generico(instancia, @tipo_atributo.find_by_id(valor_persistido(instancia))[0])
     self
   end
 
@@ -80,12 +76,12 @@ end
 class AtributoMultiple < Atributo
 
   def initialize(tipo, params)
-    if es_tipo_primitivo(tipo)
-      self.extend(MultipleBasico)
-    else
-      self.extend(MultipleComplejo)
-    end
+    if es_tipo_primitivo(tipo) then extend(MultipleBasico) else extend(MultipleComplejo) end
     super(tipo, params)
+  end
+
+  def validar_todo(valor, nombre_clase_error)
+    valor.each { |instancia| @validador.validar(instancia, nombre_clase_error) }
   end
 
   private
@@ -98,9 +94,9 @@ class AtributoMultiple < Atributo
   end
 
   def array_persistido(instancia)
-    if @tipo == Numeric
+    if @tipo_atributo == Numeric
       valor_persistido(instancia).split(",").map{ |elem| elem.to_i }
-    elsif @tipo == Boolean
+    elsif @tipo_atributo == Boolean
       valor_persistido(instancia).split(",").map{ |elem| elem == "true" ? true : false }
     else
       valor_persistido(instancia).split(",")
@@ -128,7 +124,7 @@ module MultipleComplejo
   end
 
   def settear(instancia)
-    super(instancia){ |elem| @tipo.find_by_id(elem)[0] }
+    super(instancia){ |elem| @tipo_atributo.find_by_id(elem)[0] }
   end
 
 end

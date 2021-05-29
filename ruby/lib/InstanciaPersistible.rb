@@ -9,10 +9,11 @@ module InstanciaPersistible
 
   attr_reader :id
 
+  # validate! valida la instancia actual y las instancias asociadas
+  # el "generar_hash_para_insertar" tambien cascadea el validate! a las instancias asociadas porque se realiza save! a cada una
+  # osea, se realizan las validaciones 2 veces
   def save!
-    validate! # validate! valida la instancia actual y las instancias asociadas
-    # el "generar_hash_para_insertar" tambien cascadea el validate! a las instancias asociadas porque se realiza save! a cada una
-    # osea, se realizan las validaciones 2 veces
+    validate!
     hash = generar_hash_para_insertar
     forget! if @id
     @id = self.class.insertar_en_tabla(hash)
@@ -36,12 +37,7 @@ module InstanciaPersistible
 
   def validate!
     self.class.atributos_persistibles_totales.each do |atributo|
-      valor = send(atributo.nombre)
-      if valor.is_a?(Array)
-        valor.each { |instancia| atributo.validar_todo(instancia, self.class.name) }
-      else
-        atributo.validar_todo(valor, self.class.name)
-      end
+      atributo.validar_todo(send(atributo.nombre), self.class.name)
     end
     self
   end
