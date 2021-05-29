@@ -1,28 +1,22 @@
 describe Prueba do
-  let(:prueba) { Prueba.new }
 
-  describe '#materia' do
-    it 'debería pasar este test' do
-      expect(prueba.materia).to be :tadp
-    end
-  end
+  describe 'tests punto 1-a' do
 
-  describe 'test_punto_1_a' do
-
-    it 'la definicion de has_one sobre un atributo persitible existente lo reescribe' do
+    it 'la definicion de has_one sobre un atributo persitible existente, lo reescribe' do
       class Grade
         include ORM
-        has_one String, named: :value # Hasta acá :value es un String
-        has_one Numeric, named: :value # Pero ahora debe ser Numeric
+        has_one String, named: :value
+        has_one Numeric, named: :value
       end
 
+      expect(Grade.atributos_persistibles.size).to eq 1
       expect(Grade.atributos_persistibles[0].tipo_atributo).to eq Numeric
     end
 
     it 'Los atributos persistibles deben poder leerse y setearse de forma normal' do
       p = Person.new
-      p.first_name = "raul" # Esto funciona
-      p.last_name = 8 # Esto también. Por ahora…
+      p.first_name = "raul"
+      p.last_name = 8
 
       expect(p.first_name).to eq "raul"
       expect(p.last_name).to eq 8
@@ -34,11 +28,16 @@ describe Prueba do
     end
   end
 
-  describe 'test_punto_1_b' do
+  describe 'tests punto 1-b' do
 
     it 'los objetos persistibles entienden el mensaje save!()' do
       p = Person.new
       p.save!
+
+      expect(Person.hash_atributos_persistidos(p.id).size).to eq 1
+      expect(Person.hash_atributos_persistidos(p.id)[:id]).to eq p.id
+
+      Person.borrar_tabla
     end
 
     it 'el atributo ID identifica univocamente a cada objeto' do
@@ -58,30 +57,41 @@ describe Prueba do
       expect(p2.id).not_to eq nil
 
       expect(p.id).not_to eq p2.id
+
+      Person.borrar_tabla
     end
 
-    it 'pruebas a mano por consola' do
+    it 'prueba aislada' do
       p = Person.new
       p.first_name = "raul"
       p.last_name = "porcheto"
       p.age = 24
       p.admin = false
       p.save!
-      puts Person.atributos_persistibles
-      #puts p.generar_hash_para_insertar
+
+      expect(Person.atributos_persistibles.size).to eq 4
+      expect(Person.hash_atributos_persistidos(p.id).size).to eq 5
+      expect(Person.hash_atributos_persistidos(p.id)[:id]).to eq p.id
+      expect(Person.hash_atributos_persistidos(p.id)[:first_name]).to eq "raul"
+      expect(Person.hash_atributos_persistidos(p.id)[:last_name]).to eq "porcheto"
+      expect(Person.hash_atributos_persistidos(p.id)[:age]).to eq 24
+      expect(Person.hash_atributos_persistidos(p.id)[:admin]).to eq false
+
+      Person.borrar_tabla
     end
   end
 
-  describe 'test_punto_1_c' do
+  describe 'tests punto 1-c' do
 
     it 'los objetos persistibles entienden el mensaje refresh!()' do
       p = Person.new
       p.save!
       p.refresh!
+
+      Person.borrar_tabla
     end
 
-    it 'usar refresh! sin save! genera una excepcion' do
-      # Falla! Este objeto no tiene id!
+    it 'usar refresh! con un objeto que no fue persistido, genera una excepcion' do
       expect { Person.new.refresh! }.to raise_error(RefreshException)
     end
 
@@ -95,10 +105,12 @@ describe Prueba do
 
       p.refresh!
       expect(p.first_name).to eq "jose"
+
+      Person.borrar_tabla
     end
   end
 
-  describe 'test_punto_1_d' do
+  describe 'tests punto 1-d' do
     it 'Una vez olvidado, el objeto debe desaparecer del registro en disco y ya no debe tener seteado el atributo id' do
       p = Person.new
       p.first_name = "arturo"
@@ -106,13 +118,16 @@ describe Prueba do
       p.save!
       id = p.id
       p.forget!
+
       expect(p.id).to eq nil
       expect(Person.hash_atributos_persistidos(id)).to eq nil
+
+      Person.borrar_tabla
     end
   end
 
   describe 'test_punto_2 a' do
-    it '' do
+    it 'all_instances()' do
       class Point
         include ORM
         has_one Numeric, named: :x
@@ -138,14 +153,16 @@ describe Prueba do
       p3.x = 9
       p3.y = 7
 
+      expect(Point.all_instances).to be_a(Array)
+
       # Retorna [Point(2,5), Point(1,3)]
       expect(Point.all_instances[0].x).to eq 2
       expect(Point.all_instances[0].y).to eq 5
+      expect(Point.all_instances[0].id).to eq p1.id
       expect(Point.all_instances[1].x).to eq 1
       expect(Point.all_instances[1].y).to eq 3
+      expect(Point.all_instances[1].id).to eq p2.id
       expect(Point.all_instances[2]).to eq nil
-      Point.all_instances.map { |elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
-      puts ""
 
       p4 = Point.all_instances.first
       p4.add(p2)
@@ -154,27 +171,26 @@ describe Prueba do
       # Retorna [Point(3,8), Point(1,3)]    (invertido me da, supongo que esta ok)
       expect(Point.all_instances[0].x).to eq 1
       expect(Point.all_instances[0].y).to eq 3
+      expect(Point.all_instances[0].id).to eq p2.id
       expect(Point.all_instances[1].x).to eq 3
       expect(Point.all_instances[1].y).to eq 8
+      expect(Point.all_instances[1].id).to eq p1.id
       expect(Point.all_instances[2]).to eq nil
-      Point.all_instances.map { |elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
-      puts ""
 
       p2.forget!
 
       # Retorna [Point(3,8)]
       expect(Point.all_instances[0].x).to eq 3
       expect(Point.all_instances[0].y).to eq 8
+      expect(Point.all_instances[0].id).to eq p1.id
       expect(Point.all_instances[1]).to eq nil
-      Point.all_instances.map { |elem| puts "#{elem.id} || x = #{elem.x} || y = #{elem.y}" }
-      puts ""
 
       Point.borrar_tabla
     end
   end
 
-  describe 'test_punto_2 b' do
-    it '' do
+  describe 'tests punto 2-b' do
+    it 'find_by_what(valor)' do
 
       class Student
         include ORM
@@ -211,6 +227,8 @@ describe Prueba do
       s.grade = 6
       s.save!
 
+      expect(Student.find_by_id("5")).to be_a(Array)
+
       # Retorna los estudiantes con id === "5"
       expect(Student.find_by_id("5")).to eq []
 
@@ -227,7 +245,6 @@ describe Prueba do
 
       # Falla! No existe el mensaje porque has_last_name recibe args.
       expect { Student.find_by_has_last_name("puente") }.to raise_error(NoMethodError)
-
       expect { Student.by_has_last_name("algo") }.to raise_error(NoMethodError)
 
       expect(Student.respond_to?(:find_by_has_last_name, false)).to eq false
@@ -239,8 +256,8 @@ describe Prueba do
 
   end
 
-  describe 'test_punto_3' do
-    it 'a' do
+  describe 'tests punto 3' do
+    it 'a - Composición con un único objeto' do
 
       class Grade
         include ORM
@@ -257,7 +274,7 @@ describe Prueba do
       s.full_name = "leo sbaraglia"
       s.grade = Grade.new
       s.grade.value = 8
-      s.save! # Salva al estudiante Y su nota
+      s.save!
 
       g = s.grade # Retorna Grade(8)
       expect(g.value).to eq 8
@@ -265,14 +282,14 @@ describe Prueba do
       g.value = 5
       g.save!
 
-      puts s.refresh!.grade.class # Retorna Grade(5)
+      expect(s.refresh!.grade).to be_a(Grade) # Retorna Grade(5)
       expect(s.refresh!.grade.value).to eq 5
 
       Student.borrar_tabla
       Grade.borrar_tabla
     end
 
-    it 'b' do
+    it 'a - Composición con un único objeto a travez de varias clases' do
 
       class Grade
         include ORM
@@ -282,17 +299,53 @@ describe Prueba do
       class Student
         include ORM
         has_one String, named: :full_name
+        has_one Grade, named: :grade
+      end
+
+      class AssistantProfessor
+        include ORM
+        has_one Student, named: :estudiante
+      end
+
+      s2 = AssistantProfessor.new
+      s2.estudiante = Student.new
+      s2.estudiante.full_name = "agustin mateo"
+      s2.estudiante.grade = Grade.new
+      s2.estudiante.grade.value = 9
+      s2.save!
+
+      g = s2.estudiante.grade
+      g.value = 2
+      g.save!
+
+      expect(s2.refresh!.estudiante.grade).to be_a(Grade) # Retorna Grade(5)
+      expect(s2.refresh!.estudiante.grade.value).to eq 2
+
+      Student.borrar_tabla
+      Grade.borrar_tabla
+      AssistantProfessor.borrar_tabla
+    end
+
+    it 'b - Composición con múltiples objetos' do
+
+      class Grade
+        include ORM
+        has_one Numeric, named: :value
+      end
+
+      class Student2
+        include ORM
+        has_one String, named: :full_name
         has_many Grade, named: :grades
 
-        def initialize
+        def initialize # solo lo puse para probar que funciona por si lo quiere usar el usuario
           inicializar_atributos
           super
         end
       end
 
-      s = Student.new
+      s = Student2.new
       s.full_name = "leo sbaraglia"
-      puts " =>> #{s.grades}"
       expect(s.grades).to eq [] # Retorna []
       s.grades.push(Grade.new)
       s.grades.last.value = 8
@@ -300,15 +353,13 @@ describe Prueba do
       s.grades.push(Grade.new)
       s.grades.last.value = 5
       expect(s.grades.last.value).to eq 5
-      puts Student.atributos_persistibles
-      puts "#{Student.atributos_persistibles.select { |atr| atr.is_a?(AtributoMultiple) }.map { |atr| atr.nombre.to_s } }"
+      expect(Student2.atributos_persistibles.size).to eq 2
       s.save! # Salva al estudiante Y sus notas
 
-      puts s.grades.map { |g| g.value }
-      puts ""
+      expect(s.grades[0].value).to eq 8
+      expect(s.grades[1].value).to eq 5
+      expect(s.grades[2]).to eq nil
       s.refresh! # Retorna [Grade(8), Grade(5)]
-      puts s.grades.map { |g| g.value }
-      puts ""
       expect(s.grades[0].value).to eq 8
       expect(s.grades[1].value).to eq 5
       expect(s.grades[2]).to eq nil
@@ -318,16 +369,15 @@ describe Prueba do
       g.save!
 
       s.refresh! # Retorna [Grade(8), Grade(6)]
-      puts s.grades
       expect(s.grades[0].value).to eq 8
       expect(s.grades[1].value).to eq 6
       expect(s.grades[2]).to eq nil
 
-      Student.borrar_tabla
+      Student2.borrar_tabla
       Grade.borrar_tabla
     end
 
-    it 'b 2' do
+    it 'b - Composición con múltiples objetos de tipo basico' do
 
       class Student
         include ORM
@@ -360,11 +410,6 @@ describe Prueba do
       expect(s.numeros[0]).to eq 1
       expect(s.numeros[1]).to eq 2
       expect(s.numeros[2]).to eq 3
-
-      puts "#{s.numeros[3]}"
-      puts "#{s.numeros[4]}"
-      puts "#{s.numeros[5]}"
-      puts "#{s.numeros[6]}"
       expect(s.numeros[3]).to eq nil
 
       expect(s.booleanos[0]).to eq true
@@ -381,13 +426,7 @@ describe Prueba do
       s.booleanos[2] = false
       s.cadenas[2] = "te va"
 
-      puts s.numeros
-      puts s.booleanos
-      puts s.cadenas
       s.refresh!
-      puts s.numeros
-      puts s.booleanos
-      puts s.cadenas
       expect(s.numeros[0]).to eq 1
       expect(s.numeros[1]).to eq 2
       expect(s.numeros[2]).to eq 3
@@ -407,8 +446,8 @@ describe Prueba do
     end
   end
 
-  describe 'test_punto_3' do
-    it '3 c 1' do
+  describe 'tests punto 3-c' do
+    it 'herencia entre tipos' do
 
       class Grade
         include ORM
@@ -423,79 +462,72 @@ describe Prueba do
       # No existe una tabla para las Personas, porque es un módulo.
       module Persona
         include DummyModule
-        #include ORM
         has_one String, named: :full_name
         has_many String, named: :cuadernos
       end
 
-      # Hay una tabla para los Alumnos con los campos id, nombre y nota.
-      class Student
-        #include ORM
+      # Hay una tabla para los Alumnos con los campos id, nombre y nota. y cuadernos y un dato
+      class Student3
         include Persona
         has_one Grade, named: :grade
       end
 
-      #puts Persona.is_a?(ClasePersistible)
-      #puts Student.is_a?(ClasePersistible)
-
-      #puts Class.is_a?(Module)
-      #puts Grade.incluye_orm?
-      #puts DummyModule.incluye_orm?
-      #puts Persona.incluye_orm?
-      #puts Student.incluye_orm?
-      #puts ObjetoPersistible.incluye_orm?
-      #puts ObjetoPersistible.is_a?(ClasePersistible)
-
       g = Grade.new
       g.value = 9
-      e = Student.new
+      e = Student3.new
       e.grade = g
       e.full_name = "javier sans"
+      e.un_dato = "un dato"
       e.save!
-      puts "#{Grade.ancestors}"
-      puts "#{Grade.singleton_class.ancestors}"
-      puts ""
-      puts "#{Persona.ancestors}"
-      puts "#{Persona.singleton_class.ancestors}"
-      puts ""
-      puts "#{Student.ancestors}"
-      puts "#{Student.singleton_class.ancestors}"
-      puts ""
 
-      # Hay una tabla para los Ayudantes con id, nombre, nota y tipo
-      class AssistantProfessor < Student
-        #include ORM
+      expect(Student3.atributos_persistibles_totales.size).to eq 4
+      expect(Student3.hash_atributos_persistidos(e.id).size).to eq 5 # +1 por el "id"
+
+      expect(Grade.ancestors.include?(InstanciaPersistible)).to eq true
+      expect(Grade.ancestors.include?(ORM)).to eq true
+      expect(Grade.singleton_class.ancestors.include?(AdministradorDeTabla)).to eq true
+      expect(Grade.singleton_class.ancestors.include?(EntidadPersistible)).to eq true
+
+      expect(Persona.ancestors.include?(DummyModule)).to eq true
+      expect(Persona.ancestors.include?(ORM)).to eq true
+      expect(Persona.singleton_class.ancestors.include?(AdministradorDeTabla)).to eq false
+      expect(Persona.singleton_class.ancestors.include?(EntidadPersistible)).to eq true
+
+      expect(Student3.ancestors.include?(InstanciaPersistible)).to eq true
+      expect(Student3.ancestors.include?(Persona)).to eq true
+      expect(Student3.singleton_class.ancestors.include?(AdministradorDeTabla)).to eq true
+      expect(Student3.singleton_class.ancestors.include?(EntidadPersistible)).to eq true
+
+      # Hay una tabla para los Ayudantes con id, nombre, nota y tipo y cuadernos y un dato y libretas (si los ingresa)
+      class AssistantProfessor2 < Student3
         has_one String, named: :type
         has_many String, named: :libretas
       end
 
       g2 = Grade.new
       g2.value = 6
-      a = AssistantProfessor.new
+      a = AssistantProfessor2.new
       a.grade = g2
       a.full_name = "federico rioja"
       a.type = "un tipo"
       a.libretas.push("tadp")
       a.save!
 
-      puts "#{AssistantProfessor.ancestors}"
-      puts "#{AssistantProfessor.singleton_class.ancestors}"
-      puts ""
+      expect(AssistantProfessor2.atributos_persistibles_totales.size).to eq 6
+      expect(AssistantProfessor2.hash_atributos_persistidos(a.id).size).to eq 6 # -2 por que no se setearon todos los datos
+      a.refresh! # no genera problemas                                       # pero queda -1 pq cuadernos se setea con array vacio (no genera problemas eso)
 
-      puts "#{AssistantProfessor.ancestors.select { |anc| anc.is_a?(EntidadPersistible) }}"
-      puts "#{AssistantProfessor.atributos_persistibles_totales}"
-      AssistantProfessor.atributos_persistibles_totales.each do |atr|
-        puts "#{atr.singleton_class.ancestors}"
-        puts "#{atr.class.ancestors}"
-      end
-      puts ""
+      expect(Student3.ancestors.include?(InstanciaPersistible)).to eq true
+      expect(Student3.ancestors.include?(Student3)).to eq true
+      expect(Student3.singleton_class.ancestors.include?(AdministradorDeTabla)).to eq true
+      expect(Student3.singleton_class.ancestors.include?(EntidadPersistible)).to eq true
 
       Grade.borrar_tabla
-      Student.borrar_tabla
-      AssistantProfessor.borrar_tabla
+      Student3.borrar_tabla
+      AssistantProfessor2.borrar_tabla
     end
 
-    it '3 c 2' do
+    it 'all_instances y find_by' do
 
       module Persona
         include ORM
@@ -512,7 +544,7 @@ describe Prueba do
         has_one Grade, named: :grade
       end
 
-      class AssistantProfessor < Student
+      class AssistantProfessor3 < Student
         has_one String, named: :type
       end
 
@@ -525,16 +557,16 @@ describe Prueba do
 
       g2 = Grade.new
       g2.value = 6
-      a = AssistantProfessor.new
+      a = AssistantProfessor3.new
       a.grade = g2
       a.full_name = "federico rioja"
       a.type = "a"
       a.save!
 
-      puts "DEL TEST 1 #{Persona.all_instances}" #Trae todos los Estudiantes y Ayudantes
-      puts "DEL TEST 2 #{Grade.all_instances}"
-      puts "DEL TEST 3 #{Student.all_instances}"
-      puts "DEL TEST 4 #{AssistantProfessor.all_instances}"
+      expect(Persona.all_instances.size).to eq 2 #Trae todos los Estudiantes y Ayudantes
+      expect(Grade.all_instances.size).to eq 2
+      expect(Student.all_instances.size).to eq 2
+      expect(AssistantProfessor3.all_instances.size).to eq 1
 
       e.send(:id=, "5")
       a.send(:id=, "5")
@@ -542,22 +574,21 @@ describe Prueba do
       e.save!
       a.save!
 
-      puts e.id
-      puts a.id
+      expect(Student.find_by_id("5").size).to eq 2 #Trae Estudiantes y Ayudantes con id "5"
+      expect(Student.find_by_full_name("federico rioja").size).to eq 2
+      # 2 pq recien setie el id en 5, y con eso cree otra entrada con los mismos datos pero distinto id
 
-      puts "#{Student.find_by_id("5")}" #Trae Estudiantes y Ayudantes con id "5"
-      puts "#{Student.find_by_full_name("federico rioja")}"
       expect { Student.find_by_type("a") }.to raise_error(NoMethodError) # Falla! No todos entienden type!
 
       Grade.borrar_tabla
       Student.borrar_tabla
-      AssistantProfessor.borrar_tabla
+      AssistantProfessor3.borrar_tabla
     end
   end
 
-  describe 'test_punto_4' do
+  describe 'tests punto 4-a' do
 
-    it 'a' do
+    it 'Validaciones y Defaults' do
 
       class Grade
         include ORM
@@ -587,7 +618,7 @@ describe Prueba do
       Student.borrar_tabla
     end
 
-    it 'a 2' do
+    it 'Validaciones y Defaults con has many' do
       class Grade
         include ORM
         has_one Numeric, named: :value
@@ -610,7 +641,6 @@ describe Prueba do
       g.cosas.push(true, false, true)
       s.grades.push(g)
       s.cuadernos.push("tadp", "am2", "gdd")
-      #tod0 ok hasta aca
 
       s = Student.new
       s.full_name = "pepe botella"
@@ -625,7 +655,7 @@ describe Prueba do
       expect { s.save! }.to raise_error(TipoDeDatoException)
     end
 
-    it "4 b" do
+    it "Validaciones de contenido" do
 
       class Grade
         include ORM
@@ -653,7 +683,7 @@ describe Prueba do
       expect { s.save! }.to raise_error(BlockValidateException) # Falla! grade.value no es > 2!
     end
 
-    it "4 c" do
+    it "Valores por defecto" do
 
       class Grade
         include ORM
