@@ -17,5 +17,5 @@
 ## Diagrama de Clases:
 
 <p align="center"> 
-<img src="diagramas/tadp1.png">
+<img src="diagramas/tadp.png">
 </p>
