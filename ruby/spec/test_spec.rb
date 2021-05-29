@@ -91,7 +91,7 @@ describe Prueba do
 
     describe 'Persistencia de subclases' do
         it 'Una subclase puede ser a su vez clase persistible' do
-            expect(Ladron).to be_a(ClasePersistible)
+            expect(Ladron).to be_a(ModuloPersistible)
         end
 
         it 'atributos persistibles se heredan' do

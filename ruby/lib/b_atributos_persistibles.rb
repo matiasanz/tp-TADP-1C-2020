@@ -19,8 +19,8 @@ module AtributoHelper
     end
 
     def self.validar_clase_persistible(tipo)
-        raise ClaseDesconocidaException.new(tipo) unless tipo.is_a? Module
-        raise ClaseNoPersistibleException.new(tipo) unless tipo.is_a?(ClasePersistible) or clase_primitiva?(tipo)
+        raise ClaseDesconocidaException.new(tipo)   unless tipo.is_a? Module
+        raise ClaseNoPersistibleException.new(tipo) unless tipo.is_a?(ModuloPersistible) or clase_primitiva?(tipo)
     end
 
     def self.clase_primitiva?(clase)

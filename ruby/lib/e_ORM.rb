@@ -1,12 +1,12 @@
 require 'd_adapter'
 
-module ClasePersistible
+module ModuloPersistible
 
-    def self.extended(modulo)
-        ClasePersistible.init(modulo)
+    def self.extended(modulo) #Se usa desde los mixines
+        ModuloPersistible.init(modulo)
     end
 
-    def included(modulo)
+    def included(modulo) #Aplica a los mixines que incluyen otros persistibles
         @submodulos ||= []
         @submodulos << modulo
 
@@ -15,9 +15,9 @@ module ClasePersistible
         end
     end
 
-    def inherited(modulo)
+    def inherited(modulo) #Aplica a las clases que heredan de clases persistibles
         @submodulos << modulo
-        ClasePersistible.init(modulo)
+        ModuloPersistible.init(modulo)
     end
 
     def self.init(modulo)
@@ -67,7 +67,7 @@ module ClasePersistible
 
     private
     def persistibles_heredados
-        (superclass.is_a? ClasePersistible)? superclass.atributos_persistibles: {}
+        (superclass.is_a? ModuloPersistible)? superclass.atributos_persistibles: {}
     end
 
     def persistibles_incluidos
@@ -75,7 +75,7 @@ module ClasePersistible
     end
 
     def modulos_persistibles
-        included_modules.select {|m| m.is_a?(ClasePersistible)}
+        included_modules.select {|m| m.is_a?(ModuloPersistible)}
     end
 
     #Enunciado: Find by
@@ -127,10 +127,10 @@ end
 #************************** Objeto Persistible ************************
 
 module ObjetoPersistible
-    extend ClasePersistible
+    extend ModuloPersistible
 
     def self.included(modulo)
-        modulo.extend ClasePersistible
+        modulo.extend ModuloPersistible
         modulo.has_one String, named: :id
     end
 
