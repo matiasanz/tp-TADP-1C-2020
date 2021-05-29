@@ -10,5 +10,8 @@
 - [X] Los constructores de de las clases mapeadas no pueden tener parámetros
 - [X] La composición de clases no puede ser recursiva
 - [X] Eliminar de la base de datos un objeto compuesto no elimina sus componentes
+- [X] Nil no rompe en atributos simples o compuestos
+- [X] Los atributos simples se validan contra la clase/module del valor
+
 
 ## Diagrama de Clases:
