@@ -281,7 +281,7 @@ describe Prueba do
                 ValidadorDeAtributo.new(Numeric, no_blank: true, from: 0, to: 4, validate: lambda{|x| x<3})
             end
             let (:atributoNumerico) do
-                AtributoHelper.as_simple_attribute(:atributo, Numeric)
+                AtributoHelper.as_simple_attribute(:atributo, Numeric, validadorNumerico)
             end
 
             it 'Validar dato numerico correcto' do

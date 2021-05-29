@@ -130,7 +130,7 @@ module ObjetoPersistible
 
     #Enunciado
     def forget!
-        each_persistible {|p| p.clean_relations}
+        each_persistible {|p| p.forget_relaciones!}
         tabla.remove(self)
         self.id= nil
     end

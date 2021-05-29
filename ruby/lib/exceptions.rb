@@ -11,6 +11,12 @@ class ClaseDesconocidaException < StandardError
     end
 end
 
+class ClaseNoPersistibleException < StandardError
+    def initialize(clase)
+        super("La clase #{clase.to_s} no se ha declarado persistible")
+    end
+end
+
 class TipoErroneoException < StandardError
     def initialize(objeto, clase)
         super("El objeto #{objeto.to_s} no pertenece a la clase especificada #{clase.to_s.inspect}")

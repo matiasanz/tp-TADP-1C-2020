@@ -21,9 +21,15 @@ class ValidadorDeAtributo
     end
 
     def validar(atributo, dato)
+        validar_tipo(atributo, dato)
         raise RangoExcedidoException.new(atributo, dato, @from, @to) unless cumple_rango?(dato)
         raise BlankException.new(atributo, dato) unless cumple_no_blank?(dato)
         raise ValidateException.new(atributo, dato) unless cumple_validate?(dato)
+    end
+
+    def validar_tipo(atributo, dato)
+        clase = atributo.clase
+        raise TipoErroneoException.new(dato, clase) unless dato.is_a? clase or dato.nil?
     end
 
     def cumple_no_blank?(dato)
