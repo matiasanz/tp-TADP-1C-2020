@@ -15,5 +15,5 @@
 - [X] La composición de clases no puede ser recursiva
 - [X] Eliminar de la base de datos un objeto compuesto no elimina sus componentes}
 
-## 🚀 Diagrama de Clases: :shipit:
+## Diagrama de Clases: :shipit:
   ![Diagrama de clases](/Diagramas/ORM_uml.png)
