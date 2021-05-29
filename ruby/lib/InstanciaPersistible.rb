@@ -49,9 +49,9 @@ module InstanciaPersistible
   def generar_hash_para_insertar
     hash_para_insertar = {}
     self.class.atributos_persistibles_totales.each do |atributo|
-      valor = send(atributo.nombre)
-      hash_para_insertar[atributo.nombre] = atributo.obtener_valor_para_insertar(valor) unless valor.nil?
-      hash_para_insertar[atributo.nombre] = self.class.default[atributo.nombre] if self.class.tiene_valor_default(atributo, valor)
+      dato = send(atributo.nombre)
+      hash_para_insertar[atributo.nombre] = atributo.obtener_valor_para_insertar(dato) unless dato.nil?
+      hash_para_insertar[atributo.nombre] = self.class.default[atributo.nombre] if self.class.tiene_valor_default(atributo, dato)
     end
     hash_para_insertar[:id] = @id if @id
     hash_para_insertar

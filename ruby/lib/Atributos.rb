@@ -1,6 +1,7 @@
 require_relative 'Util'
 
-# clase abstracta
+# "CLASE ABSTACTA"
+
 class Atributo
 
   include Util
@@ -12,7 +13,20 @@ class Atributo
     @tipo = tipo
   end
 
+  private
+  def valor_persistido(instancia)
+    instancia.class.hash_atributos_persistidos(instancia.id)[@nombre]
+  end
+
+  def setter_generico(instancia, valor_a_settear)
+    instancia.send(pasar_a_setter(@nombre), valor_a_settear)
+    self
+  end
+
 end
+
+
+# ATRIBUTO SIMPLE <-------------------------------------
 
 class AtributoSimple < Atributo
 
@@ -29,27 +43,32 @@ end
 
 module SimpleBasico
 
-  def obtener_valor_para_insertar(valor)
-    valor
+  def obtener_valor_para_insertar(dato)
+    dato
   end
 
   def settear(instancia)
-    valor_a_settear = instancia.class.hash_atributos_persistidos(instancia.id)[@nombre]
-    instancia.send(pasar_a_setter(@nombre), valor_a_settear)
+    setter_generico(instancia, valor_persistido(instancia))
+    self
   end
+
 end
 
 module SimpleComplejo
 
-  def obtener_valor_para_insertar(valor)
-    valor.save!.id
+  def obtener_valor_para_insertar(dato)
+    dato.save!.id
   end
 
   def settear(instancia)
-    valor_a_settear = @tipo.find_by_id(instancia.class.hash_atributos_persistidos(instancia.id)[@nombre])[0]
-    instancia.send(pasar_a_setter(@nombre), valor_a_settear)
+    setter_generico(instancia, @tipo.find_by_id(valor_persistido(instancia))[0])
+    self
   end
+
 end
+
+
+# ATRIBUTO MULTIPLE <-------------------------------------
 
 class AtributoMultiple < Atributo
 
@@ -62,50 +81,47 @@ class AtributoMultiple < Atributo
     super(nombre, tipo)
   end
 
+  private
+  def settear(instancia, &bloque)
+    setter_generico(instancia, [])
+    array_persistido(instancia).each do |elem|
+      setter_generico(instancia, instancia.send(@nombre).push(bloque.call(elem)))
+    end
+    self
+  end
+
   def array_persistido(instancia)
-    instancia.class.hash_atributos_persistidos(instancia.id)[@nombre].split(",")
+    if @tipo == Numeric
+      valor_persistido(instancia).split(",").map{ |elem| elem.to_i }
+    elsif @tipo == Boolean
+      valor_persistido(instancia).split(",").map{ |elem| elem == "true" ? true : false }
+    else
+      valor_persistido(instancia).split(",")
+    end
   end
 
 end
 
 module MultipleBasico
 
-  def obtener_valor_para_insertar(valor)
-    valor.join(",")
+  def obtener_valor_para_insertar(dato)
+    dato.join(",")
   end
 
   def settear(instancia)
-    instancia.send(pasar_a_setter(@nombre), [])
-    array_persistido_primitivo(instancia).each do |valor|
-      instancia.send(pasar_a_setter(@nombre), instancia.send(@nombre).push(valor))
-    end
-    self
-  end
-
-  def array_persistido_primitivo(instancia)
-    if @tipo == Numeric
-      array_persistido(instancia).map{ |elem| elem.to_i }
-    elsif @tipo == Boolean
-      array_persistido(instancia).map{ |elem| elem == "true" ? true : false }
-    else
-      array_persistido(instancia)
-    end
+    super(instancia){ |elem| elem }
   end
 
 end
 
 module MultipleComplejo
 
-  def obtener_valor_para_insertar(valor)
-    valor.map{|instancia| instancia.save!.id}.join(",")
+  def obtener_valor_para_insertar(dato)
+    dato.map{|instancia| instancia.save!.id}.join(",")
   end
 
   def settear(instancia)
-    instancia.send(pasar_a_setter(@nombre), [])
-    array_persistido(instancia).each do |id|
-      instancia.send(pasar_a_setter(@nombre), instancia.send(@nombre).push(@tipo.find_by_id(id)[0]))
-    end
-    self
+    super(instancia){ |elem| @tipo.find_by_id(elem)[0] }
   end
 
 end
