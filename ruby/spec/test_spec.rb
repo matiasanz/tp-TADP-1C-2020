@@ -14,7 +14,7 @@ describe Prueba do
         end
 
         it 'Se especifica un tipo que no es una clase y falla' do
-            expect {Personaje.has_one(:simbolo, named: :atributo) }.to raise_error(ClaseDesconocidaException)
+            expect {Personaje.has_one(:simbolo, named: :atributo) }.to raise_error(ORM::ClaseDesconocidaException)
         end
 
         it 'Las subclases de una clase persistible se obtienen correctamente' do
@@ -67,7 +67,7 @@ describe Prueba do
 
         it 'Se intenta persistir un atributo que no es de la clase especificada y falla' do
             personaje.enojon = "Fideos con tuco"
-            expect{ personaje.save! }.to raise_error(TipoErroneoException)
+            expect{ personaje.save! }.to raise_error(ORM::TipoErroneoException)
         end
 
         it 'un objeto que fue persistido se actualiza correctamente de la base de datos'do
@@ -78,7 +78,7 @@ describe Prueba do
         end
 
         it 'Personaje que no fue persistido no se actualiza' do
-            expect{ personaje.refresh! }.to raise_error(ObjetoNoPersistidoException)
+            expect{ personaje.refresh! }.to raise_error(ORM::ObjetoNoPersistidoException)
         end
 
         it 'Atributos no persistibles no se persisten' do
@@ -91,7 +91,7 @@ describe Prueba do
 
     describe 'Persistencia de subclases' do
         it 'Una subclase puede ser a su vez clase persistible' do
-            expect(Ladron).to be_a(ModuloPersistible)
+            expect(Ladron).to be_a(ORM::ModuloPersistible)
         end
 
         it 'atributos persistibles se heredan' do
@@ -266,22 +266,22 @@ describe Prueba do
     describe 'Validador' do
         describe 'Generalidades' do
             it 'From/to en atributo no numerico' do
-                expect{ValidadorDeAtributo.new(String, from:2, to: 4)}.to raise_error(ValidacionNoAdmitidaException)
+                expect{ORM::ValidadorDeAtributo.new(String, from:2, to: 4)}.to raise_error(ORM::ValidacionNoAdmitidaException)
             end
 
             it 'Argumentos opcionales' do
-                expect { ValidadorDeAtributo.new(Personaje, {})}.to_not raise_error
-                expect { ValidadorDeAtributo.new(Personaje, no_blank: true, validate: ->{true})}.to_not raise_error
-                expect { ValidadorDeAtributo.new(Numeric, from: 1)}.to_not raise_error
+                expect { ORM::ValidadorDeAtributo.new(Personaje, {})}.to_not raise_error
+                expect { ORM::ValidadorDeAtributo.new(Personaje, no_blank: true, validate: ->{true})}.to_not raise_error
+                expect { ORM::ValidadorDeAtributo.new(Numeric, from: 1)}.to_not raise_error
             end
         end
 
         describe 'Numeros' do
             let(:validadorNumerico) do
-                ValidadorDeAtributo.new(Numeric, no_blank: true, from: 0, to: 4, validate: lambda{|x| x<3})
+                ORM::ValidadorDeAtributo.new(Numeric, no_blank: true, from: 0, to: 4, validate: lambda{|x| x<3})
             end
             let (:atributoNumerico) do
-                AtributoHelper.as_simple_attribute(:atributo, Numeric, validadorNumerico)
+                ORM::AtributoHelper.as_simple_attribute(:atributo, Numeric, validadorNumerico)
             end
 
             it 'Validar dato numerico correcto' do
@@ -296,7 +296,7 @@ describe Prueba do
                 expect(validadorNumerico.cumple_no_blank?(nil)).to be_falsey
                 expect(validadorNumerico.cumple_rango?(-1)).to be_falsey
                 expect(validadorNumerico.cumple_validate?(4)).to be_falsey
-                expect{validadorNumerico.validar(atributoNumerico, 4)}.to raise_error(ValidateException)
+                expect{validadorNumerico.validar(atributoNumerico, 4)}.to raise_error(ORM::ValidateException)
             end
         end
     end

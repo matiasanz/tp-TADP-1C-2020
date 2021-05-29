@@ -7,7 +7,7 @@ class Prueba
 end
 
 class Personaje
-    include ObjetoPersistible
+    include ORM::ObjetoPersistible
 
     has_one String, named: :nombre
     has_one Numeric, named: :comicidad
@@ -29,7 +29,7 @@ class Personaje
 end
 
 class Ladron < Personaje
-    include ObjetoPersistible
+    include ORM::ObjetoPersistible
 
     has_one Numeric, named: :sigilo
 
@@ -52,7 +52,7 @@ class LadronDeSonrisas < Ladron
 end
 
 class Mascota
-    include ObjetoPersistible
+    include ORM::ObjetoPersistible
 
     has_one String, named: :nombre
     has_one Personaje, named: :duenio
@@ -70,7 +70,7 @@ class Mascota
 end
 
 class ClaseMuyCompuesta
-    include ObjetoPersistible
+    include ORM::ObjetoPersistible
 
     has_one ClaseMuyCompuesta, named: :atributoMuyCompuesto
     has_one Mascota, named: :mascota
@@ -86,7 +86,7 @@ class ClaseMuyCompuesta
 end
 
 class Pelicula
-    include ObjetoPersistible
+    include ORM::ObjetoPersistible
 
     has_many Personaje, named: :personajes
 
@@ -105,7 +105,7 @@ class Pelicula
 end
 
 class Quiniela
-    include ObjetoPersistible
+    include ORM::ObjetoPersistible
 
     has_many Numeric, named: :resultados
 
@@ -120,7 +120,7 @@ class Quiniela
 end
 
 class ClaseDefault
-    include ObjetoPersistible
+    include ORM::ObjetoPersistible
 
     has_one String, named: :nombre, default: "Anonimo"
     has_one Personaje, named: :personaje, default: Personaje.new("Arbol", 0)
@@ -131,7 +131,7 @@ class ClaseDefault
 end
 
 module Atacante
-    extend ModuloPersistible
+    extend ORM::ModuloPersistible
 
     has_one Numeric, named: :danio
 
