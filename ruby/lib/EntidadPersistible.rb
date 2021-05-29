@@ -30,6 +30,19 @@ module EntidadPersistible
     self
   end
 
+  def atributos_persistibles_totales
+    ancestros = ancestors
+    ancestros.delete_at(0)
+    padre = nil
+    padre = ancestros.find { |a| a.is_a?(EntidadPersistible) } unless ancestros.nil?
+    if padre.nil?
+      atributos_persistibles
+    else
+      totales = atributos_persistibles + padre.atributos_persistibles_totales
+      totales.uniq { |atr| atr.nombre }
+    end
+  end
+
   # en AdministradorDeTabla redefino este metodo
   def all_instances
     all_instances_de_hijos
@@ -57,19 +70,6 @@ module EntidadPersistible
       all_instances.select { |instancia| instancia.send(sin_find_by_(mensaje)) == args[0] }
     else
       super
-    end
-  end
-
-  def atributos_persistibles_totales
-    ancestros = ancestors
-    ancestros.delete_at(0)
-    padre = nil
-    padre = ancestros.find { |a| a.is_a?(EntidadPersistible) } unless ancestros.nil?
-    if padre.nil?
-      atributos_persistibles
-    else
-      totales = atributos_persistibles + padre.atributos_persistibles_totales
-      totales.uniq { |atr| atr.nombre }
     end
   end
 

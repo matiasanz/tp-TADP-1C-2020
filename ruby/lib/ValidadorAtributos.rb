@@ -1,4 +1,8 @@
+require_relative 'Util'
+
 class ValidadorAtributos
+
+  include Util
 
   def initialize(params, tipo)
     @params = params
@@ -30,12 +34,10 @@ class ValidadorAtributos
       raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(Numeric)
     elsif @tipo_atributo == String
       raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(String)
+    elsif valor.is_a?(InstanciaPersistible)
+      valor.validate!
     else
-      if valor.is_a?(InstanciaPersistible)
-        valor.validate!
-      else
-        raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo)
-      end
+      raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo)
     end
   end
 
