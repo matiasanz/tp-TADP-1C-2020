@@ -9,9 +9,9 @@ module InstanciaPersistible
 
   attr_reader :id
 
-  # validate! valida la instancia actual y las instancias asociadas
+  # validate! valida la instancia actual y las instancias asociadas si es un atributo complejo
   # el "generar_hash_para_insertar" tambien cascadea el validate! a las instancias asociadas porque se realiza save! a cada una
-  # osea, se realizan las validaciones 2 veces
+  # osea, se realizan las validaciones 2 veces (solo a los atributos complejos)
   def save!
     validate!
     hash = generar_hash_para_insertar
@@ -42,6 +42,10 @@ module InstanciaPersistible
     self
   end
 
+  private
+
+  attr_writer :id
+
   def generar_hash_para_insertar
     hash_para_insertar = {}
     self.class.atributos_persistibles_totales.each do |atributo|
@@ -52,10 +56,6 @@ module InstanciaPersistible
     hash_para_insertar[:id] = @id if @id
     hash_para_insertar
   end
-
-  private
-
-  attr_writer :id
 
   # en el constructor de la clase se usaria asi
   #def initialize

@@ -1,0 +1,108 @@
+@startuml
+
+class AdministradorDeTabla << (M,#FF7700)>> {
++ ID insertar_en_tabla(hash)
++ void borrar_de_tabla(id)
++ Hash hash_atributos_persistidos(id)
++ Object all_instances()
+}
+
+abstract class Atributo {
+- Symbol nombre
+- Class tipo_atributo
+- Object default
+- Object valor_persistido(instancia)
+- void setter_generico(instancia, valor_a_settear)
+}
+
+class AtributoSimple {
++ void validar_todo(valor, nombre_clase_error)
+}
+
+class SimpleBasico <<(M,#FF7700)>> {
++ Object obtener_valor_para_insertar(dato)
++ void settear(instancia)
+}
+
+class SimpleComplejo <<(M,#FF7700)>> {
++ Object obtener_valor_para_insertar(dato)
++ void settear(instancia)
+}
+
+class AtributoMultiple {
++ void validar_todo(valor, nombre_clase_error)
+- void settear(instancia, &bloque)
+- Array array_persistido(instancia)
+}
+
+class MultipleBasico <<(M,#FF7700)>> {
++ Object obtener_valor_para_insertar(dato)
++ void settear(instancia)
+}
+
+class MultipleComplejo <<(M,#FF7700)>> {
++ Object obtener_valor_para_insertar(dato)
++ void settear(instancia)
+}
+
+class EntidadPersistible <<(M,#FF7700)>> {
++ void has_one(tipo_atributo, params)
++ void has_many(tipo_atributo, params)
++ Array atributos_persistibles_totales()
++ Array all_instances()
++ void respond_to_missing?(mensaje, priv = false)
++ void method_missing(mensaje, *args, &bloque)
+}
+
+class InstanciaPersistible <<(M,#FF7700)>> {
+- ID id
++ void save!()
++ void refresh!()
++ void forget!()
++ void validate!()
+}
+
+class ORM <<(M,#FF7700)>> {
++ {static} void included(modulo)
++ {static} void entregar_dependecias(modulo)
+}
+
+class Boolean <<(M,#FF7700)>> {}
+class TrueClass{}
+class FalseClass{}
+
+class ValidadorAtributos {
+- Hash params
+- Class tipo_atributo
++ void validar(valor, nombre_clase_error)
++ void validar_no_blank(valor, nombre_clase_error)
++ void validar_tipo(valor, nombre_clase_error)
++ void validar_from(valor, nombre_clase_error)
++ void validar_to(valor, nombre_clase_error)
++ void validar_block_validate(valor, nombre_clase_error)
+}
+
+class Clase_o_modulo_que_el_usuario_quiere_mapear <<(O,#FFFFFF)>> {}
+
+Atributo <|-- AtributoSimple
+Atributo <|-- AtributoMultiple
+TrueClass-down-+"<<INCLUDE>>"Boolean
+FalseClass-down-+"<<INCLUDE>>"Boolean
+AdministradorDeTabla --> TADB::Table : tabla
+ValidadorAtributos <-right- Atributo : validador
+AtributoSimple--+"<<INCLUDE>>"SimpleBasico
+AtributoSimple--+"<<INCLUDE>>"SimpleComplejo
+AtributoMultiple--+"<<INCLUDE>>"MultipleBasico
+AtributoMultiple--+"<<INCLUDE>>"MultipleComplejo
+ORM --+ "<<EXTEND>>" EntidadPersistible
+ORM --+ "<<EXTEND>>" AdministradorDeTabla
+ORM --+ "<<INCLUDE>>" InstanciaPersistible
+
+EntidadPersistible --> "*" EntidadPersistible : modulos_hijos
+EntidadPersistible -down-> "*" Atributo : atributos_persistibles
+
+Boolean <.. Atributo
+Boolean <.. ValidadorAtributos
+
+Clase_o_modulo_que_el_usuario_quiere_mapear --+ "<<INCLUDE>>" ORM
+@enduml

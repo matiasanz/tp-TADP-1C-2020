@@ -68,7 +68,7 @@ describe Prueba do
       p.admin = false
       p.save!
       puts Person.atributos_persistibles
-      puts p.generar_hash_para_insertar
+      #puts p.generar_hash_para_insertar
     end
   end
 

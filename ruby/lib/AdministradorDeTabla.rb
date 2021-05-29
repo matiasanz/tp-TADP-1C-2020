@@ -28,6 +28,8 @@ module AdministradorDeTabla
     all_instances_de_hijos + tabla.entries.map { |entrada| generar_instancia(entrada) }
   end
 
+  private
+
   def generar_instancia(entrada_de_tabla)
     instancia = self.new
     instancia.send(:id=, entrada_de_tabla[:id])

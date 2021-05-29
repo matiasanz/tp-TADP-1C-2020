@@ -23,12 +23,16 @@ module EntidadPersistible
     self
   end
 
+  private
+
   def agregar_atributo(atributo)
     attr_accessor atributo.nombre
     atributos_persistibles.each { |atr| atributos_persistibles.delete(atr) if atr.nombre == atributo.nombre }
     atributos_persistibles.push(atributo)
     self
   end
+
+  public
 
   def atributos_persistibles_totales
     ancestros = ancestors
