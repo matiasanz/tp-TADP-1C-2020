@@ -1,40 +1,30 @@
 module AdministradorDeTabla
 
-  def tiene_tabla
-    return true if @tabla
-    false
-  end
-
-  def inicializar_tabla
-    @tabla = TADB::DB.table(name)
-    self
+  def tabla
+    @tabla ||= TADB::DB.table(name)
   end
 
   def insertar_en_tabla(hash)
-    @tabla.insert(hash)
+    tabla.insert(hash)
   end
 
   def borrar_de_tabla(id)
-    @tabla.delete(id)
+    tabla.delete(id)
     self
   end
 
   def borrar_tabla
-    @tabla.clear
+    tabla.clear
   end
 
   def hash_atributos_persistidos(id)
-    @tabla.entries.each{ |entrada| return entrada if entrada.has_value?(id) }
+    tabla.entries.each{ |entrada| return entrada if entrada.has_value?(id) }
     nil
   end
 
   # redefino "all_instances" con respecto a EntidadPersistible para cortar con la recursion
   def all_instances
-    if @tabla
-      all_instances_de_hijos + @tabla.entries.map { |entrada| generar_instancia(entrada) }
-    else
-        []
-    end
+    all_instances_de_hijos + tabla.entries.map { |entrada| generar_instancia(entrada) }
   end
 
   def generar_instancia(entrada_de_tabla)

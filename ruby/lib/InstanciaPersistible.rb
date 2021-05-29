@@ -10,8 +10,7 @@ module InstanciaPersistible
   attr_reader :id
 
   def save!
-    self.class.inicializar_tabla unless self.class.tiene_tabla
-    validate! # valida la instancia actual y las instancias asociadas
+    validate! # validate! valida la instancia actual y las instancias asociadas
     # el "generar_hash_para_insertar" tambien cascadea el validate! a las instancias asociadas porque se realiza save! a cada una
     # osea, se realizan las validaciones 2 veces
     hash = generar_hash_para_insertar
