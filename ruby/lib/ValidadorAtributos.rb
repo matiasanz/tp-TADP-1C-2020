@@ -28,11 +28,12 @@ class ValidadorAtributos
   end
 
   def validar_tipo(valor, nombre_clase_error)
-    if @tipo_atributo == Boolean
+    # TODO uso <= para que valide misma clase o subtipos
+    if @tipo_atributo <= Boolean
       raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(Boolean)
-    elsif @tipo_atributo == Numeric
+    elsif @tipo_atributo <= Numeric
       raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(Numeric)
-    elsif @tipo_atributo == String
+    elsif @tipo_atributo <= String
       raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(String)
     elsif valor.is_a?(InstanciaPersistible)
       valor.validate!
