@@ -77,9 +77,14 @@ module ORM
 
         def to_instance(fila)
             *args = [nil]*aridad_constructor
+            # TODO aca el *args funciona pero es medio hack, porque estás seteando
+            # valores fruta con tal que no rompa hasta que llega la llamada del asignar_datos
+            # y pisa con lo que tiene persistido jajaja
+            # (no necesitas cambiarlo, es un tema no tan importante para el TP,
+            # pero en un framework productivo lo tendrías que sacar)
             instancia = @clase.new(*args)
             asignar_datos(instancia, fila)
-            return instancia
+            instancia
         end
 
         def aridad_constructor

@@ -1,4 +1,5 @@
 require 'rspec'
 require 'tadb'
-require_relative '../lib/prueba'
+require_relative 'prueba'
+require_relative '../lib/e_ORM'
 require_relative '../lib/exceptions'

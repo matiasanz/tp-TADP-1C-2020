@@ -73,6 +73,7 @@ module ORM
         private
         def persistibles_heredados
             (superclass.is_a? ModuloPersistible)? superclass.atributos_persistibles: {}
+            #{}
         end
 
         def persistibles_incluidos
@@ -88,7 +89,13 @@ module ORM
             if trying_to_find?(method)
                 property = parse_find_by(method)
                 validar_busqueda(property)
-                return find_by(property, *args)
+                find_by(property, *args)
+            else
+                # TODO si pongo super aca por alguna razón rompen muchos tests,
+                # creo que hay algo que está atando a la busqueda de atributos padres
+                # que le complica. Pegale una mirada porque es importante
+
+                # super
             end
         end
 
@@ -122,9 +129,9 @@ module ORM
         public
         def find_by(property, value)
             if entrada_de_tabla?(property)
-                return tabla.find_by(property, value) + @submodulos.flat_map{|c|c.find_by(property, value)}
+                tabla.find_by(property, value) + @submodulos.flat_map{|c|c.find_by(property, value)}
             else
-                return all_instances.select{|i| i.send(property)==value}
+                all_instances.select{|i| i.send(property)==value}
             end
         end
     end

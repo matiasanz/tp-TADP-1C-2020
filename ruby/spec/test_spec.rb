@@ -324,31 +324,52 @@ describe Prueba do
                 expect(Atacante.all_instances).to include(@goku, @vegeta)
             end
 
+            it 'fails on unknown message' do
+              expect{ String.pajarito }.to raise_error(NoMethodError)
+              # TODO esto está pasando porque no estás llamando a "super" en el method missing
+              expect{ Atacante.pajarito }.to raise_error(NoMethodError)
+            end
+
             it 'find by desde un mixin' do
                 expect(Atacante.find_by_danio(25)).to match_array(@vegeta)
             end
 
             it 'mixin que incluye mixin persistible se persiste correctamente' do
-                module Intermediario
+                module PadrePadre
                     include Atacante
+                end
+
+                module Intermediario
+                    include PadrePadre
+                    has_one String, named: :telefono
                 end
 
                 class Alguien
                     include Intermediario
                     has_one String, named: :algo
 
-                    def initialize(algo)
+                    def initialize(algo, telefono)
                         @algo = algo
+                        @telefono = telefono
                         super()
                     end
                 end
 
-                a = Alguien.new("salame").save!
+                class Aaaaaa
+                    include ORM::ObjetoPersistible
+                    has_one Float, named: :pepe
+                end
+
+                a = Alguien.new("salame", "123").save!
 
                 atacantes = Atacante.all_instances
                 expect(atacantes.size).to be(3)
                 expect(atacantes.map{|at| at.id}).to include(a.id)
                 expect(Atacante.find_by_id(a.id).first.algo).to match "salame"
+                expect(Atacante.find_by_id(a.id).first.telefono).to match "123"
+                expect(Atacante.find_by_id(a.id).first.danio).to match nil
+
+                expect(Intermediario.all_instances.map{|a| a.class}).to match_array([Alguien])
             end
         end
     end

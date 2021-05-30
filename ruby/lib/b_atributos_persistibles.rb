@@ -26,7 +26,8 @@ module ORM
         end
 
         def self.clase_primitiva?(clase)
-            [String, Boolean, Numeric].include?(clase)
+            # TODO reemplacé la condición para que soporte subclases (sino Float no era persistible y es primitiva)
+            [String, Boolean, Numeric].any? {|valid| clase <= valid }
         end
     end
 
@@ -40,6 +41,7 @@ module ORM
             @clase=clase
             @validador=validador
             @default=default
+            # TODO está muy bueno que estás validando el default
             validar_instancia(default) unless default.nil?
         end
 
@@ -108,7 +110,7 @@ module ORM
         end
 
         def recuperar_de_fila(fila, _)
-            return @clase.find_by_id(fila[@nombre]).first
+            @clase.find_by_id(fila[@nombre]).first
         end
 
         def validar_instancia(valorActual)
@@ -122,6 +124,7 @@ module ORM
     class AtributoMultiple < AtributoPersistible
 
         def initialize(nombre, tipo, validador, default, claseContenedora)
+            # TODO buen detalle utilizar el validador de atributos para hacer implicita la validación de que tiene que ser un array
             super(nombre, Array, ValidadorDeAtributo.new(Array, {}), default)
             @atributo = AtributoHelper.as_simple_attribute(:elemento, tipo, validador)
             @TablaMultiple = Tabla.new_tabla_multiple(tipo, claseContenedora, nombre)
