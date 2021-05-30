@@ -375,6 +375,7 @@ describe Prueba do
 
       Student2.borrar_tabla
       Grade.borrar_tabla
+      TADB::DB.clear_all
     end
 
     it 'b - Composición con múltiples objetos de tipo basico' do
@@ -443,6 +444,7 @@ describe Prueba do
       expect(s.cadenas[3]).to eq nil
 
       Student.borrar_tabla
+      TADB::DB.clear_all
     end
   end
 
@@ -481,7 +483,7 @@ describe Prueba do
       e.save!
 
       expect(Student3.atributos_persistibles_totales.size).to eq 4
-      expect(Student3.hash_atributos_persistidos(e.id).size).to eq 5 # +1 por el "id"
+      expect(Student3.hash_atributos_persistidos(e.id).size).to eq 4
 
       expect(Grade.ancestors.include?(InstanciaPersistible)).to eq true
       expect(Grade.ancestors.include?(ORM)).to eq true
@@ -514,8 +516,8 @@ describe Prueba do
       a.save!
 
       expect(AssistantProfessor2.atributos_persistibles_totales.size).to eq 6
-      expect(AssistantProfessor2.hash_atributos_persistidos(a.id).size).to eq 6 # -2 por que no se setearon todos los datos
-      a.refresh! # no genera problemas                                       # pero queda -1 pq cuadernos se setea con array vacio (no genera problemas eso)
+      expect(AssistantProfessor2.hash_atributos_persistidos(a.id).size).to eq 5 # -2 por que no se setearon todos los datos
+      a.refresh! # no genera problemas
 
       expect(Student3.ancestors.include?(InstanciaPersistible)).to eq true
       expect(Student3.ancestors.include?(Student3)).to eq true
@@ -525,6 +527,7 @@ describe Prueba do
       Grade.borrar_tabla
       Student3.borrar_tabla
       AssistantProfessor2.borrar_tabla
+      TADB::DB.clear_all
     end
 
     it 'all_instances y find_by' do
@@ -653,6 +656,7 @@ describe Prueba do
       s.grades.push("algo") #falla por esta linea
       s.cuadernos.push("tadp", "am2", true) #falla por esta linea
       expect { s.save! }.to raise_error(TipoDeDatoException)
+      TADB::DB.clear_all
     end
 
     it "Validaciones de contenido" do
@@ -681,6 +685,7 @@ describe Prueba do
       s.grades.push(Grade.new)
       s.grades.last.value = -1
       expect { s.save! }.to raise_error(BlockValidateException) # Falla! grade.value no es > 2!
+      TADB::DB.clear_all
     end
 
     it "Valores por defecto" do

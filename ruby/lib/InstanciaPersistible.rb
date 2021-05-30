@@ -50,7 +50,9 @@ module InstanciaPersistible
     hash_para_insertar = {}
     self.class.atributos_persistibles_totales.each do |atributo|
       dato = send(atributo.nombre)
-      hash_para_insertar[atributo.nombre] = atributo.obtener_valor_para_insertar(dato) unless dato.nil?
+      unless dato.nil? || (dato.is_a?(Array) && dato[0].nil? && atributo.default.nil?)
+        hash_para_insertar[atributo.nombre] = atributo.obtener_valor_para_insertar(dato, self.class.name)
+      end
       hash_para_insertar[atributo.nombre] = atributo.default if dato.nil? && !atributo.default.nil?
     end
     hash_para_insertar[:id] = @id if @id
@@ -64,7 +66,10 @@ module InstanciaPersistible
   #end
   def inicializar_atributos
     self.class.atributos_persistibles_totales.each do |atributo|
-      send(pasar_a_setter(atributo.nombre), []) if atributo.is_a?(AtributoMultiple)
+      if atributo.is_a?(AtributoMultiple)
+        send(pasar_a_setter(atributo.nombre), [])
+        send(pasar_a_setter(atributo.nombre), send(atributo.nombre).push(atributo.default)) unless atributo.default.nil?
+      end
       dato = send(atributo.nombre)
       send(pasar_a_setter(atributo.nombre), atributo.default) if dato.nil? && !atributo.default.nil?
     end

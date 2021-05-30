@@ -20,28 +20,28 @@ class AtributoSimple {
 }
 
 class SimpleBasico <<(M,#FF7700)>> {
-+ Object obtener_valor_para_insertar(dato)
++ Object obtener_valor_para_insertar(dato, nomb_clase_instancia)
 + void settear(instancia)
 }
 
 class SimpleComplejo <<(M,#FF7700)>> {
-+ Object obtener_valor_para_insertar(dato)
++ Object obtener_valor_para_insertar(dato, nomb_clase_instancia)
 + void settear(instancia)
 }
 
 class AtributoMultiple {
 + void validar_todo(valor, nombre_clase_error)
+- ID obtener_valor_para_insertar(array, nomb_clase_instancia, &bloque)
 - void settear(instancia, &bloque)
-- Array array_persistido(instancia)
 }
 
 class MultipleBasico <<(M,#FF7700)>> {
-+ Object obtener_valor_para_insertar(dato)
++ ID obtener_valor_para_insertar(dato, nomb_clase_instancia)
 + void settear(instancia)
 }
 
 class MultipleComplejo <<(M,#FF7700)>> {
-+ Object obtener_valor_para_insertar(dato)
++ ID obtener_valor_para_insertar(dato,nomb_clase_instancia)
 + void settear(instancia)
 }
 
@@ -100,6 +100,8 @@ ORM --+ "<<INCLUDE>>" InstanciaPersistible
 
 EntidadPersistible --> "*" EntidadPersistible : modulos_hijos
 EntidadPersistible -down-> "*" Atributo : atributos_persistibles
+
+AtributoMultiple -up-> TADB::Table : tabla
 
 Boolean <.. Atributo
 Boolean <.. ValidadorAtributos
