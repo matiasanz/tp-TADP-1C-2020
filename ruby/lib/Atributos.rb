@@ -34,6 +34,9 @@ end
 class AtributoSimple < Atributo
 
   def initialize(tipo, params)
+    # TODO creo (pero no es necesario que lo cambies) que podrías usar solo 2 mixines
+    # para los subtipos de atributos. Es decir, en vez de SimpleBasico, MultipleBasico, con solo un Basico
+    # podrías generalizar la logica (porque son bastante parecidos)
     if es_tipo_primitivo(tipo) then extend(SimpleBasico) else extend(SimpleComplejo) end
     super(tipo, params) # se inserta entre la instancia y su clase -> Instancia, SimpleBasico, AtributoSimple
   end
