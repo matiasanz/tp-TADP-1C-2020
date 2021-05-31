@@ -4,12 +4,12 @@ module ORM
     module ModuloPersistible
 
         def self.extended(modulo) #Se usa desde los mixines
-            ModuloPersistible.init(modulo)
+            init(modulo)
         end
 
         def included(modulo) #Aplica a los mixines que incluyen otros persistibles
-            @submodulos ||= []
-            @submodulos << modulo
+            @submodulos_inmediatos ||= []
+            @submodulos_inmediatos << modulo
 
             if modulo.is_a? Class
                 modulo.include ObjetoPersistible
@@ -19,13 +19,13 @@ module ORM
         end
 
         def inherited(modulo) #Aplica a las clases que heredan de clases persistibles
-            @submodulos << modulo
+            @submodulos_inmediatos << modulo
             ModuloPersistible.init(modulo)
         end
 
         def self.init(modulo)
             modulo.instance_eval do
-                @submodulos             ||= []
+                @submodulos_inmediatos  ||= []
                 @atributos_persistibles ||= {}
             end
 
@@ -63,7 +63,7 @@ module ORM
 
         #Enunciado
         def all_instances
-            tabla.get_all_instances + @submodulos.flat_map{|s| s.all_instances}
+            tabla.get_all_instances + @submodulos_inmediatos.flat_map{|s| s.all_instances}
         end
 
         def atributos_persistibles
@@ -132,7 +132,7 @@ module ORM
         public
         def find_by(property, value)
             if entrada_de_tabla?(property)
-                tabla.find_by(property, value) + @submodulos.flat_map{|c|c.find_by(property, value)}
+                tabla.find_by(property, value) + @submodulos_inmediatos.flat_map{|c|c.find_by(property, value)}
             else
                 all_instances.select{|i| i.send(property)==value}
             end

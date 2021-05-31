@@ -18,7 +18,7 @@ describe Prueba do
         end
 
         it 'Las subclases de una clase persistible se obtienen correctamente' do
-            expect(ClaseSimple.instance_variable_get(:@submodulos)).to include(SubclaseSimple)
+            expect(ClaseSimple.instance_variable_get(:@submodulos_inmediatos)).to include(SubclaseSimple)
         end
     end
 
