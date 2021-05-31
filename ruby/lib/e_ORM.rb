@@ -71,9 +71,12 @@ module ORM
         end
 
         private
-        def persistibles_heredados
-            (superclass.is_a? ModuloPersistible)? superclass.atributos_persistibles: {}
-            #{}
+        def persistibles_heredados #codigo repetido
+            ancestros_persistibles.flat_map{|a| a.atributos_persistibles}.reduce(Hash.new, :merge)
+        end
+
+        def ancestros_persistibles
+            ancestors.filter{|a| a.is_a? ModuloPersistible} - [self]
         end
 
         def persistibles_incluidos
@@ -95,7 +98,7 @@ module ORM
                 # creo que hay algo que está atando a la busqueda de atributos padres
                 # que le complica. Pegale una mirada porque es importante
 
-                # super
+                super
             end
         end
 
