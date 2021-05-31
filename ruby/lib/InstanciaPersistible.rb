@@ -23,7 +23,7 @@ module InstanciaPersistible
   def refresh!
     raise RefreshException.new(self.class.name) unless @id
     self.class.atributos_persistibles_totales.each do |atributo|
-      atributo.settear(self) if self.class.hash_atributos_persistidos(@id).has_key?(atributo.nombre)
+      atributo.settear(self) if atributo.esta_persistido(self)
     end
     self
   end
@@ -50,7 +50,6 @@ module InstanciaPersistible
     hash_para_insertar = {}
     self.class.atributos_persistibles_totales.each do |atributo|
       dato = send(atributo.nombre)
-
       # TODO no entiendo en que caso tenés "dato[0].nil?", creo que no debería pasar
       unless dato.nil? || (dato.is_a?(Array) && dato[0].nil? && atributo.default.nil?)
         hash_para_insertar[atributo.nombre] = atributo.obtener_valor_para_insertar(dato, self.class.name)

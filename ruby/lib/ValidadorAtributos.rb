@@ -13,7 +13,7 @@ class ValidadorAtributos
     validar_no_blank(valor, nombre_clase_error)
     unless valor.nil?
       validar_tipo(valor, nombre_clase_error).validar_block_validate(valor, nombre_clase_error)
-      if @tipo_atributo == Numeric
+      if @tipo_atributo <= Numeric
         validar_from(valor, nombre_clase_error).validar_to(valor, nombre_clase_error)
       end
     end
@@ -29,15 +29,9 @@ class ValidadorAtributos
 
   def validar_tipo(valor, nombre_clase_error)
     # TODO uso <= para que valide misma clase o subtipos
-    if @tipo_atributo <= Boolean
-      raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(Boolean)
-    elsif @tipo_atributo <= Numeric
-      raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(Numeric)
-    elsif @tipo_atributo <= String
-      raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo) unless valor.is_a?(String)
-    elsif valor.is_a?(InstanciaPersistible)
+    if valor.is_a?(InstanciaPersistible)
       valor.validate!
-    else
+    elsif es_tipo_primitivo(@tipo_atributo) && !(valor.class <= @tipo_atributo) || !es_tipo_primitivo(@tipo_atributo)
       raise TipoDeDatoException.new(nombre_clase_error, @params[:named], @tipo_atributo)
     end
     self

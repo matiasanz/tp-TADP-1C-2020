@@ -16,6 +16,10 @@ class Atributo
     @validador = ValidadorAtributos.new(params, tipo)
   end
 
+  def esta_persistido(instancia)
+    instancia.class.hash_atributos_persistidos(instancia.id).has_key?(@nombre)
+  end
+
   private
 
   def valor_persistido(instancia)
