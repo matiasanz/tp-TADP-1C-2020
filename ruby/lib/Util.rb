@@ -7,7 +7,8 @@ module Util
   end
 
   def es_tipo_primitivo(clase)
-    clase == String || clase == Numeric || clase == Boolean
+    # TODO para que soporte subtipos (ej Float)
+    clase <= String || clase <= Numeric || clase <= Boolean
   end
 
   def pasar_a_setter(simbolo)
