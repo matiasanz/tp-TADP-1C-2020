@@ -6,7 +6,7 @@ class Prueba
     end
 end
 
-class Personaje
+class ClaseSimple
     include ORM::ObjetoPersistible
 
     has_one String, named: :nombre
@@ -28,7 +28,7 @@ class Personaje
     end
 end
 
-class Ladron < Personaje
+class SubclaseSimple < ClaseSimple
     include ORM::ObjetoPersistible
 
     has_one Numeric, named: :sigilo
@@ -44,18 +44,18 @@ class Ladron < Personaje
 
 end
 
-class LadronDeSonrisas < Ladron
+class SubSubclaseVacia < SubclaseSimple
 
     def initialize
         super('pepe argento', 370, 95)
     end
 end
 
-class Mascota
+class ClaseCompuesta
     include ORM::ObjetoPersistible
 
     has_one String, named: :nombre
-    has_one Personaje, named: :duenio
+    has_one ClaseSimple, named: :duenio
     has_one Boolean, named: :hambriento
 
     def initialize(nombre, duenio, hambriento)
@@ -73,7 +73,7 @@ class ClaseMuyCompuesta
     include ORM::ObjetoPersistible
 
     has_one ClaseMuyCompuesta, named: :atributoMuyCompuesto
-    has_one Mascota, named: :mascota
+    has_one ClaseCompuesta, named: :mascota
 
     def initialize(mascota, atributoMuyCompuesto)
         @mascota = mascota
@@ -85,10 +85,10 @@ class ClaseMuyCompuesta
     end
 end
 
-class Pelicula
+class ClaseCompuestaDeMultiplesCompuestas
     include ORM::ObjetoPersistible
 
-    has_many Personaje, named: :personajes
+    has_many ClaseSimple, named: :personajes
 
     def initialize
         @personajes=[]
@@ -104,7 +104,7 @@ class Pelicula
     end
 end
 
-class Quiniela
+class ClaseCompuestaDeMultiplesSimples
     include ORM::ObjetoPersistible
 
     has_many Numeric, named: :resultados
@@ -123,14 +123,14 @@ class ClaseDefault
     include ORM::ObjetoPersistible
 
     has_one String, named: :nombre, default: "Anonimo"
-    has_one Personaje, named: :personaje, default: Personaje.new("Arbol", 0)
+    has_one ClaseSimple, named: :personaje, default: ClaseSimple.new("Arbol", 0)
     def initialize(nombre, personaje)
         @nombre = nombre
         @personaje=personaje
     end
 end
 
-module Atacante
+module MixinPersistible
     extend ORM::ModuloPersistible
 
     has_one Numeric, named: :danio
@@ -141,15 +141,15 @@ module Atacante
 end
 
 class Misil
-    include Atacante
+    include MixinPersistible
 
     def initialize(danio)
         @danio=danio
     end
 end
 
-class Guerrero < Personaje
-    include Atacante
+class SubClaseConMixin < ClaseSimple
+    include MixinPersistible
 
     attr_accessor :vida
 

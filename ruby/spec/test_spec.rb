@@ -14,19 +14,19 @@ describe Prueba do
         end
 
         it 'Se especifica un tipo que no es una clase y falla' do
-            expect {Personaje.has_one(:simbolo, named: :atributo) }.to raise_error(ORM::ClaseDesconocidaException)
+            expect {ClaseSimple.has_one(:simbolo, named: :atributo) }.to raise_error(ORM::ClaseDesconocidaException)
         end
 
         it 'Las subclases de una clase persistible se obtienen correctamente' do
-            expect(Personaje.instance_variable_get(:@submodulos)).to include(Ladron)
+            expect(ClaseSimple.instance_variable_get(:@submodulos)).to include(SubclaseSimple)
         end
     end
 
     describe 'Persistencia de Clase simple' do
-        let(:personaje) {Personaje.new("Flash", 2500)}
+        let(:personaje) {ClaseSimple.new("Flash", 2500)}
 
         it 'atributos persistibles de una clase simple' do
-            persistibles = Personaje.atributos_persistibles.keys
+            persistibles = ClaseSimple.atributos_persistibles.keys
             expect(persistibles).to match_array([:comicidad, :enojon, :nombre, :id])
         end
 
@@ -37,7 +37,7 @@ describe Prueba do
         end
 
         it 'persistir una clase con atributos nulos' do
-            p = Personaje.new(nil, nil)
+            p = ClaseSimple.new(nil, nil)
             p.enojon=nil
             p.save!
             expect(p.id).to_not be_nil
@@ -50,7 +50,7 @@ describe Prueba do
             personaje.forget!
 
             expect(personaje.id).to be_nil
-            expect(Personaje.find_by_id(id)).to match_array []
+            expect(ClaseSimple.find_by_id(id)).to match_array []
         end
 
         it 'Objeto salvado por segunda vez se actualiza en lugar de volver a insertarse' do
@@ -62,7 +62,7 @@ describe Prueba do
             personaje.save!
 
             expect(personaje.id).to be(id)
-            expect(Personaje.find_by_id(id).length).to be(1)
+            expect(ClaseSimple.find_by_id(id).length).to be(1)
         end
 
         it 'Se intenta persistir un atributo que no es de la clase especificada y falla' do
@@ -84,33 +84,33 @@ describe Prueba do
         it 'Atributos no persistibles no se persisten' do
             personaje.atributoNoPersistible="Si me persisto"
             personaje.save!
-            resultado = Personaje.find_by_id(personaje.id).first
+            resultado = ClaseSimple.find_by_id(personaje.id).first
             expect(resultado.atributoNoPersistible).to match("¡No se rian! podrian tener un hijo igual")
         end
     end
 
     describe 'Persistencia de subclases' do
         it 'Una subclase puede ser a su vez clase persistible' do
-            expect(Ladron).to be_a(ORM::ModuloPersistible)
+            expect(SubclaseSimple).to be_a(ORM::ModuloPersistible)
         end
 
         it 'atributos persistibles se heredan' do
-            persistibles = Ladron.atributos_persistibles.keys
+            persistibles = SubclaseSimple.atributos_persistibles.keys
             expect(persistibles).to include(:comicidad, :enojon, :nombre, :id)
             expect(persistibles).to include(:sigilo)
         end
 
         it 'la subclase se persiste correctamente' do
-            ladron = Ladron.new("Nik", 15, 85)
+            ladron = SubclaseSimple.new("Nik", 15, 85)
 
             expect(ladron.id).to be_nil
             ladron.save!
             expect(ladron.id).to_not be_nil
-            expect(Ladron.find_by_id(ladron.id)).to match_array [ladron]
+            expect(SubclaseSimple.find_by_id(ladron.id)).to match_array [ladron]
         end
 
         it 'subclase sin atributos y con constructor vacio se persiste y se recupera correctamente'do
-            ladron = LadronDeSonrisas.new
+            ladron = SubSubclaseVacia.new
             ladron.save!
 
             id = ladron.id
@@ -123,9 +123,9 @@ describe Prueba do
 
     describe 'Busqueda por atributo' do
         before(:each) do
-            @ladri1 = Ladron.new("lucho", 35, 90)
-            @ladri2 = Ladron.new("El gato", 35, 90)
-            @ladri3 = Ladron.new("El gato", 325, 67)
+            @ladri1 = SubclaseSimple.new("lucho", 35, 90)
+            @ladri2 = SubclaseSimple.new("El gato", 35, 90)
+            @ladri3 = SubclaseSimple.new("El gato", 325, 67)
 
             @ladri2.enojon=false
 
@@ -135,23 +135,23 @@ describe Prueba do
         end
 
         it 'Al buscar todas las instancias se obtienen efectivamente instancias' do
-            instancias = Ladron.all_instances
+            instancias = SubclaseSimple.all_instances
 
-            expect(instancias).to all be_instance_of Ladron
+            expect(instancias).to all be_instance_of SubclaseSimple
             expect(instancias.length).to be(3)
         end
 
         it 'Al buscar todas las instancias de una superclase, se obtienen todas juntas' do
-            personaje = Personaje.new("H. Power", 479)
+            personaje = ClaseSimple.new("H. Power", 479)
             personaje.save!
 
-            resultado = Personaje.all_instances
+            resultado = ClaseSimple.all_instances
             expect(resultado).to include(personaje)
             expect(resultado.length).to be(4)
         end
 
         it 'encontrar por id devuelve una unica instancia y es correcta' do
-            resultados = Ladron.find_by_id(@ladri1.id)
+            resultados = SubclaseSimple.find_by_id(@ladri1.id)
             expect(resultados.length).to be(1)
             resultado = resultados.first
             expect(resultado.id).to eq(@ladri1.id)
@@ -159,24 +159,24 @@ describe Prueba do
         end
 
         it 'encontrar por un string' do
-            resultados = Ladron.find_by_nombre("El gato")
+            resultados = SubclaseSimple.find_by_nombre("El gato")
             expect(resultados.length).to be(2)
             expect(resultados).to match_array [@ladri2, @ladri3]
         end
 
         it 'encontrar por un booleano' do
-            enojones = Ladron.find_by_enojon(true)
+            enojones = SubclaseSimple.find_by_enojon(true)
             expect(enojones).to match_array [@ladri1, @ladri3]
 
-            noEnojones = Ladron.find_by_enojon(false)
+            noEnojones = SubclaseSimple.find_by_enojon(false)
             expect(noEnojones).to match_array(@ladri2)
         end
     end
 
     describe 'Composicion' do
         before(:each) do
-            @duenio = Personaje.new('hagrid', 670)
-            @mascota = Mascota.new('fang', @duenio, true)
+            @duenio = ClaseSimple.new('hagrid', 670)
+            @mascota = ClaseCompuesta.new('fang', @duenio, true)
             @mascota.save!
         end
 
@@ -185,13 +185,13 @@ describe Prueba do
         end
 
         it 'un objeto compuesto se recupera de la base de datos' do
-            recuperado = Mascota.find_by_id(@mascota.id).first
+            recuperado = ClaseCompuesta.find_by_id(@mascota.id).first
             expect(recuperado.id).to_not be_nil
             expect(recuperado.duenio.id).to_not be_nil
         end
 
         it 'un objeto compuesto se busca por un atributo idem y se encuentra' do
-            encontrados = Mascota.find_by_duenio(@duenio)
+            encontrados = ClaseCompuesta.find_by_duenio(@duenio)
             expect(encontrados.length).to be(1)
 
             encontrado = encontrados.first
@@ -203,8 +203,8 @@ describe Prueba do
 
             claseMuyCompuesta = ClaseMuyCompuesta.new(@mascota, nil)
 
-            otroDuenio = Personaje.new("Dave el Barvaro", 3600)
-            otraMascota = Mascota.new("Fafy", otroDuenio, true)
+            otroDuenio = ClaseSimple.new("Dave el Barvaro", 3600)
+            otraMascota = ClaseCompuesta.new("Fafy", otroDuenio, true)
 
             claseTodaviaMasCompuesta = ClaseMuyCompuesta.new(otraMascota, claseMuyCompuesta)
 
@@ -219,25 +219,25 @@ describe Prueba do
         describe 'has many' do
 
             it 'clase con multiples atributos primitivos' do
-                q = Quiniela.new.conResultado(5).conResultado(3).save!
+                q = ClaseCompuestaDeMultiplesSimples.new.conResultado(5).conResultado(3).save!
                 expect(q.id).to_not be_nil
-                leidos = Quiniela.find_by_id(q.id)
+                leidos = ClaseCompuestaDeMultiplesSimples.find_by_id(q.id)
                 expect(leidos.length).to be(1)
 
                 expect(leidos.first.resultados).to include(5,3)
             end
 
             it 'clase con multiples atributos compuestos' do
-                pers1 = Personaje.new("Goku", 670)
-                pers2 = Personaje.new("Mr Satan", 45000)
+                pers1 = ClaseSimple.new("Goku", 670)
+                pers2 = ClaseSimple.new("Mr Satan", 45000)
 
-                dbz = Pelicula.new
+                dbz = ClaseCompuestaDeMultiplesCompuestas.new
                 dbz.agregarPersonaje(pers1)
                 dbz.agregarPersonaje(pers2)
                 dbz.save!
                 expect(dbz.id).not_to be_nil
 
-                resultados = Pelicula.find_by_id(dbz.id)
+                resultados = ClaseCompuestaDeMultiplesCompuestas.find_by_id(dbz.id)
 
                 expect(resultados.length).to be(1)
                 resultado = resultados.first
@@ -248,7 +248,7 @@ describe Prueba do
 
     describe 'Default' do
         it 'Valor default se respeta para atributo primitivo y no altera los demas' do
-            personaje = Personaje.new("Buckethead",500)
+            personaje = ClaseSimple.new("Buckethead", 500)
             objetoDefault = ClaseDefault.new(nil, personaje)
             objetoDefault.save!
             expect(objetoDefault.nombre).to match "Anonimo"
@@ -259,7 +259,7 @@ describe Prueba do
             objetoDefault = ClaseDefault.new("juan carlos", nil)
             objetoDefault.save!
             expect(objetoDefault.nombre).to match "juan carlos"
-            expect(objetoDefault.personaje).to eq(Personaje.new("Arbol", 0))
+            expect(objetoDefault.personaje).to eq(ClaseSimple.new("Arbol", 0))
         end
     end
 
@@ -270,8 +270,8 @@ describe Prueba do
             end
 
             it 'Argumentos opcionales' do
-                expect { ORM::ValidadorDeAtributo.new(Personaje, {})}.to_not raise_error
-                expect { ORM::ValidadorDeAtributo.new(Personaje, no_blank: true, validate: ->{true})}.to_not raise_error
+                expect { ORM::ValidadorDeAtributo.new(ClaseSimple, {})}.to_not raise_error
+                expect { ORM::ValidadorDeAtributo.new(ClaseSimple, no_blank: true, validate: ->{true})}.to_not raise_error
                 expect { ORM::ValidadorDeAtributo.new(Numeric, from: 1)}.to_not raise_error
             end
         end
@@ -304,7 +304,7 @@ describe Prueba do
     describe 'mixines persistibles' do
 
         it 'son persistibles' do
-            expect(Guerrero.atributos_persistibles.keys).to include(:id, :nombre, :comicidad, :enojon, :danio)
+            expect(SubClaseConMixin.atributos_persistibles.keys).to include(:id, :nombre, :comicidad, :enojon, :danio)
         end
 
         it 'clase que incluye mixin persistible se persiste correctamente' do
@@ -316,27 +316,26 @@ describe Prueba do
 
         describe 'metodos del Modulo' do
             before(:each) do
-                @goku = Guerrero.new("goku", 2000, 20).save!
-                @vegeta = Guerrero.new("vegeta", 400, 25).save!
+                @goku = SubClaseConMixin.new("goku", 2000, 20).save!
+                @vegeta = SubClaseConMixin.new("vegeta", 400, 25).save!
             end
 
             it 'all instances desde un mixin' do
-                expect(Atacante.all_instances).to include(@goku, @vegeta)
+                expect(MixinPersistible.all_instances).to include(@goku, @vegeta)
             end
 
             it 'fails on unknown message' do
               expect{ String.pajarito }.to raise_error(NoMethodError)
-              # TODO esto está pasando porque no estás llamando a "super" en el method missing
-              expect{ Atacante.pajarito }.to raise_error(NoMethodError)
+              expect{ MixinPersistible.pajarito }.to raise_error(NoMethodError)
             end
 
             it 'find by desde un mixin' do
-                expect(Atacante.find_by_danio(25)).to match_array(@vegeta)
+                expect(MixinPersistible.find_by_danio(25)).to match_array(@vegeta)
             end
 
             it 'mixin que incluye mixin persistible se persiste correctamente' do
                 module PadrePadre
-                    include Atacante
+                    include MixinPersistible
                 end
 
                 module Intermediario
@@ -362,12 +361,12 @@ describe Prueba do
 
                 a = Alguien.new("salame", "123").save!
 
-                atacantes = Atacante.all_instances
+                atacantes = MixinPersistible.all_instances
                 expect(atacantes.size).to be(3)
                 expect(atacantes.map{|at| at.id}).to include(a.id)
-                expect(Atacante.find_by_id(a.id).first.algo).to match "salame"
-                expect(Atacante.find_by_id(a.id).first.telefono).to match "123"
-                expect(Atacante.find_by_id(a.id).first.danio).to match nil
+                expect(MixinPersistible.find_by_id(a.id).first.algo).to match "salame"
+                expect(MixinPersistible.find_by_id(a.id).first.telefono).to match "123"
+                expect(MixinPersistible.find_by_id(a.id).first.danio).to match nil
 
                 expect(Intermediario.all_instances.map{|a| a.class}).to match_array([Alguien])
             end
