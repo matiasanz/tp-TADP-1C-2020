@@ -55,8 +55,13 @@ end
 
 module SimpleBasico
 
-  def obtener_valor_para_insertar(dato)
-    dato
+  def obtener_valor_para_insertar(dato, _)
+    if dato.nil?
+      return @default unless @default.nil?
+      nil
+    else
+      dato
+    end
   end
 
   def settear(instancia)
@@ -68,8 +73,13 @@ end
 
 module SimpleComplejo
 
-  def obtener_valor_para_insertar(dato)
-    dato.save!.id
+  def obtener_valor_para_insertar(dato, _)
+    if dato.nil?
+      return @default.save!.id unless @default.nil?
+      nil
+    else
+      dato.save!.id
+    end
   end
 
   def settear(instancia)
@@ -99,26 +109,25 @@ class AtributoMultiple < Atributo
 
   private
 
-  def obtener_valor_para_insertar(array, &bloque)
-    array = array.clone
-    array = array.map { |e| @default if e.nil? } if array.any? { |e| e.nil? } && !@default.nil?
-    array.compact! if array.any? { |e| e.nil? }
-    if array.nil?
-      nil
+  def obtener_valor_para_insertar(array, instancia, &bloque)
+    id_anterior = valor_persistido(instancia)
+    if id_anterior.nil?
+      id_estable = tabla_intermedia.insert({ valor:bloque.call(array[0]) } )
+      array.delete_at(0)
+      array.each { |e| tabla_intermedia.insert({ id:id_estable, valor:bloque.call(e) } ) } unless array.nil?
+      id_estable
     else
-      if tabla_intermedia.entries[0].nil?
-        id_estable = tabla_intermedia.insert({ valor:bloque.call(array[0]) } )
-        array.delete_at(0)
-        array.each { |e| tabla_intermedia.insert({ id:id_estable, valor:bloque.call(e) } ) } unless array.nil?
-        return id_estable
-      else
-        #id = valor_persistido(instancia)
-        #tabla_intermedia.entries.find { |entrada| entrada.has_value?(id) }
+      id_anterior = tabla_intermedia.entries[0][:id]
+      array.each { |e| tabla_intermedia.insert({ id:id_anterior, valor:bloque.call(e) } ) } unless array.nil?
+      id_anterior
+    end
+  end
 
-        id_anterior = tabla_intermedia.entries[0][:id]
-        array.each { |e| tabla_intermedia.insert({ id:id_anterior, valor:bloque.call(e) } ) } unless array.nil?
-        return id_anterior
-      end
+  def setear_default(array)
+    if @default.nil?
+      array.compact
+    else
+      array.map { |e| @default if e.nil? }
     end
   end
 
@@ -135,8 +144,12 @@ end
 
 module MultipleBasico
 
-  def obtener_valor_para_insertar(array)
-    super(array) { |e| e }
+  def obtener_valor_para_insertar(array, instancia)
+    if array.empty?
+      nil
+    else
+      super(setear_default(array), instancia) { |e| e }
+    end
   end
 
   def settear(instancia)
@@ -148,8 +161,12 @@ end
 
 module MultipleComplejo
 
-  def obtener_valor_para_insertar(array)
-    super(array) { |e| e.save!.id }
+  def obtener_valor_para_insertar(array, instancia)
+    if array.empty?
+      nil
+    else
+      super(setear_default(array), instancia) { |e| e.save!.id }
+    end
   end
 
   def settear(instancia)

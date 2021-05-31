@@ -47,17 +47,13 @@ module InstanciaPersistible
   attr_writer :id
 
   def generar_hash_para_insertar
-    hash_para_insertar = {}
+    hash = {}
     self.class.atributos_persistibles_totales.each do |atributo|
-      dato = send(atributo.nombre)
-      # TODO no entiendo en que caso tenés "dato[0].nil?", creo que no debería pasar
-      unless dato.nil? || (dato.is_a?(Array) && dato.all? { |e| e.nil? } && atributo.default.nil?)
-        hash_para_insertar[atributo.nombre] = atributo.obtener_valor_para_insertar(dato)
-      end
-      hash_para_insertar[atributo.nombre] = atributo.default if dato.nil? && !atributo.default.nil?
+      valor = atributo.obtener_valor_para_insertar( send(atributo.nombre), self )
+      hash[atributo.nombre] = valor unless valor.nil?
     end
-    hash_para_insertar[:id] = @id if @id
-    hash_para_insertar
+    hash[:id] = @id if @id
+    hash
   end
 
   # en el constructor de la clase se usaria asi
