@@ -35,10 +35,7 @@ module EntidadPersistible
   public
 
   def atributos_persistibles_totales
-    ancestros = ancestors
-    ancestros.delete_at(0)
-    padre = nil
-    padre = ancestros.find { |a| a.is_a?(EntidadPersistible) } unless ancestros.nil?
+    padre = ancestors.find { |a| a.is_a?(EntidadPersistible) && a != self}
     if padre.nil?
       atributos_persistibles
     else
