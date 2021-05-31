@@ -50,11 +50,7 @@ module EntidadPersistible
   end
 
   def all_instances_de_hijos
-    array_aux = []
-    # TODO el each con un acumulador funciona, pero también podrías usar el map / flatmap
-    # (igual esto lo vas a ver mucho más en funcional, no es necesario que lo cambies)
-    modulos_hijos.each { |modulo| array_aux = array_aux + modulo.all_instances }
-    array_aux
+    modulos_hijos.flat_map { |modulo| modulo.all_instances }
   end
 
   def respond_to_missing?(mensaje, priv = false)
