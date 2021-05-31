@@ -7,7 +7,6 @@ module Util
   end
 
   def es_tipo_primitivo(clase)
-    # TODO para que soporte subtipos (ej Float)
     clase <= String || clase <= Numeric || clase <= Boolean
   end
 

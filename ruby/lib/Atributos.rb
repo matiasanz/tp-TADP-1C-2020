@@ -103,13 +103,15 @@ class AtributoMultiple < Atributo
     self
   end
 
+  private
+
   def tabla_intermedia
     @tabla ||= TADB::DB.table("#{@entidad_contenedora}-X-#{@nombre.to_s}")
   end
 
-  private
-
-  def obtener_valor_para_insertar(array, instancia, &bloque)
+  def obtener_valor_para_insertar(array_original, instancia, &bloque)
+    return nil if array_original.empty?
+    array = sacar_nulos(array_original)
     id_anterior = valor_persistido(instancia)
     if id_anterior.nil?
       id_estable = tabla_intermedia.insert({ valor:bloque.call(array[0]) } )
@@ -123,7 +125,7 @@ class AtributoMultiple < Atributo
     end
   end
 
-  def setear_default(array)
+  def sacar_nulos(array)
     if @default.nil?
       array.compact
     else
@@ -145,11 +147,7 @@ end
 module MultipleBasico
 
   def obtener_valor_para_insertar(array, instancia)
-    if array.empty?
-      nil
-    else
-      super(setear_default(array), instancia) { |e| e }
-    end
+    super(array, instancia) { |e| e }
   end
 
   def settear(instancia)
@@ -162,11 +160,7 @@ end
 module MultipleComplejo
 
   def obtener_valor_para_insertar(array, instancia)
-    if array.empty?
-      nil
-    else
-      super(setear_default(array), instancia) { |e| e.save!.id }
-    end
+    super(array, instancia) { |e| e.save!.id }
   end
 
   def settear(instancia)
