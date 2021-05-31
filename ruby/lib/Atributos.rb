@@ -9,22 +9,23 @@ class Atributo
 
   attr_reader :nombre, :tipo_atributo, :default
 
-  def initialize(tipo, params)
+  def initialize(tipo, params, entidad_contenedora)
     @nombre = params[:named]
     @tipo_atributo = tipo
     @default = params[:default]
     @validador = ValidadorAtributos.new(params, tipo)
+    @entidad_contenedora = entidad_contenedora
   end
 
-  def esta_persistido(instancia)
-    instancia.class.hash_atributos_persistidos(instancia.id).has_key?(@nombre)
+  def valor_persistido(instancia)
+    if instancia.class.hash_atributos_persistidos(instancia.id).nil?
+      nil
+    else
+      instancia.class.hash_atributos_persistidos(instancia.id)[@nombre]
+    end
   end
 
   private
-
-  def valor_persistido(instancia)
-    instancia.class.hash_atributos_persistidos(instancia.id)[@nombre]
-  end
 
   def setter_generico(instancia, valor_a_settear)
     instancia.send(pasar_a_setter(@nombre), valor_a_settear)
@@ -37,12 +38,12 @@ end
 
 class AtributoSimple < Atributo
 
-  def initialize(tipo, params)
+  def initialize(tipo, params, clase_contenedora)
     # TODO creo (pero no es necesario que lo cambies) que podrías usar solo 2 mixines
     # para los subtipos de atributos. Es decir, en vez de SimpleBasico, MultipleBasico, con solo un Basico
     # podrías generalizar la logica (porque son bastante parecidos)
     if es_tipo_primitivo(tipo) then extend(SimpleBasico) else extend(SimpleComplejo) end
-    super(tipo, params) # se inserta entre la instancia y su clase -> Instancia, SimpleBasico, AtributoSimple
+    super(tipo, params, clase_contenedora) # se inserta entre la instancia y su clase -> Instancia, SimpleBasico, AtributoSimple
   end
 
   def validar_todo(valor, nombre_clase_error)
@@ -54,7 +55,7 @@ end
 
 module SimpleBasico
 
-  def obtener_valor_para_insertar(dato, _)
+  def obtener_valor_para_insertar(dato)
     dato
   end
 
@@ -67,7 +68,7 @@ end
 
 module SimpleComplejo
 
-  def obtener_valor_para_insertar(dato, _)
+  def obtener_valor_para_insertar(dato)
     dato.save!.id
   end
 
@@ -82,9 +83,9 @@ end
 
 class AtributoMultiple < Atributo
 
-  def initialize(tipo, params)
+  def initialize(tipo, params, clase_contenedora)
     if es_tipo_primitivo(tipo) then extend(MultipleBasico) else extend(MultipleComplejo) end
-    super(tipo, params)
+    super(tipo, params, clase_contenedora)
   end
 
   def validar_todo(valor, nombre_clase_error)
@@ -92,25 +93,39 @@ class AtributoMultiple < Atributo
     self
   end
 
-  def tabla_intermedia(nomb_clase_instancia)
-    @tabla ||= TADB::DB.table("#{nomb_clase_instancia}-X-#{@tipo_atributo.name}")
+  def tabla_intermedia
+    @tabla ||= TADB::DB.table("#{@entidad_contenedora}-X-#{@nombre.to_s}")
   end
 
   private
 
-  def obtener_valor_para_insertar(array, nomb_clase_instancia, &bloque)
+  def obtener_valor_para_insertar(array, &bloque)
     array = array.clone
-    array = array.map { |e| @default if e.nil? } if array[0].nil? && !@default.nil?
-    id_estable = tabla_intermedia(nomb_clase_instancia).insert({ valor:bloque.call(array[0]) } )
-    array.delete_at(0)
-    array.each { |e| tabla_intermedia(nil).insert({ id:id_estable, valor:bloque.call(e) } ) } unless array.nil?
-    id_estable
+    array = array.map { |e| @default if e.nil? } if array.any? { |e| e.nil? } && !@default.nil?
+    array.compact! if array.any? { |e| e.nil? }
+    if array.nil?
+      nil
+    else
+      if tabla_intermedia.entries[0].nil?
+        id_estable = tabla_intermedia.insert({ valor:bloque.call(array[0]) } )
+        array.delete_at(0)
+        array.each { |e| tabla_intermedia.insert({ id:id_estable, valor:bloque.call(e) } ) } unless array.nil?
+        return id_estable
+      else
+        #id = valor_persistido(instancia)
+        #tabla_intermedia.entries.find { |entrada| entrada.has_value?(id) }
+
+        id_anterior = tabla_intermedia.entries[0][:id]
+        array.each { |e| tabla_intermedia.insert({ id:id_anterior, valor:bloque.call(e) } ) } unless array.nil?
+        return id_anterior
+      end
+    end
   end
 
   def settear(instancia, &bloque)
     setter_generico(instancia, [])
     id_estable = valor_persistido(instancia)
-    array_entradas = tabla_intermedia(nil).entries.select { |entrada| entrada.has_value?(id_estable) }
+    array_entradas = tabla_intermedia.entries.select { |entrada| entrada.has_value?(id_estable) }
     array_valores = array_entradas.map { |hash| hash[:valor] }
     array_valores.each { |valor| setter_generico(instancia, instancia.send(@nombre).push(bloque.call(valor))) }
     self
@@ -120,8 +135,8 @@ end
 
 module MultipleBasico
 
-  def obtener_valor_para_insertar(array, nomb_clase_instancia)
-    super(array, nomb_clase_instancia) { |e| e }
+  def obtener_valor_para_insertar(array)
+    super(array) { |e| e }
   end
 
   def settear(instancia)
@@ -133,8 +148,8 @@ end
 
 module MultipleComplejo
 
-  def obtener_valor_para_insertar(array, nomb_clase_instancia)
-    super(array, nomb_clase_instancia) { |e| e.save!.id }
+  def obtener_valor_para_insertar(array)
+    super(array) { |e| e.save!.id }
   end
 
   def settear(instancia)

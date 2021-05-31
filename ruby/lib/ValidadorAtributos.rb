@@ -28,7 +28,6 @@ class ValidadorAtributos
   end
 
   def validar_tipo(valor, nombre_clase_error)
-    # TODO uso <= para que valide misma clase o subtipos
     if valor.is_a?(InstanciaPersistible)
       valor.validate!
     elsif es_tipo_primitivo(@tipo_atributo) && !(valor.class <= @tipo_atributo) || !es_tipo_primitivo(@tipo_atributo)

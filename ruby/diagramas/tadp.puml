@@ -11,7 +11,7 @@ abstract class Atributo {
 - Symbol nombre
 - Class tipo_atributo
 - Object default
-- Object valor_persistido(instancia)
++ Object valor_persistido(instancia)
 - void setter_generico(instancia, valor_a_settear)
 }
 

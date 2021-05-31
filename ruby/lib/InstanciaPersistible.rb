@@ -23,7 +23,7 @@ module InstanciaPersistible
   def refresh!
     raise RefreshException.new(self.class.name) unless @id
     self.class.atributos_persistibles_totales.each do |atributo|
-      atributo.settear(self) if atributo.esta_persistido(self)
+      atributo.settear(self) unless atributo.valor_persistido(self).nil?
     end
     self
   end
@@ -37,7 +37,7 @@ module InstanciaPersistible
 
   def validate!
     self.class.atributos_persistibles_totales.each do |atributo|
-      atributo.validar_todo(send(atributo.nombre), self.class.name)
+      atributo.validar_todo( send(atributo.nombre), self.class.name )
     end
     self
   end
@@ -51,8 +51,8 @@ module InstanciaPersistible
     self.class.atributos_persistibles_totales.each do |atributo|
       dato = send(atributo.nombre)
       # TODO no entiendo en que caso tenés "dato[0].nil?", creo que no debería pasar
-      unless dato.nil? || (dato.is_a?(Array) && dato[0].nil? && atributo.default.nil?)
-        hash_para_insertar[atributo.nombre] = atributo.obtener_valor_para_insertar(dato, self.class.name)
+      unless dato.nil? || (dato.is_a?(Array) && dato.all? { |e| e.nil? } && atributo.default.nil?)
+        hash_para_insertar[atributo.nombre] = atributo.obtener_valor_para_insertar(dato)
       end
       hash_para_insertar[atributo.nombre] = atributo.default if dato.nil? && !atributo.default.nil?
     end
@@ -69,10 +69,10 @@ module InstanciaPersistible
     self.class.atributos_persistibles_totales.each do |atributo|
       if atributo.is_a?(AtributoMultiple)
         send(pasar_a_setter(atributo.nombre), [])
-        send(pasar_a_setter(atributo.nombre), send(atributo.nombre).push(atributo.default)) unless atributo.default.nil?
+        send(pasar_a_setter(atributo.nombre), [atributo.default]) unless atributo.default.nil?
+      else
+        send(pasar_a_setter(atributo.nombre), atributo.default) unless atributo.default.nil?
       end
-      dato = send(atributo.nombre)
-      send(pasar_a_setter(atributo.nombre), atributo.default) if dato.nil? && !atributo.default.nil?
     end
     self
   end

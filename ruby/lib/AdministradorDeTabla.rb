@@ -19,8 +19,7 @@ module AdministradorDeTabla
   end
 
   def hash_atributos_persistidos(id)
-    tabla.entries.each { |entrada| return entrada if entrada.has_value?(id) }
-    nil
+    tabla.entries.find { |entrada| entrada.has_value?(id) }
   end
 
   # redefino "all_instances" con respecto a EntidadPersistible para cortar con la recursion

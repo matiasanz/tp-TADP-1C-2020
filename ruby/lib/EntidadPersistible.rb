@@ -14,12 +14,12 @@ module EntidadPersistible
   end
 
   def has_one(tipo_atributo, params)
-    agregar_atributo(AtributoSimple.new(tipo_atributo, params))
+    agregar_atributo(AtributoSimple.new(tipo_atributo, params, name))
     self
   end
 
   def has_many(tipo_atributo, params)
-    agregar_atributo(AtributoMultiple.new(tipo_atributo, params))
+    agregar_atributo(AtributoMultiple.new(tipo_atributo, params, name))
     self
   end
 
