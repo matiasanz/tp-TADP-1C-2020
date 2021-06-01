@@ -67,7 +67,7 @@ module ORM
         end
 
         def atributos_persistibles
-            ancestros_persistibles.reverse.flat_map{|a| a.persistibles_propios}.reduce(Hash.new, :merge)
+            ancestros_persistibles.reverse.map{|a| a.persistibles_propios}.reduce(Hash.new, :merge)
         end
 
         protected
