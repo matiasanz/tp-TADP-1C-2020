@@ -6,6 +6,10 @@ module ORM
         def self.extended(modulo)
             @validadores ||= []
             @validadores << modulo
+
+            modulo.define_method(:simbolo) do
+                self.class.simbolo
+            end
         end
 
         def self.as_validadores(tipo, args)
@@ -53,7 +57,6 @@ module ORM
         end
 
         def initialize(tipo, args)
-            simbolo = self.class.simbolo
             @from = args[simbolo]
             raise ValidacionNoAdmitidaException.new(tipo, simbolo) unless tipo <= Numeric
             raise CampoIncorrectoException.new(@from, Numeric, "from") unless @from.is_a?Numeric
@@ -72,7 +75,6 @@ module ORM
         end
 
         def initialize(tipo, args)
-            simbolo = self.class.simbolo
             @to= args[simbolo]
             raise ValidacionNoAdmitidaException.new(tipo, simbolo) unless tipo <= Numeric
             raise CampoIncorrectoException.new(@to, Numeric, simbolo) unless @to.is_a?Numeric
@@ -91,7 +93,6 @@ module ORM
         end
 
         def initialize(_, args)
-            simbolo = self.class.simbolo
             @validacion = args[simbolo]
             raise CampoIncorrectoException.new(@validacion, [Proc, Lambda], simbolo) unless @validacion.is_a?Proc or @validacion.lambda?
         end

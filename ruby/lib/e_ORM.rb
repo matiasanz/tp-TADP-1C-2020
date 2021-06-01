@@ -67,7 +67,7 @@ module ORM
         end
 
         def atributos_persistibles
-            persistibles_heredados.merge(@atributos_persistibles)
+            ancestros_persistibles.reverse.flat_map{|a| a.persistibles_propios}.reduce(Hash.new, :merge)
         end
 
         protected
@@ -76,16 +76,8 @@ module ORM
         end
 
         private
-        def persistibles_heredados #codigo repetido
-            ancestros_persistibles.reverse.flat_map{|a| a.persistibles_propios}.reduce(Hash.new, :merge)
-        end
-
         def ancestros_persistibles
-            ancestors.filter{|a| a.is_a? ModuloPersistible} - [self]
-        end
-
-        def modulos_persistibles
-            included_modules.select {|m| m.is_a?(ModuloPersistible)}
+            ancestors.filter{|a| a.is_a? ModuloPersistible}
         end
 
         #Enunciado: Find by
