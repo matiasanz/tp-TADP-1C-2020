@@ -10,7 +10,7 @@ module ORM
 
         def self.as_validadores(tipo, args)
             #probar args.to_a.filter_map
-            actuales = []
+            actuales = [ValidadorTipo.new]
             @validadores.each do |validador|
                 actuales << validador.new(tipo, args) if validador.aplica?(args)
             end
@@ -23,16 +23,6 @@ module ORM
    end
 
     class ValidadorTipo
-        extend ValidadorDeAtributos
-
-        def self.aplica?(args)
-            true
-        end
-
-        def initialize(tipo, args)
-            #no hace nada
-        end
-
         def validar(atributo, dato)
             clase = atributo.clase
             raise TipoErroneoException.new(dato, clase) unless dato.is_a? clase or dato.nil?

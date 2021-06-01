@@ -125,7 +125,7 @@ module ORM
 
         def initialize(nombre, tipo, validador, default, claseContenedora)
             # TODO buen detalle utilizar el validador de atributos para hacer implicita la validación de que tiene que ser un array
-            super(nombre, Array, [ValidadorTipo.new(Array, {})], default)
+            super(nombre, Array, [ValidadorTipo.new], default)
             @atributo = AtributoHelper.as_simple_attribute(:elemento, tipo, validador)
             @TablaMultiple = Tabla.new_tabla_multiple(tipo, claseContenedora, nombre)
         end
