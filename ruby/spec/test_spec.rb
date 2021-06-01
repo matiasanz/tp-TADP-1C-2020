@@ -266,37 +266,39 @@ describe Prueba do
     describe 'Validador' do
         describe 'Generalidades' do
             it 'From/to en atributo no numerico' do
-                expect{ORM::ValidadorDeAtributo.new(String, from:2, to: 4)}.to raise_error(ORM::ValidacionNoAdmitidaException)
+                expect{ORM::ValidadorDeAtributos.as_validadores(String, from:2, to: 4)}.to raise_error(ORM::ValidacionNoAdmitidaException)
             end
 
             it 'Argumentos opcionales' do
-                expect { ORM::ValidadorDeAtributo.new(ClaseSimple, {})}.to_not raise_error
-                expect { ORM::ValidadorDeAtributo.new(ClaseSimple, no_blank: true, validate: ->{true})}.to_not raise_error
-                expect { ORM::ValidadorDeAtributo.new(Numeric, from: 1)}.to_not raise_error
+                expect { ORM::ValidadorDeAtributos.as_validadores(ClaseSimple, {})}.to_not raise_error
+                expect { ORM::ValidadorDeAtributos.as_validadores(ClaseSimple, no_blank: true, validate: ->{true})}.to_not raise_error
+                expect { ORM::ValidadorDeAtributos.as_validadores(Numeric, from: 1)}.to_not raise_error
             end
         end
 
         describe 'Numeros' do
-            let(:validadorNumerico) do
-                ORM::ValidadorDeAtributo.new(Numeric, no_blank: true, from: 0, to: 4, validate: lambda{|x| x<3})
+            let(:args) do
+                {no_blank: true, from: 0, to: 4, validate: lambda{|x| x<3}}
             end
+            let(:tipo) {Numeric}
             let (:atributoNumerico) do
-                ORM::AtributoHelper.as_simple_attribute(:atributo, Numeric, validadorNumerico)
+                ORM::AtributoHelper.as_simple_attribute(:atributo, tipo, ORM::ValidadorDeAtributos.as_validadores(Numeric, args))
             end
 
             it 'Validar dato numerico correcto' do
-                dato = 2
-                expect(validadorNumerico.cumple_no_blank?(dato)).to be_truthy
-                expect(validadorNumerico.cumple_rango?(dato)).to be_truthy
-                expect(validadorNumerico.cumple_validate?(dato)).to be_truthy
-                expect{validadorNumerico.validar(atributoNumerico, dato)}.to_not raise_exception
+                dato=0
+                expect{ORM::ValidadorNoBlank.new(tipo, args).validar(atributoNumerico, dato)}.to_not raise_error
+                expect{ORM::ValidadorFrom.new(tipo, args).validar(atributoNumerico, dato)}.to_not raise_error
+                expect{ORM::ValidadorValidate.new(tipo, args).validar(atributoNumerico, dato)}.to_not raise_error
+                expect{atributoNumerico.validar_instancia(dato)}.to_not raise_error
             end
 
             it 'Validar dato numerico correcto' do
-                expect(validadorNumerico.cumple_no_blank?(nil)).to be_falsey
-                expect(validadorNumerico.cumple_rango?(-1)).to be_falsey
-                expect(validadorNumerico.cumple_validate?(4)).to be_falsey
-                expect{validadorNumerico.validar(atributoNumerico, 4)}.to raise_error(ORM::ValidateException)
+                expect{ORM::ValidadorNoBlank.new(tipo, args).validar(atributoNumerico, nil)}.to raise_error ORM::BlankException
+                expect{ORM::ValidadorFrom.new(tipo, args).validar(atributoNumerico, -1)}.to raise_error ORM::AtributoPersistibleException
+                expect{ORM::ValidadorTo.new(tipo, args).validar(atributoNumerico, 5)}.to raise_error ORM::AtributoPersistibleException
+                expect{ORM::ValidadorValidate.new(tipo, args).validar(atributoNumerico, 4)}.to raise_error ORM::ValidateException
+                expect{atributoNumerico.validar_instancia(4)}.to raise_error(ORM::ValidateException)
             end
         end
     end

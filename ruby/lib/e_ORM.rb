@@ -67,20 +67,21 @@ module ORM
         end
 
         def atributos_persistibles
-            persistibles_heredados.merge(persistibles_incluidos).merge(@atributos_persistibles)
+            persistibles_heredados.merge(@atributos_persistibles)
+        end
+
+        protected
+        def persistibles_propios
+            @atributos_persistibles
         end
 
         private
         def persistibles_heredados #codigo repetido
-            ancestros_persistibles.flat_map{|a| a.atributos_persistibles}.reduce(Hash.new, :merge)
+            ancestros_persistibles.reverse.flat_map{|a| a.persistibles_propios}.reduce(Hash.new, :merge)
         end
 
         def ancestros_persistibles
             ancestors.filter{|a| a.is_a? ModuloPersistible} - [self]
-        end
-
-        def persistibles_incluidos
-            modulos_persistibles.flat_map{|m| m.atributos_persistibles}.reduce(Hash.new, :merge)
         end
 
         def modulos_persistibles
@@ -94,10 +95,6 @@ module ORM
                 validar_busqueda(property)
                 find_by(property, *args)
             else
-                # TODO si pongo super aca por alguna razón rompen muchos tests,
-                # creo que hay algo que está atando a la busqueda de atributos padres
-                # que le complica. Pegale una mirada porque es importante
-
                 super
             end
         end
@@ -171,8 +168,7 @@ module ORM
 
         #Enunciado
         def validate!
-            each_persistible do
-                |atributo|
+            each_persistible do |atributo|
                 valorActual = atributo.get_from(self)
                 atributo.validar_instancia(valorActual)
             end

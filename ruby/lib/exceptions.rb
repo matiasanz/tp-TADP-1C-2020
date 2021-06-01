@@ -37,7 +37,7 @@ module ORM
 
     class CampoIncorrectoException < StandardError
         def initialize(actual, tipoEsperado, campo)
-            super("#{actual.inspect} no es aceptado para el campo #{tipoEsperado.to_s} <<#{campo}>>")
+            super("#{actual.inspect} no es aceptado para el campo #{tipoEsperado.to_s} <<#{campo.to_s}>>")
         end
     end
 
@@ -59,9 +59,15 @@ module ORM
         end
     end
 
-    class RangoExcedidoException < AtributoPersistibleException
-        def initialize(atributo, dato, from, to)
-            super(atributo, dato, "de rango [#{from.to_s||"-inf"}; #{to.to_s||"+inf"}]")
+    class FromException < AtributoPersistibleException
+        def initialize(atributo, dato, from)
+            super(atributo, dato, "from #{from.to_s}")
+        end
+    end
+
+    class ToException < AtributoPersistibleException
+        def initialize(atributo, dato, to)
+            super(atributo, dato, "to #{to.to_s}")
         end
     end
 

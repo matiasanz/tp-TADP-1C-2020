@@ -9,7 +9,7 @@ module ORM
 
         def self.as_attribute(args, tipo, claseContenedora, many=false)
             validar_clase_persistible(tipo)
-            validador = ValidadorDeAtributo.new(tipo, args)
+            validador = ValidadorDeAtributos.as_validadores(tipo, args)
 
             return many ? AtributoMultiple.new(args[:named], tipo, validador, args[:default], claseContenedora)
                          : as_simple_attribute(args[:named], tipo, validador, args[:default])
@@ -47,7 +47,7 @@ module ORM
 
         def validar_instancia(valor)
             raise ValidadorNilException.new if @validador.nil?
-            @validador.validar(self, valor)
+            @validador.each {|v| v.validar(self, valor)}
         end
 
         def set_default_on_empty(objeto)
@@ -125,7 +125,7 @@ module ORM
 
         def initialize(nombre, tipo, validador, default, claseContenedora)
             # TODO buen detalle utilizar el validador de atributos para hacer implicita la validación de que tiene que ser un array
-            super(nombre, Array, ValidadorDeAtributo.new(Array, {}), default)
+            super(nombre, Array, [ValidadorTipo.new(Array, {})], default)
             @atributo = AtributoHelper.as_simple_attribute(:elemento, tipo, validador)
             @TablaMultiple = Tabla.new_tabla_multiple(tipo, claseContenedora, nombre)
         end
