@@ -11,6 +11,7 @@ abstract class Atributo {
 - Symbol nombre
 - Class tipo_atributo
 - Object default
+- String entidad_contenedora
 + Object valor_persistido(instancia)
 - void setter_generico(instancia, valor_a_settear)
 }
@@ -20,28 +21,28 @@ class AtributoSimple {
 }
 
 class SimpleBasico <<(M,#FF7700)>> {
-+ Object obtener_valor_para_insertar(dato, nomb_clase_instancia)
++ Object obtener_valor_para_insertar(dato, instancia)
 + void settear(instancia)
 }
 
 class SimpleComplejo <<(M,#FF7700)>> {
-+ Object obtener_valor_para_insertar(dato, nomb_clase_instancia)
++ Object obtener_valor_para_insertar(dato, instancia)
 + void settear(instancia)
 }
 
 class AtributoMultiple {
 + void validar_todo(valor, nombre_clase_error)
-- ID obtener_valor_para_insertar(array, nomb_clase_instancia, &bloque)
+- ID obtener_valor_para_insertar(array, instancia, &bloque)
 - void settear(instancia, &bloque)
 }
 
 class MultipleBasico <<(M,#FF7700)>> {
-+ ID obtener_valor_para_insertar(dato, nomb_clase_instancia)
++ ID obtener_valor_para_insertar(dato, instancia)
 + void settear(instancia)
 }
 
 class MultipleComplejo <<(M,#FF7700)>> {
-+ ID obtener_valor_para_insertar(dato,nomb_clase_instancia)
++ ID obtener_valor_para_insertar(dato, instancia)
 + void settear(instancia)
 }
 
