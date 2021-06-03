@@ -116,11 +116,11 @@ class AtributoMultiple < Atributo
     if id_anterior.nil?
       id_estable = tabla_intermedia.insert({ valor:bloque.call(array[0]) } )
       array.delete_at(0)
-      array.each { |e| tabla_intermedia.insert({ id:id_estable, valor:bloque.call(e) } ) } unless array.nil?
+      array.each { |e| tabla_intermedia.insert({ id:id_estable, valor:bloque.call(e) } ) }
       id_estable
     else
       id_anterior = tabla_intermedia.entries[0][:id]
-      array.each { |e| tabla_intermedia.insert({ id:id_anterior, valor:bloque.call(e) } ) } unless array.nil?
+      array.each { |e| tabla_intermedia.insert({ id:id_anterior, valor:bloque.call(e) } ) }
       id_anterior
     end
   end
