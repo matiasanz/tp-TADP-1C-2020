@@ -48,8 +48,10 @@ module ORM
             validador("no_blank", "Se obtuvo blank") {|o| not (o.nil?) } unless not arg
         end
 
+        private
+
         def self.get_validacion(nombre, arg)
-            raise ValidacionInexistenteException.new(nombre) unless self.respond_to? nombre
+            raise ValidacionInexistenteException.new(nombre) unless self.respond_to?(nombre, false)
             self.send(nombre, arg)
         end
 
