@@ -48,8 +48,8 @@ module ORM
     end
 
     class AtributoPersistibleException < StandardError
-        def initialize(atributo, dato, condicion)
-            super("El elemento #{dato.inspect} no cumple con la condicion #{condicion} establecida para el campo #{atributo.nombre.to_s} de la clase #{atributo.clase.to_s}")
+        def initialize(atributo, dato, condiciones)
+            super("El elemento #{dato.inspect} no cumple con las condiciones establecidas para el campo #{atributo.nombre.to_s} de clase #{atributo.clase.to_s}:\n"+ condiciones.map{|c| "-#{c.nombre}: #{c.mensaje}"}.join('\n'))
         end
     end
 

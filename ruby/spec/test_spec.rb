@@ -67,7 +67,7 @@ describe Prueba do
 
         it 'Se intenta persistir un atributo que no es de la clase especificada y falla' do
             personaje.enojon = "Fideos con tuco"
-            expect{ personaje.save! }.to raise_error(ORM::TipoErroneoException)
+            expect{ personaje.save! }.to raise_error(ORM::AtributoPersistibleException)
         end
 
         it 'un objeto que fue persistido se actualiza correctamente de la base de datos'do
@@ -282,23 +282,24 @@ describe Prueba do
             end
             let(:tipo) {Numeric}
             let (:atributoNumerico) do
-                ORM::AtributoHelper.as_simple_attribute(:atributo, tipo, ORM::ValidadorDeAtributos.as_validadores(Numeric, args))
+                ORM::AtributoHelper.as_simple_attribute(:atributo, tipo, ORM::ValidacionesFactory.from_args(Numeric, args))
             end
+            let(:factory) {ORM::ValidacionesFactory}
 
             it 'Validar dato numerico correcto' do
                 dato=0
-                expect{ORM::ValidadorNoBlank.new(tipo, args).validar(atributoNumerico, dato)}.to_not raise_error
-                expect{ORM::ValidadorFrom.new(tipo, args).validar(atributoNumerico, dato)}.to_not raise_error
-                expect{ORM::ValidadorValidate.new(tipo, args).validar(atributoNumerico, dato)}.to_not raise_error
+                expect(factory.tipo(Numeric).call(dato)).to be_truthy
+                expect(factory.from(0).call(dato)).to be_truthy
+                expect(factory.to(4).call(dato)).to be_truthy
                 expect{atributoNumerico.validar_instancia(dato)}.to_not raise_error
             end
 
             it 'Validar dato numerico correcto' do
-                expect{ORM::ValidadorNoBlank.new(tipo, args).validar(atributoNumerico, nil)}.to raise_error ORM::BlankException
-                expect{ORM::ValidadorFrom.new(tipo, args).validar(atributoNumerico, -1)}.to raise_error ORM::AtributoPersistibleException
-                expect{ORM::ValidadorTo.new(tipo, args).validar(atributoNumerico, 5)}.to raise_error ORM::AtributoPersistibleException
-                expect{ORM::ValidadorValidate.new(tipo, args).validar(atributoNumerico, 4)}.to raise_error ORM::ValidateException
-                expect{atributoNumerico.validar_instancia(4)}.to raise_error(ORM::ValidateException)
+                expect(factory.no_blank.call(nil)).to be_falsey
+                expect(factory.from(0).call(-1)).to be_falsey
+                expect(factory.to(4).call(5)).to be_falsey
+                expect(factory.validate(args[:validate]).call(4)).to be_falsey
+                expect{atributoNumerico.validar_instancia(4)}.to raise_error(ORM::AtributoPersistibleException)
             end
         end
     end
