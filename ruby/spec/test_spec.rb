@@ -302,6 +302,15 @@ describe Prueba do
                 expect(factory.validate(args[:validate]).call(4)).to be_falsey
                 expect{atributoNumerico.validar_instancia(4)}.to raise_error(ORM::AtributoPersistibleException)
             end
+
+            it 'Instanciar validadores con args erroneos' do
+                excepcion = ORM::CampoIncorrectoException
+                expect{factory.to(Class)}.to raise_error(excepcion)
+                expect{factory.from("Saraza")}.to raise_error(excepcion)
+                expect{factory.validate(4)}.to raise_error(excepcion)
+                expect{factory.no_blank(SubSubclaseVacia.new)}.to raise_error(excepcion)
+                expect{factory.tipo(:simbolo)}.to raise_error(excepcion)
+            end
         end
     end
 

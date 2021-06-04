@@ -25,12 +25,11 @@ module ORM
         end
 
         def self.tipo(tipo)
-            validador("tipo", "no es un #{tipo.to_s}") {|o| o.nil? or o.is_a? tipo}
+            validador_revisado("tipo", "no es un #{tipo.to_s}", tipo, Module) {|o| o.nil? or o.is_a? tipo}
         end
 
         def self.to(maximo)
-            raise CampoIncorrectoException.new(maximo, Numeric, "to") unless maximo.is_a?Numeric
-            validador("to", "menor o igual a #{maximo.to_s}") {|o| o.nil? or o <= maximo}
+            validador_revisado("to", "menor o igual a #{maximo.to_s}", maximo, Numeric) {|o| o.nil? or o <= maximo}
         end
 
         def self.from(minimo)
@@ -39,19 +38,22 @@ module ORM
         end
 
         def self.validate(accion)
-            raise CampoIncorrectoException.new(accion, [Proc, 'Lambda'], simbolo) unless accion.is_a?Proc or accion.lambda?
-            validador("validate", "No cumple condicion establecida") {|o| o.instance_eval(&accion)}
+            validador_revisado("validate", "No cumple condicion establecida", accion, Proc) {|o| o.instance_eval(&accion)}
         end
 
         def self.no_blank(arg = true)
-            raise CampoIncorrectoException.new(arg, Boolean, "no_blank") unless arg.is_a? Boolean
-            validador("no_blank", "Se obtuvo blank") {|o| not (o.nil?) } unless not arg
+            validador_revisado("no_blank", "Se obtuvo blank", arg, Boolean) {|o| not (o.nil?) } unless not arg
         end
 
         private
         def self.get_validacion(nombre, arg)
             raise ValidacionInexistenteException.new(nombre) unless self.respond_to?(nombre, false)
             self.send(nombre, arg)
+        end
+
+        def self.validador_revisado(nombre, mensaje, arg, tipo, &accion)
+            raise CampoIncorrectoException.new(arg, tipo, nombre) unless arg.is_a? tipo
+            validador(nombre, mensaje, &accion)
         end
 
         def self.validador(nombre, mensaje, &accion)
