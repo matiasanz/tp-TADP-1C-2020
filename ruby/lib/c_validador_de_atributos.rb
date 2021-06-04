@@ -10,7 +10,7 @@ module ORM
         def validar(atributo, objeto)
             erroresDetectados = @validadores.select{|v| not v.call(objeto)}
 
-            if not erroresDetectados.empty?
+            unless erroresDetectados.empty?
                 raise AtributoPersistibleException.new(atributo, objeto, erroresDetectados)
             end
         end
@@ -19,12 +19,8 @@ module ORM
     module ValidacionesFactory
 
         def self.from_args(tipo, args)
-            args.filter_map {|k,v| self.send(k, v) if v and k!=:named and k!=:default}
-            validaciones = [tipo(tipo)]
-            validaciones << no_blank if args[:no_blank]
-            validaciones << to(args[:to]) if args[:to]
-            validaciones << from(args[:from]) if args[:from]
-            validaciones << validate(args[:validate]) if args[:validate]
+            raise ValidacionNoAdmitidaException.new(tipo, [:from, :to]) unless tipo<=Numeric or (args[:from].nil? and args[:to].nil?)
+            validaciones = [tipo(tipo)] + args.map {|k,v| self.send(k, v) if v}
             Validador.new(validaciones)
         end
 

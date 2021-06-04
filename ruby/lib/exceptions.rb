@@ -53,39 +53,9 @@ module ORM
         end
     end
 
-    class ValidateException < AtributoPersistibleException
-        def initialize(atributo, dato)
-            super(atributo, dato, "validate")
-        end
-    end
-
-    class FromException < AtributoPersistibleException
-        def initialize(atributo, dato, from)
-            super(atributo, dato, "from #{from.to_s}")
-        end
-    end
-
-    class ToException < AtributoPersistibleException
-        def initialize(atributo, dato, to)
-            super(atributo, dato, "to #{to.to_s}")
-        end
-    end
-
-    class BlankException < AtributoPersistibleException
-        def initialize(atributo, dato)
-            super(atributo, dato, "no_blank")
-        end
-    end
-
     class HasArgsIncorrectosException < StandardError
         def initialize(parametrosSobrantes)
             super("Se ingresaron parametros incorrectos: #{parametrosSobrantes.to_s}")
-        end
-    end
-
-    class ValidadorNilException < StandardError
-        def initialize
-            super("Validador no seteado exception")
         end
     end
 end

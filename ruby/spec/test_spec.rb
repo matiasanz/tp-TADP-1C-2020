@@ -264,15 +264,17 @@ describe Prueba do
     end
 
     describe 'Validador' do
+        let(:factory) {ORM::ValidacionesFactory}
+
         describe 'Generalidades' do
             it 'From/to en atributo no numerico' do
-                expect{ORM::ValidadorDeAtributos.as_validadores(String, from:2, to: 4)}.to raise_error(ORM::ValidacionNoAdmitidaException)
+                expect{factory.from_args(String, from:2, to: 4)}.to raise_error(ORM::ValidacionNoAdmitidaException)
             end
 
             it 'Argumentos opcionales' do
-                expect { ORM::ValidadorDeAtributos.as_validadores(ClaseSimple, {})}.to_not raise_error
-                expect { ORM::ValidadorDeAtributos.as_validadores(ClaseSimple, no_blank: true, validate: ->{true})}.to_not raise_error
-                expect { ORM::ValidadorDeAtributos.as_validadores(Numeric, from: 1)}.to_not raise_error
+                expect { factory.from_args(ClaseSimple, {})}.to_not raise_error
+                expect { factory.from_args(ClaseSimple, no_blank: true, validate: ->{true})}.to_not raise_error
+                expect { factory.from_args(Numeric, from: 1)}.to_not raise_error
             end
         end
 
@@ -284,7 +286,6 @@ describe Prueba do
             let (:atributoNumerico) do
                 ORM::AtributoHelper.as_simple_attribute(:atributo, tipo, ORM::ValidacionesFactory.from_args(Numeric, args))
             end
-            let(:factory) {ORM::ValidacionesFactory}
 
             it 'Validar dato numerico correcto' do
                 dato=0

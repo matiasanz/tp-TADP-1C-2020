@@ -9,10 +9,13 @@ module ORM
 
         def self.as_attribute(args, tipo, claseContenedora, many=false)
             validar_clase_persistible(tipo)
+            nombre = args.delete(:named)
+            default = args.delete(:default)
+
             validador = ValidacionesFactory.from_args(tipo, args)#ValidadorDeAtributos.as_validadores(tipo, args)
 
-            return many ? AtributoMultiple.new(args[:named], tipo, validador, args[:default], claseContenedora)
-                         : as_simple_attribute(args[:named], tipo, validador, args[:default])
+            return many ? AtributoMultiple.new(nombre, tipo, validador, default, claseContenedora)
+                         : as_simple_attribute(nombre, tipo, validador, default)
         end
 
         def self.as_simple_attribute(nombre, clase, validador, default=nil)
