@@ -39,7 +39,7 @@ module ORM
         end
 
         def self.validate(accion)
-            raise CampoIncorrectoException.new(accion, [Proc, Lambda], simbolo) unless accion.is_a?Proc or accion.lambda?
+            raise CampoIncorrectoException.new(accion, [Proc, 'Lambda'], simbolo) unless accion.is_a?Proc or accion.lambda?
             validador("validate", "No cumple condicion establecida") {|o| o.instance_eval(&accion)}
         end
 
@@ -49,7 +49,6 @@ module ORM
         end
 
         private
-
         def self.get_validacion(nombre, arg)
             raise ValidacionInexistenteException.new(nombre) unless self.respond_to?(nombre, false)
             self.send(nombre, arg)
