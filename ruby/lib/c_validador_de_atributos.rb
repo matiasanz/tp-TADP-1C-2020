@@ -20,7 +20,7 @@ module ORM
 
         def self.from_args(tipo, args)
             raise ValidacionNoAdmitidaException.new(tipo, [:from, :to]) unless tipo<=Numeric or (args[:from].nil? and args[:to].nil?)
-            validaciones = [tipo(tipo)] + args.map {|nombre,arg| get_validacion(nombre, arg) if arg}
+            validaciones = [tipo(tipo)] + args.filter_map {|nombre,arg| get_validacion(nombre, arg) if arg}
             ValidadorDeAtributo.new(validaciones)
         end
 
