@@ -300,6 +300,14 @@ describe Prueba do
                 expect{ORM::ValidadorValidate.new(tipo, args).validar(atributoNumerico, 4)}.to raise_error ORM::ValidateException
                 expect{atributoNumerico.validar_instancia(4)}.to raise_error(ORM::ValidateException)
             end
+
+            it 'Instanciar validadores con args erroneos' do
+                excepcion = ORM::CampoIncorrectoException
+                expect{ORM::ValidadorTo.new(Numeric,to:Class)}.to raise_error(excepcion)
+                expect{ORM::ValidadorFrom.new(Numeric, from: "Saraza")}.to raise_error(excepcion)
+                expect{ORM::ValidadorValidate.new(Object,validate: 4)}.to raise_error(excepcion)
+                expect{ORM::ValidadorNoBlank.new(SubSubclaseVacia, no_blank: SubSubclaseVacia.new)}.to raise_error(excepcion)
+            end
         end
     end
 

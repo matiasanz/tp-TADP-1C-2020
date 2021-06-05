@@ -13,7 +13,6 @@ module ORM
         end
 
         def self.as_validadores(tipo, args)
-            #probar args.to_a.filter_map
             actuales = [ValidadorTipo.new]
             @validadores.each do |validador|
                 actuales << validador.new(tipo, args) if validador.aplica?(args)
@@ -41,7 +40,7 @@ module ORM
         end
 
         def initialize(tipo, args)
-            #no hacer nada
+            raise CampoIncorrectoException.new(args[simbolo], Proc, simbolo) unless args[simbolo].is_a?Boolean
         end
 
         def validar(atributo, dato)
@@ -94,7 +93,7 @@ module ORM
 
         def initialize(_, args)
             @validacion = args[simbolo]
-            raise CampoIncorrectoException.new(@validacion, [Proc, Lambda], simbolo) unless @validacion.is_a?Proc or @validacion.lambda?
+            raise CampoIncorrectoException.new(@validacion, Proc, simbolo) unless @validacion.is_a?Proc
         end
 
         def validar(atributo, dato)
