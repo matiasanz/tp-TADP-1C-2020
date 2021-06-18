@@ -2,7 +2,7 @@ import Apuestas.{Apuesta, Jugada}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers._
 import CaraCruz._
-import Criterios.CriterioIgualdad
+import CriterioJugada.CriterioIgualdad
 
 class ApuestaSpec extends AnyFreeSpec{
 
