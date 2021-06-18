@@ -8,10 +8,11 @@ package object CaraCruz {
 	case object CARA extends Resultado
 	case object CRUZ extends Resultado
 
+	case object JugarACara extends Jugada(1, CriterioIgualdad(CARA))
+	case object JugarACruz extends Jugada(1, CriterioIgualdad(CRUZ))
+
 	case class CaraCruz() extends Juego{
 		val resultadosPosibles = List(CARA, CRUZ)
-
-		override def jugadasPosibles: List[Jugada] = resultadosPosibles.map(r=>Jugada(1, CriterioIgualdad(r)))
 		override def resultado: Resultado = Random.shuffle(resultadosPosibles).head
 	}
 }
