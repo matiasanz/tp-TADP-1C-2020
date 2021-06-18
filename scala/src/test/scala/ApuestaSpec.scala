@@ -1,7 +1,7 @@
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers._
 import CaraCruz._
-import Colores._
+import Criterios._
 
 class ApuestaSpec extends AnyFreeSpec{
 
