@@ -1,4 +1,11 @@
-package object Colores {
+import java.math.RoundingMode
+
+package object Criterios {
+
+	//Docenas
+	def docena(numero: Int) = Math.ceil(numero.toDouble/12).toInt
+
+	//Colores
 	trait Color
 
 	case object ROJO extends Color
@@ -20,7 +27,7 @@ package object Colores {
 
 	def columna(numero: Int): Int = {
 		if(numero<0 || numero >36){
-			throw new NumeroNoAdmitidoEnRuletaException(numero)
+			throw NumeroNoAdmitidoEnRuletaException(numero)
 		}
 
 		val columna = numero%3

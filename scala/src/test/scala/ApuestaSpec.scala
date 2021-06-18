@@ -33,6 +33,12 @@ class ApuestaSpec extends AnyFreeSpec{
               color(20) should be(NEGRO)
               color(10) should be(NEGRO)
           }
+
+          "docena" in {
+              docena(12) should be(1)
+              docena(13) should be(2)
+              docena(24) should be(2)
+          }
       }
   }
 
