@@ -1,4 +1,4 @@
-import Juego._
+import Utils._
 
 package object Criterios {
   type CriterioJugada = Resultado => Boolean

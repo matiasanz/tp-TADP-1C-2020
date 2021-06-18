@@ -1,6 +1,4 @@
-package object Juego {
-
+package object Utils {
   type Plata = Double
-
   trait Resultado
 }

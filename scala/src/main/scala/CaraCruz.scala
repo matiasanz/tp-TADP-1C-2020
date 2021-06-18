@@ -1,4 +1,4 @@
-import Juego._
+import Utils._
 import Apuestas._
 import Criterios._
 
@@ -7,8 +7,8 @@ package object CaraCruz {
     case object CARA extends Resultado
     case object CRUZ extends Resultado
 
-    val Cara: Jugada = Jugada(2, CriterioIgualdad(CARA))
-    val Cruz: Jugada = Jugada(2, CriterioIgualdad(CRUZ))
+    case object JugadaCara extends Jugada(1, CriterioIgualdad(CARA))
+    case object JugadaCruz extends Jugada(1, CriterioIgualdad(CRUZ))
 
-    case class CaraCruz() extends Juego(List(Cara, Cruz))
+    case class CaraCruz() extends Juego(List(JugadaCara, JugadaCruz))
 }
