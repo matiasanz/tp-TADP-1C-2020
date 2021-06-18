@@ -1,3 +1,4 @@
+import Apuestas.Apuesta
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers._
 import CaraCruz._
@@ -11,11 +12,28 @@ class ApuestaSpec extends AnyFreeSpec{
   "TP" - {
       "Apuestas" - {
           "El resultado esperado cumple la apuesta" in {
-              jugada.cumpleCriterio(CARA) should be(true)
+              jugada.criterio(CARA) should be(true)
           }
 
           "Si se cumple la apuesta, se multiplica el monto" - {
               apuesta(CARA) should be(400)
+          }
+
+          "Aplicacion no parcial" in{
+              jugada(200.0, CARA) should be(400)
+          }
+
+          "Apuesta Compuesta" in{
+              apuesta
+                .compuestaCon(jugada)
+                .compuestaCon(jugada)
+                .compuestaCon(jugada)
+                .evaluarResultado(CARA)
+                .evaluarResultado(CARA)
+                  .evaluarResultado(CARA)
+                  .evaluarResultado(CARA)
+                  .evaluarResultado(CARA)
+                  .montoActual should be(3200.0)
           }
       }
 

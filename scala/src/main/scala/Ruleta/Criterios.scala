@@ -1,5 +1,3 @@
-import java.math.RoundingMode
-
 package object Criterios {
 
 	//Docenas
@@ -20,9 +18,9 @@ package object Criterios {
 	}
 
 	def colorOpuesto(color: Color): Color = color match {
-		//TODO Incoloro no tiene opuesto
 		case NEGRO => ROJO
 		case ROJO => NEGRO
+		case INCOLORO => INCOLORO //TODO Duda: aca en realidad para este caso no esta pensada. Deberia tirar excepcion?
 	}
 
 	def columna(numero: Int): Int = {
