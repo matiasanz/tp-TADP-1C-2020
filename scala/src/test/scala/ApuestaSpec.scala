@@ -1,11 +1,13 @@
-import Apuestas.Apuesta
+import Apuestas.{Apuesta, Jugada}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers._
 import CaraCruz._
+import Criterios.CriterioIgualdad
 
 class ApuestaSpec extends AnyFreeSpec{
 
-  val apuesta = Apuesta(200).conJugada(JugadaCara)
+  val jugada = Jugada(1, CriterioIgualdad(CARA))
+  val apuesta = Apuesta(200).conJugada(jugada)
 
   "TP" - {
 

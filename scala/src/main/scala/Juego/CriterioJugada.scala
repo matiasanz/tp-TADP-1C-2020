@@ -1,6 +1,6 @@
 import Utils._
 
-package object Criterios {
+package object CriterioJugada {
   type CriterioJugada = Resultado => Boolean
 
   case object CriterioIgualdad extends (Resultado => CriterioJugada) {

@@ -1,14 +1,17 @@
-import Apuestas.{Juego, Jugada}
-import Criterios.CriterioIgualdad
+import Apuestas.Jugada
+import CriterioJugada.CriterioIgualdad
+import Juegos.Juego
 import Utils.Resultado
+import scala.util.Random
 
 package object CaraCruz {
-
 	case object CARA extends Resultado
 	case object CRUZ extends Resultado
 
-	case object JugadaCara extends Jugada(1, CriterioIgualdad(CARA))
-	case object JugadaCruz extends Jugada(1, CriterioIgualdad(CRUZ))
+	case class CaraCruz() extends Juego{
+		val resultadosPosibles = List(CARA, CRUZ)
 
-	case class CaraCruz() extends Juego(List(JugadaCara, JugadaCruz))
+		override def jugadasPosibles: List[Jugada] = resultadosPosibles.map(r=>Jugada(1, CriterioIgualdad(r)))
+		override def resultado: Resultado = Random.shuffle(resultadosPosibles).head
+	}
 }

@@ -1,12 +1,8 @@
-import Criterios.CriterioJugada
+import CriterioJugada.CriterioJugada
 import Utils._
 
 package object Apuestas {
-    class Juego(jugadasPosibles: List[Jugada]) {
-        def resultado: Resultado = ???
-    }
-
-    class Jugada(val ganancia: Double, val cumpleCriterio: CriterioJugada){
+    case class Jugada(val ganancia: Double, val cumpleCriterio: CriterioJugada){
         def crearApuesta(monto: Plata) = Apuesta(monto, List(this))
 
         def montoPorResultado(montoInicial: Plata, resultado: Resultado): Plata =
