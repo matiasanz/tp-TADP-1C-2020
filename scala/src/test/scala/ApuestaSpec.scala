@@ -11,7 +11,7 @@ class ApuestaSpec extends AnyFreeSpec{
 
     "Apuestas" - {
       "El resultado esperado cumple la apuesta" in {
-        apuesta.cumple(CARA) should be(true)
+        apuesta.cumpleCriterio(CARA) should be(true)
       }
 
       "Si se cumple la apuesta, se multiplica el monto" - {
