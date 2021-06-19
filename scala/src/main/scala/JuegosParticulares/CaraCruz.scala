@@ -4,7 +4,7 @@ import Juegos.Juego
 import Utils.Resultado
 import scala.util.Random
 
-package object CaraCruz {
+package object JuegosParticulares {
 	case object CARA extends Resultado
 	case object CRUZ extends Resultado
 

@@ -1,8 +1,8 @@
 import Apuestas.Apuesta
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers._
-import CaraCruz._
-import Criterios._
+import JuegosParticulares._
+import Ruleta._
 import Distribuciones._
 import Utils.Resultado
 
