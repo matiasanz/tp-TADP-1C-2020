@@ -24,8 +24,7 @@ class ApuestaSpec extends AnyFreeSpec{
           }
 
           "Apuesta Compuesta" in{
-              apuesta
-                .compuestaCon(jugada)
+              apuesta.compuestaCon(jugada)
                 .compuestaCon(jugada)
                 .compuestaCon(jugada)
                 .evaluarResultado(CARA)

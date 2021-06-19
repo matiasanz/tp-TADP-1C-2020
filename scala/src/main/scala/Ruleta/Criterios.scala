@@ -20,7 +20,8 @@ package object Criterios {
 	def colorOpuesto(color: Color): Color = color match {
 		case NEGRO => ROJO
 		case ROJO => NEGRO
-		case INCOLORO => INCOLORO //TODO Duda: aca en realidad para este caso no esta pensada. Deberia tirar excepcion?
+		case INCOLORO => INCOLORO
+		//TODO Duda: en realidad para este ultimo caso no esta pensado que llegue nunca. Deberia cambiar la interfaz?
 	}
 
 	def columna(numero: Int): Int = {
