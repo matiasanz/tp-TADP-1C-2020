@@ -1,4 +1,12 @@
-package object Criterios { //TODO: Todavia no estan implementados
+package object Criterios { //TODO: Por ahora tengo las funciones sueltas
+
+	//Paridad
+	class Paridad(min: Int, max: Int) extends (Int=>Boolean) {
+		override def apply(numero: Int) = min<=numero && numero<=max
+	}
+
+	case object ParidadPar extends Paridad(1, 18)
+	case object ParidadImpar extends Paridad(19, 36)
 
 	//Docenas
 	def docena(numero: Int) = Math.ceil(numero.toDouble/12).toInt

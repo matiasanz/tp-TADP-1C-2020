@@ -3,9 +3,6 @@ import Utils.Resultado
 package object Distribuciones {
 	type Suceso = Resultado
 
-	//TODO: Usar varianza donde esta el float para que aplique tambien a enteros para no repetir codigo abajo
-	def pesoTotal(sucesos: Map[Suceso, Float]) = sucesos.values.sum
-
 	class Distribucion(sucesos: Map[Suceso, Float]) {
 		require(pesoTotal(sucesos) == 1)
 
@@ -24,8 +21,9 @@ package object Distribuciones {
 
 	class Ponderada(sucesos: Map[Suceso, Int])
 		extends Distribucion({
-			val pesoTotal = sucesos.values.sum //TODO Aca estoy repitiendo codigo
-			sucesos.map { case (suc, peso) => (suc, (peso.toDouble / pesoTotal).toFloat)}
+			val pTotal = pesoTotal(sucesos)
+			sucesos.map { case (suc, peso) => (suc, (peso.toDouble / pTotal).toFloat)}
 		})
 
+	def pesoTotal[T](sucesos: Map[Suceso, T])(implicit num: Numeric[T])  = sucesos.values.sum
 }
