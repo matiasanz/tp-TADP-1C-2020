@@ -1,4 +1,4 @@
-package Juego
+package AlternativasAle
 
 trait Jugada extends (Int => Int) //TODO, esta definicion esta bien? o era (Int => Apuesta)
 

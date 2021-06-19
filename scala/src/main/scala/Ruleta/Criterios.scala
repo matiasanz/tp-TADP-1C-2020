@@ -1,4 +1,4 @@
-package object Criterios {
+package object Criterios { //TODO: Todavia no estan implementados
 
 	//Docenas
 	def docena(numero: Int) = Math.ceil(numero.toDouble/12).toInt
@@ -21,7 +21,8 @@ package object Criterios {
 		case NEGRO => ROJO
 		case ROJO => NEGRO
 		case INCOLORO => INCOLORO
-		//TODO Duda: en realidad para este ultimo caso no esta pensado que llegue nunca. Deberia cambiar la interfaz?
+		//TODO Duda: en realidad para este ultimo caso no deberia llegar nunca.
+		// Deberia cambiar la interfaz?
 	}
 
 	def columna(numero: Int): Int = {
