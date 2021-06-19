@@ -3,6 +3,8 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers._
 import CaraCruz._
 import Criterios._
+import Distribuciones._
+import Utils.Resultado
 
 class ApuestaSpec extends AnyFreeSpec{
 
@@ -55,6 +57,28 @@ class ApuestaSpec extends AnyFreeSpec{
               docena(12) should be(1)
               docena(13) should be(2)
               docena(24) should be(2)
+          }
+      }
+
+      "distribuciones" - {
+          "equiprobable" in {
+              val equiprobable = new Equiprobable(List(CARA, CRUZ))
+              equiprobable.probabilidadDe(CARA) should be(0.5)
+              equiprobable.probabilidadDe(CRUZ) should be(0.5)
+          }
+
+          "evento unico" in{
+              val eventoUnico = new EventoSeguro(CARA)
+              eventoUnico.probabilidadDe(CARA) should be(1)
+              eventoUnico.probabilidadDe(CRUZ) should be(0)
+          }
+
+          "Ponderada" in {
+              val sucesos: Map[Resultado, Int] = Map((CARA, 7500), (CRUZ, 2500))
+              val ponderada = new Ponderada(sucesos)
+
+              ponderada.probabilidadDe(CARA) should be(0.75)
+              ponderada.probabilidadDe(CRUZ) should be(0.25)
           }
       }
   }
