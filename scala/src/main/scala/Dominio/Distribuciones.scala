@@ -4,8 +4,8 @@ import Dominio.Utils.pesoTotal
 
 case class Distribucion[R](probabilidades: Map[R, Float]){
 	require(pesoTotal(probabilidades)==1)
-	def probabilidadDe(suceso: R) = probabilidades.getOrElse(suceso, 0)
-	def sucesosPosibles = probabilidades.filter(_._2>0)
+	def probabilidadDe(suceso: R): Float = probabilidades.getOrElse(suceso, 0)
+	def sucesosPosibles: Map[R, Float] = probabilidades.filter(_._2>0)
 }
 
 object Distribuciones {

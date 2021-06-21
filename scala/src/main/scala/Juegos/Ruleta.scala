@@ -1,31 +1,36 @@
 package Juegos
 
-import Dominio.{Apuesta, Jugada}
+import Dominio.{Apuesta, Corredor, Distribucion, Distribuciones, Juego, Jugada}
 import Tablero.color
 import Tablero.docena
-
-object TiposRuleta{
-	type ResultadoRuleta = Int
-}
-
 import TiposRuleta._
 
-	class JugadaRuleta extends Jugada(2) //TODO
+//Juego ********************************************************************
+	object Ruleta extends Juego[ResultadoRuleta](CorredorRuleta){
+		val distribucion: Distribucion[ResultadoRuleta] = Distribuciones.equiprobable((0 to 36).toList)
+	}
 
-	case class ANumero(numero: ResultadoRuleta) extends JugadaRuleta
-	case class ADocena(cual: Int) extends JugadaRuleta
-	case class AColor(color: Color) extends JugadaRuleta
-
-	object CorredorRuleta {
+//Corredor **********************************************************************
+	object CorredorRuleta extends Corredor{
 		def evaluarApuesta(apuesta: Apuesta[JugadaRuleta], resultado: ResultadoRuleta): Boolean = {
 			apuesta.jugada match {
 				case ANumero(cual) => cual == resultado
 				case AColor(cual) => cual == color(resultado)
 				case ADocena(cual) => cual == docena(resultado)
+				case AParidad(criterio) => criterio(resultado)
 			}
 		}
 	}
 
+//Resultados ********************************************************************
+	class JugadaRuleta(val ganancia: Double) extends Jugada //TODO
+
+	case class ANumero(numero: ResultadoRuleta) extends JugadaRuleta(36)
+	case class ADocena(cual: Int) 				extends JugadaRuleta(3)
+	case class AColor(color: Color) 			extends JugadaRuleta(2)
+	case class AParidad(criterio: CriterioParidad) extends JugadaRuleta(2)
+
+//Auxiliares ********************************************************************
 	//Colores
 	trait Color
 
@@ -35,8 +40,8 @@ import TiposRuleta._
 
 	object Tablero{
 		//Paridad
-		def esPar(numero: Int) = numero%2==0 && numero!=0
-		def impar(numero: Int) = !esPar(numero) && numero!=0
+		val esPar: CriterioParidad = numero => numero%2==0 && numero!=0
+		def impar: CriterioParidad = numero => !esPar(numero) && numero!=0
 
 		//Docenas
 		def docena(numero: Int) = Math.ceil(numero.toDouble / 12).toInt
@@ -60,3 +65,8 @@ import TiposRuleta._
 			if (columna == 0 && numero != 0) 3 else columna
 		}
 	}
+
+object TiposRuleta{
+	type ResultadoRuleta = Int
+	type CriterioParidad = ResultadoRuleta=>Boolean
+}
