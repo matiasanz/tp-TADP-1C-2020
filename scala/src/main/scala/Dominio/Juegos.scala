@@ -2,6 +2,12 @@ package Dominio
 
 	import Tipos.Plata
 
+	import scala.util.Try
+
+	abstract class Juego[R](val corredor: Corredor){
+		def distribucion: Distribucion[R]
+	}
+
 	trait Corredor
 
 	trait Jugada{
@@ -10,9 +16,5 @@ package Dominio
 	}
 
 	case class Apuesta[J](val jugada: J, val montoRequerido: Plata){
-		val alcanza: Plata=>Boolean = presupuesto => presupuesto>=montoRequerido
-	}
-
-	abstract class Juego[R](val corredor: Corredor){
-		def distribucion: Distribucion[R]
+		def saldoPorApostar(saldoInicial: Plata) = saldoInicial-montoRequerido
 	}
