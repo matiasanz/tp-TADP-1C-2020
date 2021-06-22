@@ -5,29 +5,27 @@ import Tablero.{color, docena, esPar}
 import TiposRuleta._
 
 //Juego ********************************************************************
-	object Ruleta extends Juego[ResultadoRuleta](CorredorRuleta){
+	object Ruleta extends Juego[ResultadoRuleta](){
 		val distribucion: Distribucion[ResultadoRuleta] = Distribuciones.equiprobable((0 to 36).toList)
 	}
 
-//Corredor **********************************************************************
-	object CorredorRuleta extends Corredor{
-		def evaluarApuesta(apuesta: Apuesta[JugadaRuleta], resultado: ResultadoRuleta): Boolean = {
-			apuesta.jugada match {
-				case ANumero(cual) => cual == resultado
-				case AColor(cual) => cual == color(resultado)
-				case ADocena(cual) => cual == docena(resultado)
-				case AParidad(siONo) => resultado!=0 && siONo==esPar(resultado)
-			}
-		}
+//Resultados ********************************************************************
+	abstract class JugadaRuleta(val ganancia: Double) extends Jugada[ResultadoRuleta]
+
+	case class ANumero(numero: ResultadoRuleta) extends JugadaRuleta(36){
+		def cumple(resultado: ResultadoRuleta) = numero == resultado
 	}
 
-//Resultados ********************************************************************
-	class JugadaRuleta(val ganancia: Double) extends Jugada
+	case class ADocena(cual: Int) 				extends JugadaRuleta(3){
+		def cumple(resultado: ResultadoRuleta) = cual == docena(resultado)
+	}
+	case class AColor(queColor: Color) 			extends JugadaRuleta(2){
+		def cumple(resultado: ResultadoRuleta) = queColor == color(resultado)
+	}
 
-	case class ANumero(numero: ResultadoRuleta) extends JugadaRuleta(36)
-	case class ADocena(cual: Int) 				extends JugadaRuleta(3)
-	case class AColor(color: Color) 			extends JugadaRuleta(2)
-	case class AParidad(siONo: Boolean) extends JugadaRuleta(2)
+	case class AParidad(siONo: Boolean) extends JugadaRuleta(2){
+		def cumple(resultado: ResultadoRuleta) = resultado!=0 && siONo == esPar(resultado)
+	}
 
 //Auxiliares ********************************************************************
 	//Colores

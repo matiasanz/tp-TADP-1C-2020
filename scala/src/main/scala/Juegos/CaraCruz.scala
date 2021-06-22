@@ -3,7 +3,7 @@ package Juegos
 import Dominio.{Apuesta, Corredor, Distribucion, Distribuciones, Juego, Jugada}
 
 //Juego ********************************************************************
-abstract class JuegoMoneda() extends Juego[ResultadoMoneda](CorredorMoneda){
+abstract class JuegoMoneda() extends Juego[ResultadoMoneda]{
 	def distribucion: Distribucion[ResultadoMoneda]
 }
 
@@ -17,19 +17,14 @@ case class MonedaCargada(resultadoMoneda: ResultadoMoneda) extends JuegoMoneda {
 	= Distribuciones.eventoSeguro(resultadoMoneda)
 }
 
-//Corredor **********************************************************************
-
-object CorredorMoneda extends Corredor{
-	val evaluarApuesta: (Apuesta[JugadaMoneda], ResultadoMoneda) => Boolean =
-		(apuesta, resultado) => apuesta.jugada == JugadaMoneda(resultado)
-}
-
 //Resultados ********************************************************************
 trait ResultadoMoneda
 
 case object CARA extends ResultadoMoneda
 case object CRUZ extends ResultadoMoneda
 
-case class JugadaMoneda(resultado: ResultadoMoneda) extends Jugada{
+case class JugadaMoneda(resultadoEsperado: ResultadoMoneda) extends Jugada[ResultadoMoneda] {
 	val ganancia = 2
+
+	def cumple(resultado: ResultadoMoneda) = resultado == resultadoEsperado
 }

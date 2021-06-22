@@ -4,17 +4,20 @@ import org.scalatest.matchers.should.Matchers._
 import Juegos._
 import Dominio._
 
+import scala.List
+import scala.util.{Failure, Success, Try}
+
 
 class ApuestaSpec extends AnyFreeSpec{
 
   val jugada = JugadaMoneda(CARA)
 
-  val apuesta = Apuesta(jugada, 200)
+  val apuesta = ApuestaSimple(jugada, 200)
 
   "TP" - {
     "Apuestas" - {
       "El resultado esperado cumple la apuesta" in {
-        CorredorMoneda.evaluarApuesta(apuesta, CARA) should be(true)
+          jugada.cumple(CARA) should be(true)
       }
 
       "Si se cumple la apuesta, se multiplica el monto" - {
@@ -65,6 +68,19 @@ class ApuestaSpec extends AnyFreeSpec{
         ponderada.probabilidadDe(CARA) should be(0.75)
         ponderada.probabilidadDe(CRUZ) should be(0.25)
       }
+    }
+
+    "Juegos" - {
+        "Un juego con una apuesta compuesta ganadora se simula correctamente" in {
+            val ap = ApuestaSimple(JugadaMoneda(CARA), 200).compuestaCon(ApuestaSimple(JugadaMoneda(CARA), 300))
+            Jugador(600).simularJuego(MonedaComun, ap) should be(List((Success(Jugador(1100.0)), 0.5)
+                     , (Success(Jugador(100)),0.5))
+                )
+        }
+
+        "Un juego con una apuesta perdedora se simula correctamente" in {
+            Try(Jugador(70).jugarApuesta(ApuestaSimple(JugadaMoneda(CARA), 200), CARA)).isSuccess should be(false)
+        }
     }
   }
 
