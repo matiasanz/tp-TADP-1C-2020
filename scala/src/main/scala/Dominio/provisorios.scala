@@ -1,6 +1,6 @@
 package Dominio
 
-import Juegos.{AColor, CARA, CRUZ, JugadaMoneda, MonedaComun, ROJO}
+import Juegos.{AColor, CARA, CRUZ, JugadaMoneda, MonedaComun, ROJO, Ruleta}
 
 object Auxiliar{
 	var id = 0
@@ -22,10 +22,12 @@ object Stringer{
 				,	"ok?: "+ exito.toString
 				, if(exito) "plata: "+situacion.get.saldo.toString else "Ni idea"
 				, "proba: "+probabilidad.toString
-				, "subarboles: "+subescenarios.map(_.toString(id)).toString
+				, "subarboles: "+subescenarios.map(hijoToString(_, id)).toString
 			)
 		}
 	}
+
+	def hijoToString(arbol: ArbolEscenarios, padre: Int): String = "-------------------\nEl que viene es hijo de " + padre.toString + "\n    " + arbolToString(arbol)
 }
 
 object X{
@@ -37,11 +39,11 @@ object X{
 		println(Stringer.arbolToString(
 
 			Simulador.simularJuegos(Jugador(30), List(
-				(MonedaComun, apM)
-				, (MonedaComun, apM)
-				, (MonedaComun, apM)
-				, (MonedaComun, apM)
-			//	, (Ruleta, apR)
+//				(MonedaComun, apM)
+//				, (MonedaComun, apM)
+//				, (MonedaComun, apM)
+//				, (MonedaComun, apM)
+				 (Ruleta, apR)
 			)
 		)))
 
