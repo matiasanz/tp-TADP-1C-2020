@@ -1,6 +1,6 @@
 package Juegos
 
-import Dominio.{Apuesta, Corredor, Distribucion, Distribuciones, Juego, Jugada}
+import Dominio.{Apuesta, Distribucion, Distribuciones, Juego, Jugada}
 
 //Juego ********************************************************************
 abstract class JuegoMoneda() extends Juego[ResultadoMoneda]{
