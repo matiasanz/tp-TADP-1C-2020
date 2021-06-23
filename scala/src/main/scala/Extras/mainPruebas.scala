@@ -1,6 +1,7 @@
 package Extras
 
-import Dominio.{ApuestaSimple, ArbolEscenarios, Jugador, Simulador}
+import Dominio.Racional.{Cauto, Combinacion}
+import Dominio.{Apuesta, ApuestaSimple, ArbolEscenarios, Juego, Jugador, Simulador}
 import Juegos._
 
 object Auxiliar{
@@ -23,7 +24,7 @@ object Stringer{
 				"\n >>"
 				, "\n*******"+id+"*********"
 				,	"ok?: "+ exito.toString
-				, if(exito) "plata: "+situacion.get.saldo.toString else "Ni idea"
+				, "plata: "+ (if(exito) situacion.get.saldo.toString else "0")
 				, "proba: "+probabilidad.toString
 				, "punto muerto: " + esPuntoMuerto.toString
 				, "subarboles: "+subescenarios.map(hijoToString(_, id)).toString
@@ -35,13 +36,22 @@ object Stringer{
 }
 
 object X{
+	val apM = ApuestaSimple(JugadaMoneda(CARA), 300).compuestaCon(ApuestaSimple(JugadaMoneda(CRUZ), 300))
+	val apR = ApuestaSimple(AColor(ROJO), 900).compuestaCon(ApuestaSimple(ANumero(25), 70)).compuestaCon(ApuestaSimple(AParidad(true), 2))
+
+	/*
+	def listaJuegos: (Int, Int, Int)=> List[(Juego[_], Apuesta[_])] = (monedasSinCarga, monedasConCargaCara, monedasConCargaCruz) => {
+		List(1 to monedasSinCarga).map(_ => (MonedaComun, apM))
+			.concat((List(1 to monedasConCargaCara).map(_ => MonedaCargada(CARA)))
+				.concat((List(1 to monedasConCargaCruz).map(_ => (MonedaCargada(CRUZ), apM)))))
+	}
+*/
 	def main(args: Array[String]): Unit = {
 
-		val apM = ApuestaSimple(JugadaMoneda(CARA), 20).compuestaCon(ApuestaSimple(JugadaMoneda(CRUZ), 10))
-		val apR = ApuestaSimple(AColor(ROJO), 900).compuestaCon(ApuestaSimple(ANumero(25), 70)).compuestaCon(ApuestaSimple(AParidad(true), 2))
 
-		val arbolEscenarios = Simulador.simularJuegos(Jugador(90), List(
+		val combinacion1 = List(
 			(MonedaComun, apM)
+/*			, (MonedaComun, apM)
 			, (MonedaComun, apM)
 			, (MonedaComun, apM)
 			, (MonedaComun, apM)
@@ -49,21 +59,22 @@ object X{
 			, (MonedaComun, apM)
 			, (MonedaComun, apM)
 			, (MonedaComun, apM)
-			, (MonedaComun, apM)
-			, (MonedaComun, apM)
-			, (MonedaCargada(CARA), apM)
-			, (MonedaCargada(CRUZ), apM)
-			/*				 (Ruleta, apR)
-							, (Ruleta, apR)
-							, (Ruleta, apR)
-							, (Ruleta, apR)*/
+			, (MonedaComun, apM)*/
+//			, (MonedaCargada(CARA), apM)
+//			, (MonedaCargada(CRUZ), apM)
+		/*				 (Ruleta, apR)
+						, (Ruleta, apR)
+						, (Ruleta, apR)
+						, (Ruleta, apR)*/
+		)
 
-		))
+		val arbolEscenarios = Simulador.simularJuegos(Jugador(15), combinacion1)
 
 		println(Stringer.arbolToString(arbolEscenarios))
 
 		print("**************************************************************************\n")
 
+//		println(Cauto.analizarCombinaciones(Jugador(90), List(combinacion1, listaJuegos(2, 2, 3))))
 //		println(arbolEscenarios.asList.filter(_.situacion.isFailure).toString)
 
 

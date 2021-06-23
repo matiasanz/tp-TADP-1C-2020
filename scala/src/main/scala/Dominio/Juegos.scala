@@ -1,6 +1,6 @@
 package Dominio
 
-	import Distribuciones.Distribucion
+import Distribuciones.Distribucion
 	import Utils.pesoTotal
 	import Tipos.Plata
 
@@ -25,12 +25,12 @@ package Dominio
 
 	case class ApuestaSimple[R](jugada: Jugada[R], montoRequerido: Plata)
 		extends Apuesta[R] {
-		override def compuestaCon(apuesta: Apuesta[R]) = ApuestaCompuesta(this::List(apuesta))
+		override def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = ApuestaCompuesta(this::List(apuesta))
 		override def gananciaPorResultado(resultado: R): Plata = if(jugada.cumple(resultado)) jugada.montoPorGanar(montoRequerido) else 0
 	}
 
 	case class ApuestaCompuesta[R](apuestas: List[Apuesta[R]]) extends Apuesta[R]{
 		override def montoRequerido: Plata = apuestas.map(_.montoRequerido).sum
-		override def compuestaCon(apuesta: Apuesta[R]) = copy(apuestas:+apuesta)
+		override def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = copy(apuestas:+apuesta)
 		override def gananciaPorResultado(resultado: R): Plata = apuestas.map(_.gananciaPorResultado(resultado)).sum
 	}

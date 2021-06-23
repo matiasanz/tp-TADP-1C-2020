@@ -57,11 +57,17 @@
 
 		def acreditar(monto: Plata): Jugador = copy(saldo + monto)
 
-		def desacreditar(monto: Plata): Jugador = acreditar(-monto)
+		def desacreditar(monto: Plata): Jugador = copy(saldoPorDesacreditar(monto))
+
+		def validarExtraccion(monto: Plata) = {
+			if(saldoPorDesacreditar(monto)<0)
+				throw SaldoInsuficienteException(this, monto)
+		}
+
+		val saldoPorDesacreditar: Plata => Plata = monto => saldo-monto
 
 		def jugarApuesta[R](apuesta: Apuesta[R], resultado: R): Jugador = {
 			desacreditar(apuesta.montoRequerido).acreditar(apuesta.gananciaPorResultado(resultado))
 			//TODO: Esto capaz convenga hacerlo desde el lado de la apuesta
 		}
 	}
-
