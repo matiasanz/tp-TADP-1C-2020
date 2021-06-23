@@ -9,7 +9,8 @@ import Tipos._
 		val situacion = escenario._1
 		val probabilidad = escenario._2
 
-		def toStriiing(padre: Int): String ="---------------------\n hijo de "+padre.toString + "\n    "+ toString
+		override def toString = Stringer.arbolToString(this)
+		def toString(padre: Int): String ="-------------------\nEl que viene es hijo de "+padre.toString + "\n    "+ toString
 	}
 
 object Simulador{
@@ -36,12 +37,9 @@ object Simulador{
 	}
 
 	def simularJuego[R](jugador: Jugador, juego: Juego[R], apuesta: Apuesta[R], probaAcum: Float=1): List[Escenario] = (
-		juego.distribucion.sucesosPosibles //Obviar esta parte
+		juego.distribucion.sucesosPosibles //TODO Esto querria pedirselo directamente al juego, pero me queda ver por donde cortar
 			.toList map{case(suceso, proba)=>(Try(jugador.jugarApuesta(apuesta, suceso)), probaAcum*proba)}
 		).groupMap(_._1)(_._2).transform((_, p)=>p.sum).toList
-
-
-		//TODO ver si vale la pena mover aca las funciones <simular>
 	}
 
 

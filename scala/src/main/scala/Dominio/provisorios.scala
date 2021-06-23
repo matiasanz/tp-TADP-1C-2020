@@ -11,7 +11,7 @@ object Auxiliar{
 }
 
 object Stringer{
-	def toString(arbolEscenarios: ArbolEscenarios): String ={
+	def arbolToString(arbolEscenarios: ArbolEscenarios): String ={
 		{
 			import arbolEscenarios._
 			val exito = situacion.isSuccess
@@ -22,7 +22,7 @@ object Stringer{
 				,	"ok?: "+ exito.toString
 				, if(exito) "plata: "+situacion.get.saldo.toString else "Ni idea"
 				, "proba: "+probabilidad.toString
-				, "subarboles: "+subescenarios.map(_.toStriiing(id)).toString
+				, "subarboles: "+subescenarios.map(_.toString(id)).toString
 			)
 		}
 	}
@@ -34,7 +34,7 @@ object X{
 		val apM = ApuestaSimple(JugadaMoneda(CARA), 20).compuestaCon(ApuestaSimple(JugadaMoneda(CRUZ), 10))
 		val apR = ApuestaSimple(AColor(ROJO), 900)
 
-		println(Stringer.toString(
+		println(Stringer.arbolToString(
 
 			Simulador.simularJuegos(Jugador(30), List(
 				(MonedaComun, apM)
