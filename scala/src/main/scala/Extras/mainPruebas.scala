@@ -25,7 +25,7 @@ object Stringer{
 				,	"ok?: "+ exito.toString
 				, if(exito) "plata: "+situacion.get.saldo.toString else "Ni idea"
 				, "proba: "+probabilidad.toString
-				, "punto muerto: " + puntoMuerto.toString
+				, "punto muerto: " + esPuntoMuerto.toString
 				, "subarboles: "+subescenarios.map(hijoToString(_, id)).toString
 			)
 		}

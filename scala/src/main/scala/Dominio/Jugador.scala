@@ -4,22 +4,29 @@
 	import Tipos._
 
 	case class ArbolEscenarios(escenario: Escenario, subescenarios: List[ArbolEscenarios] = List.empty) {
-		val situacion = escenario._1
-		val probabilidad = escenario._2
+		val situacion: Try[Jugador] = escenario._1
+		val probabilidad: Float = escenario._2
 
-		def esHoja = subescenarios.isEmpty
-		def puntoMuerto = subescenarios.forall(_.situacion.isFailure)
+		def esHoja: Boolean = subescenarios.isEmpty || esPuntoMuerto
+		def esPuntoMuerto: Boolean = subescenarios.forall(_.situacion.isFailure)
 
+		def gananciaRespectoDe(jugador: Jugador): Plata = situacion.map(_.saldo).getOrElse(BigDecimal(0)) - jugador.saldo
+
+		def hojas: List[ArbolEscenarios] = asList.filter(_.esHoja)
 		def asList: List[ArbolEscenarios] = this::subescenarios.flatMap(_.asList)
 	}
 
 	object Simulador {
 
-		def simularJuego[R](jugador: Jugador, juego: Juego[R], apuesta: Apuesta[R], probaAcum: Float = 1): List[Escenario] = (
-				juego.sucesosPosibles.toList map { case (suceso, proba) => (Try(jugador.jugarApuesta(apuesta, suceso)), probaAcum * proba) }
-			).groupMap(_._1)(_._2).transform((_, p) => p.sum).toList
+		def simularJuego[R](jugador: Jugador, juego: Juego[R], apuesta: Apuesta[R], probaAcum: Float = 1): List[Escenario] = {
+			val escenarios = juego.sucesosPosibles.toList map {
+				case (suceso, proba) => (Try(jugador.jugarApuesta(apuesta, suceso)), probaAcum * proba)
+			}
 
-		def simularJuegos[R](jugador: Jugador, juegos: List[(Juego[R], Apuesta[R])]) = {
+			escenarios.groupMapReduce(_._1)(_._2)(_+_).toList
+		}
+
+		def simularJuegos[R](jugador: Jugador, juegos: List[(Juego[R], Apuesta[R])]): ArbolEscenarios = {
 			val raiz = ArbolEscenarios((Try(jugador), 1))
 			juegos.foldLeft(raiz) {case (arbol, (juego, apuesta)) => analizarSubArbol(arbol, juego, apuesta)}
 		}
@@ -29,7 +36,7 @@
 		def analizarSubArbol[R](nodo: ArbolEscenarios, juego: Juego[R], apuesta: Apuesta[R]): ArbolEscenarios = {
 			val arbol = nodo.copy( subescenarios = nodo.subescenarios.map(analizarSubArbol(_, juego, apuesta) ))
 
-			if (arbol.puntoMuerto || arbol.esHoja) analizarNodo(arbol, juego, apuesta)
+			if (arbol.esPuntoMuerto || arbol.esHoja) analizarNodo(arbol, juego, apuesta)
 			else 								 arbol
 		}
 
@@ -48,11 +55,11 @@
 	case class Jugador(saldo: Plata) {
 		require(saldo >= 0)
 
-		def acreditar(monto: Plata) = copy(saldo + monto)
+		def acreditar(monto: Plata): Jugador = copy(saldo + monto)
 
 		def desacreditar(monto: Plata): Jugador = acreditar(-monto)
 
-		def jugarApuesta[R](apuesta: Apuesta[R], resultado: R) = {
+		def jugarApuesta[R](apuesta: Apuesta[R], resultado: R): Jugador = {
 			desacreditar(apuesta.montoRequerido).acreditar(apuesta.gananciaPorResultado(resultado))
 			//TODO: Esto capaz convenga hacerlo desde el lado de la apuesta
 		}
