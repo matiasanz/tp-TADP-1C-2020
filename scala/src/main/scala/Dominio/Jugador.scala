@@ -9,6 +9,8 @@
 
 		def esHoja = subescenarios.isEmpty
 		def puntoMuerto = subescenarios.forall(_.situacion.isFailure)
+
+		def asList: List[ArbolEscenarios] = this::subescenarios.flatMap(_.asList)
 	}
 
 	object Simulador {
@@ -27,7 +29,7 @@
 		def analizarSubArbol[R](nodo: ArbolEscenarios, juego: Juego[R], apuesta: Apuesta[R]): ArbolEscenarios = {
 			val arbol = nodo.copy( subescenarios = nodo.subescenarios.map(analizarSubArbol(_, juego, apuesta) ))
 
-			if (nodo.puntoMuerto || nodo.esHoja) analizarNodo(arbol, juego, apuesta)
+			if (arbol.puntoMuerto || arbol.esHoja) analizarNodo(arbol, juego, apuesta)
 			else 								 arbol
 		}
 

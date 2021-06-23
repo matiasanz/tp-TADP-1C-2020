@@ -40,19 +40,32 @@ object X{
 		val apM = ApuestaSimple(JugadaMoneda(CARA), 20).compuestaCon(ApuestaSimple(JugadaMoneda(CRUZ), 10))
 		val apR = ApuestaSimple(AColor(ROJO), 900).compuestaCon(ApuestaSimple(ANumero(25), 70)).compuestaCon(ApuestaSimple(AParidad(true), 2))
 
-		println(Stringer.arbolToString(
+		val arbolEscenarios = Simulador.simularJuegos(Jugador(90), List(
+			(MonedaComun, apM)
+			, (MonedaComun, apM)
+			, (MonedaComun, apM)
+			, (MonedaComun, apM)
+			, (MonedaComun, apM)
+			, (MonedaComun, apM)
+			, (MonedaComun, apM)
+			, (MonedaComun, apM)
+			, (MonedaComun, apM)
+			, (MonedaComun, apM)
+			, (MonedaCargada(CARA), apM)
+			, (MonedaCargada(CRUZ), apM)
+			/*				 (Ruleta, apR)
+							, (Ruleta, apR)
+							, (Ruleta, apR)
+							, (Ruleta, apR)*/
 
-			Simulador.simularJuegos(Jugador(9000), List(
-				(MonedaComun, apM)
-				, (MonedaComun, apM)
-				, (MonedaCargada(CARA), apM)
-				, (MonedaCargada(CRUZ), apM)
-/*				 (Ruleta, apR)
-				, (Ruleta, apR)
-				, (Ruleta, apR)
-				, (Ruleta, apR)*/
-			)
-		)))
+		))
+
+		println(Stringer.arbolToString(arbolEscenarios))
+
+		print("**************************************************************************\n")
+
+//		println(arbolEscenarios.asList.filter(_.situacion.isFailure).toString)
+
 
 		//		println(Map(("h1", 1), ("h2", 2), ("c1", 3), ("c2", 5)).groupBy(_._1.indexOf("h")==0).map( x => (x._1, x._2.values.sum) ).toString)
 	}
