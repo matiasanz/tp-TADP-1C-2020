@@ -5,25 +5,32 @@
 	import Tipos._
 
 	case class ArbolEscenarios(escenario: Escenario, subescenarios: List[ArbolEscenarios] = List.empty) {
-		val id = Auxiliar.generateID //TODO: Esto lo uso solo para imprimir
 		val situacion = escenario._1
 		val probabilidad = escenario._2
+
+		def esHoja = subescenarios.isEmpty
+		def puntoMuerto = subescenarios.forall(_.situacion.isFailure)
+		def aislar = copy(subescenarios = List.empty)
 	}
 
 	object Simulador {
 		def simularJuegos[R](jugador: Jugador, juegos: List[(Juego[R], Apuesta[R])]) = {
 			val raiz = ArbolEscenarios((Try(jugador), 1))
-			juegos.foldLeft(raiz) {
-				case (arbol, (juego, apuesta)) => arbol.subescenarios match {
-					case Nil => simularAPartirDe(arbol, juego, apuesta)
-					case subarboles => arbol.copy(
-						subescenarios = subarboles.map(simularAPartirDe(_, juego, apuesta))
-					)
-				}
-			}
+			juegos.foldLeft(raiz) {case (arbol, (juego, apuesta)) => analizarSubArbol(arbol, juego, apuesta)}
 		}
 
-		def simularAPartirDe[R](arbol: ArbolEscenarios, juego: Juego[R], apuesta: Apuesta[R]): ArbolEscenarios = {
+		def analizarSubArbol[R](nodo: ArbolEscenarios, juego: Juego[R], apuesta: Apuesta[R]): ArbolEscenarios = {
+			import nodo.subescenarios
+
+			val conSubnodos = nodo.copy( subescenarios = subescenarios.map(analizarSubArbol(_, juego, apuesta) ))
+
+			if (nodo.puntoMuerto || nodo.esHoja) {
+				analizarNodo(nodo, juego, apuesta)
+			} else conSubnodos
+		}
+
+		def analizarNodo[R](arbol: ArbolEscenarios, juego: Juego[R], apuesta: Apuesta[R]): ArbolEscenarios = {
+
 			arbol.situacion match {
 				case Success(jugador: Jugador) => arbol.copy(
 					subescenarios = simularJuego(jugador, juego, apuesta, arbol.probabilidad).map(ArbolEscenarios(_))

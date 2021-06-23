@@ -1,10 +1,6 @@
 package Dominio
 
-	import Juegos.ResultadoMoneda
-	import Juegos.TiposRuleta.ResultadoRuleta
 	import Tipos.Plata
-
-	import scala.util.Try
 
 	abstract class Juego[R](){
 		def distribucion: Distribucion[R]
