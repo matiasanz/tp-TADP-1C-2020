@@ -1,6 +1,5 @@
 	package Dominio
 
-	import Dominio.Tipos.Plata
 	import scala.util.{Failure, Success, Try}
 	import Tipos._
 
@@ -10,23 +9,26 @@
 
 		def esHoja = subescenarios.isEmpty
 		def puntoMuerto = subescenarios.forall(_.situacion.isFailure)
-		def aislar = copy(subescenarios = List.empty)
 	}
 
 	object Simulador {
+
+		def simularJuego[R](jugador: Jugador, juego: Juego[R], apuesta: Apuesta[R], probaAcum: Float = 1): List[Escenario] = (
+				juego.sucesosPosibles.toList map { case (suceso, proba) => (Try(jugador.jugarApuesta(apuesta, suceso)), probaAcum * proba) }
+			).groupMap(_._1)(_._2).transform((_, p) => p.sum).toList
+
 		def simularJuegos[R](jugador: Jugador, juegos: List[(Juego[R], Apuesta[R])]) = {
 			val raiz = ArbolEscenarios((Try(jugador), 1))
 			juegos.foldLeft(raiz) {case (arbol, (juego, apuesta)) => analizarSubArbol(arbol, juego, apuesta)}
 		}
 
+		private
+
 		def analizarSubArbol[R](nodo: ArbolEscenarios, juego: Juego[R], apuesta: Apuesta[R]): ArbolEscenarios = {
-			import nodo.subescenarios
+			val arbol = nodo.copy( subescenarios = nodo.subescenarios.map(analizarSubArbol(_, juego, apuesta) ))
 
-			val conSubnodos = nodo.copy( subescenarios = subescenarios.map(analizarSubArbol(_, juego, apuesta) ))
-
-			if (nodo.puntoMuerto || nodo.esHoja) {
-				analizarNodo(nodo, juego, apuesta)
-			} else conSubnodos
+			if (nodo.puntoMuerto || nodo.esHoja) analizarNodo(arbol, juego, apuesta)
+			else 								 arbol
 		}
 
 		def analizarNodo[R](arbol: ArbolEscenarios, juego: Juego[R], apuesta: Apuesta[R]): ArbolEscenarios = {
@@ -39,15 +41,9 @@
 				case Failure(_) => arbol
 			}
 		}
-
-		def simularJuego[R](jugador: Jugador, juego: Juego[R], apuesta: Apuesta[R], probaAcum: Float = 1): List[Escenario] = (
-			juego.distribucion.sucesosPosibles //TODO Esto querria pedirselo directamente al juego, pero me queda ver por donde cortar
-				.toList map { case (suceso, proba) => (Try(jugador.jugarApuesta(apuesta, suceso)), probaAcum * proba) }
-			).groupMap(_._1)(_._2).transform((_, p) => p.sum).toList
 	}
 
-
-	case class Jugador(val saldo: Plata) {
+	case class Jugador(saldo: Plata) {
 		require(saldo >= 0)
 
 		def acreditar(monto: Plata) = copy(saldo + monto)

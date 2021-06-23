@@ -1,9 +1,14 @@
 package Dominio
 
+	import Distribuciones.Distribucion
+	import Utils.pesoTotal
 	import Tipos.Plata
 
-	abstract class Juego[R](){
-		def distribucion: Distribucion[R]
+	abstract class Juego[R](distribucion: Distribucion[R]){
+		require(pesoTotal(distribucion)-1 <= 0.00001)
+
+		def probabilidadDe(suceso: R): Float = distribucion.getOrElse(suceso, 0)
+		def sucesosPosibles: Map[R, Float] = distribucion.filter(_._2>0)
 	}
 
 	trait Jugada[R]{
@@ -18,7 +23,7 @@ package Dominio
 		def gananciaPorResultado(resultado: R): Plata
 	}
 
-	case class ApuestaSimple[R](val jugada: Jugada[R], val montoRequerido: Plata)
+	case class ApuestaSimple[R](jugada: Jugada[R], montoRequerido: Plata)
 		extends Apuesta[R] {
 		override def compuestaCon(apuesta: Apuesta[R]) = ApuestaCompuesta(this::List(apuesta))
 		override def gananciaPorResultado(resultado: R): Plata = if(jugada.cumple(resultado)) jugada.montoPorGanar(montoRequerido) else 0

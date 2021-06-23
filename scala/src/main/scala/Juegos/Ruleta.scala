@@ -1,13 +1,12 @@
 package Juegos
 
-import Dominio.{Apuesta, Distribucion, Distribuciones, Juego, Jugada}
+import Dominio._
+import Dominio.Distribuciones.Distribucion
 import Tablero.{color, docena, esPar}
 import TiposRuleta._
 
 //Juego ********************************************************************
-	object Ruleta extends Juego[ResultadoRuleta](){
-		val distribucion: Distribucion[ResultadoRuleta] = Distribuciones.equiprobable((0 to 36).toList)
-	}
+	object Ruleta extends Juego[ResultadoRuleta](Distribuciones.equiprobable((0 to 36).toList))
 
 //Resultados ********************************************************************
 	abstract class JugadaRuleta(val ganancia: Double) extends Jugada[ResultadoRuleta]

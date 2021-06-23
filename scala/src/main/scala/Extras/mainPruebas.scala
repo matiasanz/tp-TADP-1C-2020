@@ -1,6 +1,7 @@
-package Dominio
+package Extras
 
-import Juegos.{AColor, ANumero, AParidad, CARA, CRUZ, JugadaMoneda, MonedaCargada, MonedaComun, ROJO, Ruleta}
+import Dominio.{ApuestaSimple, ArbolEscenarios, Jugador, Simulador}
+import Juegos._
 
 object Auxiliar{
 	var id = 0

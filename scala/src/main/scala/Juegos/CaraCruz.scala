@@ -1,21 +1,21 @@
 package Juegos
 
-import Dominio.{Apuesta, Distribucion, Distribuciones, Juego, Jugada}
+import Dominio.Distribuciones.Distribucion
+import Dominio.{Apuesta, Distribuciones, Juego, Jugada}
 
 //Juego ********************************************************************
-abstract class JuegoMoneda() extends Juego[ResultadoMoneda]{
-	def distribucion: Distribucion[ResultadoMoneda]
-}
+abstract class JuegoMoneda(distribucion: Distribucion[ResultadoMoneda])	extends Juego(distribucion)
 
-case object MonedaComun extends JuegoMoneda{
-	val distribucion: Distribucion[ResultadoMoneda]
-	= Distribuciones.equiprobable(List(CARA, CRUZ))
-}
+case object MonedaComun
+	extends JuegoMoneda(Distribuciones.equiprobable(List(CARA, CRUZ)))
 
-case class MonedaCargada(resultadoMoneda: ResultadoMoneda) extends JuegoMoneda {
-	val distribucion: Distribucion[ResultadoMoneda]
-	= Distribuciones.eventoSeguro(resultadoMoneda)
-}
+case class MonedaCargada(resultado: ResultadoMoneda)
+	extends JuegoMoneda(Distribuciones.eventoSeguro(resultado))
+
+/* TODO: Duda - El enunciado primero dice que es evento seguro y en la consigna dice ponderado
+case class MonedaCargada(probaCara: Float, probaCruz: Float)
+	extends JuegoMoneda(Distribuciones.ponderada[ResultadoMoneda](Map((CARA, probaCara), (CRUZ, probaCruz))))
+*/
 
 //Resultados ********************************************************************
 trait ResultadoMoneda
