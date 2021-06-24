@@ -73,7 +73,7 @@ class ApuestaSpec extends AnyFreeSpec{
     "Juegos" - {
         "Un juego con una apuesta compuesta ganadora se simula correctamente" in {
             val ap = ApuestaSimple(JugadaMoneda(CARA), 200).compuestaCon(ApuestaSimple(JugadaMoneda(CARA), 300))
-            Simulador.simularJuego(Jugador(600), MonedaComun, ap) should be(List((Success(Jugador(1100.0)), 0.5)
+            Simuladores.simularJuego(Jugador(600), MonedaComun, ap) should be(List((Success(Jugador(1100.0)), 0.5)
                      , (Success(Jugador(100)),0.5))
                 )
         }

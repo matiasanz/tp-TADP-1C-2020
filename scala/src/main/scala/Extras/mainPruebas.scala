@@ -1,7 +1,7 @@
 package Extras
 
 import Dominio.Racional.{Cauto, Combinacion}
-import Dominio.{Apuesta, ApuestaSimple, ArbolEscenarios, Juego, Jugador, Simulador}
+import Dominio.{Apuesta, ApuestaSimple, ArbolEscenarios, Juego, Jugador, Simuladores}
 import Juegos._
 
 object Auxiliar{
@@ -68,7 +68,7 @@ object X{
 						, (Ruleta, apR)*/
 		)
 
-		val arbolEscenarios = Simulador.simularJuegos(Jugador(15), combinacion1)
+		val arbolEscenarios = Simuladores.simularJuegos(Jugador(15), combinacion1)
 
 		println(Stringer.arbolToString(arbolEscenarios))
 

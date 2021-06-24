@@ -3,7 +3,6 @@ import scala.util.Try
 
 object Tipos{
 	type Plata = BigDecimal
-	type Escenario = (Try[Jugador], Float)
 }
 
 object Utils{

@@ -12,29 +12,29 @@ package Dominio
  *  >> Los dos primeros eligen agrupando, mientras que el tercero compara todos contra todos
 */
 
-trait Criterio{
+trait CriterioJuego{
 	type Combinacion = List[(Juego[Any], Apuesta[Any])]
 	def	elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion
 
 	def analizarCombinaciones(jugador: Jugador, combinaciones: List[Combinacion]) = {
 		for {
 			combinacion <- combinaciones
-			hoja <- Simulador.simularJuegos(jugador, combinacion).hojas
+			hoja <- Simuladores.simularJuegos(jugador, combinacion).hojas
 		} yield (combinacion, hoja.gananciaRespectoDe(jugador), hoja.probabilidad)
 	}
 }
 
-case object Racional extends Criterio {
+case object Racional extends CriterioJuego {
 
 	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(jugador, combinaciones)
 			.groupMapReduce(_._1) (comb=> comb._2*comb._3) (_+_).reduce{
 			(una, otra) => if(una._2 >= otra._2) una else otra
 		}._1
-	}
+}
 
 
-case object Arriesgado extends Criterio {
+case object Arriesgado extends CriterioJuego {
 	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(jugador, combinaciones)
 			.groupMapReduce(_._1) (comb=> comb._2) (_+_).reduce{
@@ -43,7 +43,7 @@ case object Arriesgado extends Criterio {
 	}
 }
 
-case object Cauto extends Criterio {
+case object Cauto extends CriterioJuego {
 
 	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(jugador, combinaciones)

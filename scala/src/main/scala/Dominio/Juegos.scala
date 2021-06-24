@@ -34,3 +34,26 @@ import Distribuciones.Distribucion
 		override def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = copy(apuestas:+apuesta)
 		override def gananciaPorResultado(resultado: R): Plata = apuestas.map(_.gananciaPorResultado(resultado)).sum
 	}
+
+	case class Jugador(saldo: Plata) {
+		require(saldo >= 0)
+
+		def acreditar(monto: Plata): Jugador = copy(saldo + monto)
+
+		def desacreditar(monto: Plata): Jugador = {
+			validarExtraccion(monto)
+			copy(saldoPorDesacreditar(monto))
+		}
+
+		def validarExtraccion(monto: Plata): Unit = {
+			if(saldoPorDesacreditar(monto)<0)
+				throw SaldoInsuficienteException(this, monto)
+		}
+
+		val saldoPorDesacreditar: Plata => Plata = monto => saldo-monto
+
+		def jugarApuesta[R](apuesta: Apuesta[R], resultado: R): Jugador = {
+			desacreditar(apuesta.montoRequerido).acreditar(apuesta.gananciaPorResultado(resultado))
+			//TODO: Esto capaz convenga hacerlo desde el lado de la apuesta
+		}
+	}
