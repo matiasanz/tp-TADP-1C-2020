@@ -1,8 +1,11 @@
 package Dominio
 
+import Juegos.{CARA, JugadaMoneda, ResultadoMoneda}
+
 import scala.util.{Failure, Success, Try}
 import Simuladores.Escenario
 import Tipos._
+import Juegos.TiposRuleta.ResultadoRuleta
 
 	object Simuladores {
 		type Escenario = (Try[Jugador], Float)
@@ -15,9 +18,12 @@ import Tipos._
 			escenarios.groupMapReduce(_._1)(_._2)(_+_).toList
 		}
 
-		def simularJuegos[R](jugador: Jugador, juegos: List[(Juego[R], Apuesta[R])]): ArbolEscenarios = {
+		def simularJuegos(jugador: Jugador, juegos: List[(Juegol, Apuestal)]): ArbolEscenarios = {
 			val raiz = ArbolEscenarios((Try(jugador), 1))
-			juegos.foldLeft(raiz) {case (arbol, (juego, apuesta)) => analizarSubArbol(arbol, juego, apuesta)}
+			juegos.foldLeft(raiz) {
+				case (arbol, (juego: Juego[ResultadoRuleta], apuesta: Apuesta[ResultadoRuleta])) => analizarSubArbol(arbol, juego, apuesta)
+				case (arbol, (juego: Juego[ResultadoMoneda], apuesta: Apuesta[ResultadoMoneda])) => analizarSubArbol(arbol, juego, apuesta)
+			}
 		}
 
 		private

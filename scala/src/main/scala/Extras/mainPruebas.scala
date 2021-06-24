@@ -1,83 +1,58 @@
 package Extras
 
 import Dominio.Racional.{Cauto, Combinacion}
-import Dominio.{Apuesta, ApuestaSimple, ArbolEscenarios, Juego, Jugador, Simuladores}
+import Dominio.{Apuesta, ApuestaSimple, ArbolEscenarios, Distribuciones, Juego, Jugador, Simuladores}
 import Juegos._
+import org.omg.CORBA.Any
 
-object Auxiliar{
+object Stringer{
 	var id = 0
 	def generateID = {
 		id = id+1
 		id
 	}
-}
 
-object Stringer{
-	def arbolToString(arbolEscenarios: ArbolEscenarios): String ={
-		{
-			import arbolEscenarios._
-			val exito = situacion.isSuccess
+	def arbolToString(arbolEscenarios: ArbolEscenarios, padre: Int = 0): String ={
 
-			val id = Auxiliar.generateID
+		import arbolEscenarios._
+		val exito = situacion.isSuccess
 
-			String.join(
-				"\n >>"
-				, "\n*******"+id+"*********"
-				,	"ok?: "+ exito.toString
-				, "plata: "+ (if(exito) situacion.get.saldo.toString else "0")
-				, "proba: "+probabilidad.toString
-				, "punto muerto: " + esPuntoMuerto.toString
-				, "subarboles: "+subescenarios.map(hijoToString(_, id)).toString
-			)
-		}
+		val id = generateID
+
+		String.join(
+			"\n >>"
+			, "\n*******"+id+"*********"
+			, "hijo de "+ (if(padre==0) "nadie" else padre.toString)
+			,	"ok?: "+ exito.toString
+			, "plata: "+ (if(exito) situacion.get.saldo.toString else "0")
+			, "proba: "+probabilidad.toString
+			, "punto muerto: " + esPuntoMuerto.toString
+			, "subarboles: "+subescenarios.map(arbolToString(_, id)).toString
+		)
+
 	}
-
-	def hijoToString(arbol: ArbolEscenarios, padre: Int): String = "\n\n-------------------\nEl que viene es hijo de " + padre.toString + "\n    " + arbolToString(arbol)
 }
+
+trait Otro
+
+case class Algo[T](x: T) extends Otro
 
 object X{
 	val apM = ApuestaSimple(JugadaMoneda(CARA), 300).compuestaCon(ApuestaSimple(JugadaMoneda(CRUZ), 300))
 	val apR = ApuestaSimple(AColor(ROJO), 900).compuestaCon(ApuestaSimple(ANumero(25), 70)).compuestaCon(ApuestaSimple(AParidad(true), 2))
 
-	/*
-	def listaJuegos: (Int, Int, Int)=> List[(Juego[_], Apuesta[_])] = (monedasSinCarga, monedasConCargaCara, monedasConCargaCruz) => {
-		List(1 to monedasSinCarga).map(_ => (MonedaComun, apM))
-			.concat((List(1 to monedasConCargaCara).map(_ => MonedaCargada(CARA)))
-				.concat((List(1 to monedasConCargaCruz).map(_ => (MonedaCargada(CRUZ), apM)))))
-	}
-*/
+
+	def imprimir(x: Otro) = println(x.getClass.toString)
+
 	def main(args: Array[String]): Unit = {
+		val c: Otro = Algo(3)
 
+		imprimir(c)
 
-		val combinacion1 = List(
-			(MonedaComun, apM)
-/*			, (MonedaComun, apM)
-			, (MonedaComun, apM)
-			, (MonedaComun, apM)
-			, (MonedaComun, apM)
-			, (MonedaComun, apM)
-			, (MonedaComun, apM)
-			, (MonedaComun, apM)
-			, (MonedaComun, apM)
-			, (MonedaComun, apM)*/
-//			, (MonedaCargada(CARA), apM)
-//			, (MonedaCargada(CRUZ), apM)
-		/*				 (Ruleta, apR)
-						, (Ruleta, apR)
-						, (Ruleta, apR)
-						, (Ruleta, apR)*/
-		)
+		val combinacion = List((MonedaComun, apM), (Ruleta, apR))
 
-		val arbolEscenarios = Simuladores.simularJuegos(Jugador(15), combinacion1)
+		val x = Simuladores.simularJuegos(Jugador(5000), combinacion)
 
-		println(Stringer.arbolToString(arbolEscenarios))
-
-		print("**************************************************************************\n")
-
-//		println(Cauto.analizarCombinaciones(Jugador(90), List(combinacion1, listaJuegos(2, 2, 3))))
-//		println(arbolEscenarios.asList.filter(_.situacion.isFailure).toString)
-
-
-		//		println(Map(("h1", 1), ("h2", 2), ("c1", 3), ("c2", 5)).groupBy(_._1.indexOf("h")==0).map( x => (x._1, x._2.values.sum) ).toString)
+		println(Stringer.arbolToString(x))
 	}
 }
