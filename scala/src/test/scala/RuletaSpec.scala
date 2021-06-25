@@ -37,12 +37,12 @@ class RuletaSpec extends AnyFreeSpec{
         }
 
         "Numeros pares son pares" in {
-          for(numero<-(1 to 18).map(_*2))
+          for(numero<-(2 to 36 by 2))
             AParidad(true).cumple(numero) should be(true)
         }
 
         "Numeros impares son impares" in{
-          for(numero<-(0 to 18).map(_*2 + 1))
+          for(numero<-(1 to 36).map(_*2 + 1))
             AParidad(false).cumple(numero) should be(true)
         }
       }

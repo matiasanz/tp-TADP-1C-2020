@@ -24,16 +24,16 @@ class SimulacionesSpec extends AnyFreeSpec{
 
             "Moneda Comun" - {
                 "50% de probabilidad de ganar y de perder" in {
-                    simularJuego(jugador, MonedaComun, apuesta).toSet should be( Set(
+                    simularJuego(jugador, MonedaComun, apuesta) should contain only (
                         (Success(Jugador(400)), 0.5)
                         , (Success(Jugador(0)), 0.5)
-                    ))
+                    )
                 }
             }
 
             "Un juego con una apuesta compuesta perdedora en cualquier caso se simula correctamente" in {
                 val ap = apuesta.compuestaCon(ApuestaSimple(JugadaMoneda(CARA), 300))
-                Simuladores.simularJuego(Jugador(600), MonedaComun, ap) should contain allOf (
+                Simuladores.simularJuego(Jugador(600), MonedaComun, ap) should contain only (
                     (Success(Jugador(1100.0)), 0.5.toFloat)
                     , (Success(Jugador(100)),0.5.toFloat)
                 )
@@ -42,7 +42,7 @@ class SimulacionesSpec extends AnyFreeSpec{
             "Un juego con una apuesta perdedora se simula correctamente" in {
                 Try(Jugador(70)
                     .jugarApuesta(ApuestaSimple(JugadaMoneda(CARA), 200), CARA)
-                ) should be( Failure(SaldoInsuficienteException(Jugador(70), 200)))
+                ) should be(Failure(SaldoInsuficienteException(Jugador(70), 200)))
             }
 
         }
