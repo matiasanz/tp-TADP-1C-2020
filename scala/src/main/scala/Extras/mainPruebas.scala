@@ -1,9 +1,6 @@
 package Extras
-
-import Dominio.Racional.{Cauto, Combinacion}
-import Dominio.{Apuesta, ApuestaSimple, Apuestaza, ArbolEscenarios, Distribuciones, Juegazo, Juego, Jugador, Simuladores}
+import Dominio._
 import Juegos._
-import org.omg.CORBA.Any
 
 object Stringer{
 	var id = 0

@@ -14,13 +14,13 @@ package Dominio
 */
 
 trait CriterioJuego{
-	type Combinacion = List[(Juegazo, Apuestaza)]
+	type Combinacion = List[(AnyJuego, AnyApuesta)]
 	def	elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion
 
 	def analizarCombinaciones(jugador: Jugador, combinaciones: List[Combinacion]) = {
 		for {
 			combinacion <- combinaciones
-			hoja <- Simuladores.simularJuegos(jugador, combinacion).hojas
+			hoja <- Simulaciones.simularJuegos(jugador, combinacion).hojas
 		} yield (combinacion, hoja.gananciaRespectoDe(jugador), hoja.probabilidad)
 	}
 }
@@ -42,12 +42,13 @@ case object Arriesgado extends CriterioJuego {
 	}
 }
 
+}
+
 case object Cauto extends CriterioJuego {
 
 	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(jugador, combinaciones)
 			.filter{case(_, ganancia, _)=>ganancia>0}
 			.maxBy(_._3)._1
-		}
 	}
 }

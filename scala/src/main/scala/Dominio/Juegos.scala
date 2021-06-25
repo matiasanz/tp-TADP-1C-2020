@@ -4,9 +4,9 @@ import Distribuciones.Distribucion
 	import Utils.pesoTotal
 	import Tipos.Plata
 
-	trait Juegazo
+	trait AnyJuego
 
-	abstract class Juego[R](distribucion: Distribucion[R]) extends Juegazo {
+	abstract class Juego[R](distribucion: Distribucion[R]) extends AnyJuego {
 		require(pesoTotal(distribucion)-1 <= 0.00001)
 
 		def probabilidadDe(suceso: R): Float = distribucion.getOrElse(suceso, 0)
@@ -19,9 +19,9 @@ import Distribuciones.Distribucion
 		def cumple(resultado: R): Boolean
 	}
 
-	trait Apuestaza
+	trait AnyApuesta
 
-	trait Apuesta[R] extends Apuestaza{
+	trait Apuesta[R] extends AnyApuesta{
 		def montoRequerido: Plata
 		def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R]
 		def gananciaPorResultado(resultado: R): Plata
