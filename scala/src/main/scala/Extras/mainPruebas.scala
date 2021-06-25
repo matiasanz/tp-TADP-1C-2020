@@ -1,7 +1,7 @@
 package Extras
 
 import Dominio.Racional.{Cauto, Combinacion}
-import Dominio.{Apuesta, ApuestaSimple, ArbolEscenarios, Distribuciones, Juego, Jugador, Simuladores}
+import Dominio.{Apuesta, ApuestaSimple, Apuestaza, ArbolEscenarios, Distribuciones, Juegazo, Juego, Jugador, Simuladores}
 import Juegos._
 import org.omg.CORBA.Any
 
@@ -49,10 +49,16 @@ object X{
 
 		imprimir(c)
 
-		val combinacion = List((MonedaComun, apM), (Ruleta, apR))
+		val comb1 = List((MonedaComun, apM))
+		val comb2 = List((Ruleta, apR))
 
-		val x = Simuladores.simularJuegos(Jugador(5000), combinacion)
 
-		println(Stringer.arbolToString(x))
+
+		print(Cauto.elegirEntre(Jugador(70000), List(comb1, comb2)).toString)
+//		val combinacion = List((MonedaComun, apM), (Ruleta, apR))
+
+//		val x = Simuladores.simularJuegos(Jugador(5000), combinacion)
+
+//		println(Stringer.arbolToString(x))
 	}
 }

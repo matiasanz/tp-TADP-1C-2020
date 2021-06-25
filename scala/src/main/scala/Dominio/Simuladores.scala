@@ -18,7 +18,7 @@ import Juegos.TiposRuleta.ResultadoRuleta
 			escenarios.groupMapReduce(_._1)(_._2)(_+_).toList
 		}
 
-		def simularJuegos(jugador: Jugador, juegos: List[(Juegol, Apuestal)]): ArbolEscenarios = {
+		def simularJuegos(jugador: Jugador, juegos: List[(Juegazo, Apuestaza)]): ArbolEscenarios = {
 			val raiz = ArbolEscenarios((Try(jugador), 1))
 			juegos.foldLeft(raiz) {
 				case (arbol, (juego: Juego[ResultadoRuleta], apuesta: Apuesta[ResultadoRuleta])) => analizarSubArbol(arbol, juego, apuesta)

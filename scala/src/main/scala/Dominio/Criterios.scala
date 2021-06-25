@@ -14,7 +14,7 @@ package Dominio
 */
 
 trait CriterioJuego{
-	type Combinacion = List[(Juego[Any], Apuesta[Any])]
+	type Combinacion = List[(Juegazo, Apuestaza)]
 	def	elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion
 
 	def analizarCombinaciones(jugador: Jugador, combinaciones: List[Combinacion]) = {
