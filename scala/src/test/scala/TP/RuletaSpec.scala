@@ -41,7 +41,7 @@ class RuletaSpec extends AnyFreeSpec{
             }
 
             "Numeros impares son impares" in {
-                for (numero <- (1 to 36).map(_ * 2 + 1))
+                for (numero <- (1 to 36 by 2))
                     AParidad(false).cumple(numero) should be(true)
             }
         }
