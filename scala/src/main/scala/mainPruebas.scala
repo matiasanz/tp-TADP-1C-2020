@@ -1,4 +1,4 @@
-package Extras
+
 import Dominio._
 import Juegos._
 

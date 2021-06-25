@@ -2,103 +2,65 @@ require 'b_atributos_persistibles'
 
 module ORM
 
-    module ValidadorDeAtributos
-        def self.extended(modulo)
-            @validadores ||= []
-            @validadores << modulo
+    class ValidadorDeAtributo
+        def initialize(validadores)
+            @validadores = validadores
+        end
 
-            modulo.define_method(:simbolo) do
-                self.class.simbolo
+        def validar(atributo, objeto)
+            erroresDetectados = @validadores.select{|v| not v.call(objeto)}
+
+            unless erroresDetectados.empty?
+                raise AtributoPersistibleException.new(atributo, objeto, erroresDetectados)
             end
         end
-
-        def self.as_validadores(tipo, args)
-            actuales = [ValidadorTipo.new]
-            @validadores.each do |validador|
-                actuales << validador.new(tipo, args) if validador.aplica?(args)
-            end
-            actuales
-        end
-
-        def aplica?(args)
-            args[simbolo]
-        end
-   end
-
-    class ValidadorTipo
-        def validar(atributo, dato)
-            clase = atributo.clase
-            raise TipoErroneoException.new(dato, clase) unless dato.is_a? clase or dato.nil?
-        end
     end
 
-    class ValidadorNoBlank
-        extend ValidadorDeAtributos
+    module ValidacionesFactory
 
-        def self.simbolo
-            :no_blank
+        def self.from_args(tipo, args)
+            raise ValidacionNoAdmitidaException.new(tipo, [:from, :to]) unless tipo<=Numeric or (args[:from].nil? and args[:to].nil?)
+            validaciones = [tipo(tipo)] + args.filter_map {|nombre,arg| get_validacion(nombre, arg) if arg}
+            ValidadorDeAtributo.new(validaciones)
         end
 
-        def initialize(tipo, args)
-            raise CampoIncorrectoException.new(args[simbolo], Proc, simbolo) unless args[simbolo].is_a?Boolean
+        def self.tipo(tipo)
+            validador_revisado("tipo", "no es un #{tipo.to_s}", tipo, Module) {|o| o.nil? or o.is_a? tipo}
         end
 
-        def validar(atributo, dato)
-            raise BlankException.new(atributo, dato) if dato.nil?
-        end
-    end
-
-    class ValidadorFrom
-        extend ValidadorDeAtributos
-
-        def self.simbolo
-            :from
+        def self.to(maximo)
+            validador_revisado("to", "menor o igual a #{maximo.to_s}", maximo, Numeric) {|o| o.nil? or o <= maximo}
         end
 
-        def initialize(tipo, args)
-            @from = args[simbolo]
-            raise ValidacionNoAdmitidaException.new(tipo, simbolo) unless tipo <= Numeric
-            raise CampoIncorrectoException.new(@from, Numeric, "from") unless @from.is_a?Numeric
+        def self.from(minimo)
+            raise CampoIncorrectoException.new(minimo, Numeric, "from") unless minimo.is_a?Numeric
+            validador("from", "mayor o igual a #{minimo.to_s}") {|o| o.nil? or o >= minimo}
         end
 
-        def validar(atributo, dato)
-            raise FromException.new(atributo, dato, @from) unless dato>=@from
-        end
-    end
-
-    class ValidadorTo
-        extend ValidadorDeAtributos
-
-        def self.simbolo
-            :to
+        def self.validate(accion)
+            validador_revisado("validate", "No cumple condicion establecida", accion, Proc) {|o| o.instance_eval(&accion)}
         end
 
-        def initialize(tipo, args)
-            @to= args[simbolo]
-            raise ValidacionNoAdmitidaException.new(tipo, simbolo) unless tipo <= Numeric
-            raise CampoIncorrectoException.new(@to, Numeric, simbolo) unless @to.is_a?Numeric
+        def self.no_blank(arg = true)
+            validador_revisado("no_blank", "Se obtuvo blank", arg, Boolean) {|o| not (o.nil?) } unless not arg
         end
 
-        def validar(atributo, dato)
-            raise ToException.new(atributo, dato, @to) unless dato<=@to
-        end
-    end
-
-    class ValidadorValidate
-        extend ValidadorDeAtributos
-
-        def self.simbolo
-            :validate
+        private
+        def self.get_validacion(nombre, arg)
+            raise ValidacionInexistenteException.new(nombre) unless self.respond_to?(nombre, false)
+            self.send(nombre, arg)
         end
 
-        def initialize(_, args)
-            @validacion = args[simbolo]
-            raise CampoIncorrectoException.new(@validacion, Proc, simbolo) unless @validacion.is_a?Proc
+        def self.validador_revisado(nombre, mensaje, arg, tipo, &accion)
+            raise CampoIncorrectoException.new(arg, tipo, nombre) unless arg.is_a? tipo
+            validador(nombre, mensaje, &accion)
         end
 
-        def validar(atributo, dato)
-            puts dato.instance_eval(&@validacion).inspect
-            raise ValidateException.new(atributo, dato) unless (dato.instance_eval(&@validacion))
+        def self.validador(nombre, mensaje, &accion)
+            val = proc &accion
+            val.define_singleton_method(:nombre) {nombre}
+            val.define_singleton_method(:mensaje) {mensaje}
+            val
         end
     end
 end
