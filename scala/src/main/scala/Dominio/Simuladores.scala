@@ -53,7 +53,7 @@ import Juegos.TiposRuleta.ResultadoRuleta
 
 		def gananciaRespectoDe(jugador: Jugador): Plata = situacion.map(_.saldo).getOrElse(BigDecimal(0)) - jugador.saldo
 
-		def esHoja: Boolean = subescenarios.isEmpty || esPuntoMuerto
+		def esHoja: Boolean = (situacion.isSuccess && subescenarios.isEmpty) || esPuntoMuerto
 		def esPuntoMuerto: Boolean = subescenarios.forall(_.situacion.isFailure)
 
 		def hojas: List[ArbolEscenarios] = asList.filter(_.esHoja)
