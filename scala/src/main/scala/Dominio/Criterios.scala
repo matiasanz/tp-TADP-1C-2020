@@ -45,6 +45,7 @@ case object Cauto extends CriterioJuego {
 
 	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(jugador, combinaciones)
+			.filter{case(_, ganancia, _)=>ganancia>0}
 			.maxBy(_._3)._1
 		}
 	}
