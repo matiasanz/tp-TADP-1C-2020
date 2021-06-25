@@ -52,7 +52,7 @@ import TiposRuleta._
 		def colorOpuesto(color: Color): Color = color match {
 			case NEGRO => ROJO
 			case ROJO => NEGRO
-			case INCOLORO => INCOLORO
+//			case INCOLORO => INCOLORO
 		}
 
 		def columna(numero: Int): Int = {

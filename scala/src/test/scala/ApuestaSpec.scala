@@ -5,6 +5,7 @@ import Juegos._
 import Dominio._
 
 import scala.List
+import scala.collection.IterableOnce.iterableOnceExtensionMethods
 import scala.util.{Failure, Success, Try}
 
 
@@ -22,29 +23,6 @@ class ApuestaSpec extends AnyFreeSpec{
 
       "Si se cumple la apuesta, se multiplica el monto" - {
         jugada.montoPorGanar(200.00) should be(400)
-      }
-    }
-
-    "Ruleta" - {
-      import Juegos.Tablero._
-      "Columna se calcula correctamente" in {
-        columna(1) should be (1)
-        columna(14) should be(2)
-        columna(20) should be(2)
-        columna(36) should be(3)
-      }
-
-      "Color es correcto" in {
-        color(14) should be(ROJO)
-        color(17) should be(NEGRO)
-        color(20) should be(NEGRO)
-        color(10) should be(NEGRO)
-      }
-
-      "docena" in {
-        docena(12) should be(1)
-        docena(13) should be(2)
-        docena(24) should be(2)
       }
     }
 
@@ -68,19 +46,6 @@ class ApuestaSpec extends AnyFreeSpec{
         ponderada(CARA) should be(0.75)
         ponderada(CRUZ) should be(0.25)
       }
-    }
-
-    "Juegos" - {
-        "Un juego con una apuesta compuesta ganadora se simula correctamente" in {
-            val ap = ApuestaSimple(JugadaMoneda(CARA), 200).compuestaCon(ApuestaSimple(JugadaMoneda(CARA), 300))
-            Simuladores.simularJuego(Jugador(600), MonedaComun, ap) should be(List((Success(Jugador(1100.0)), 0.5)
-                     , (Success(Jugador(100)),0.5))
-                )
-        }
-
-        "Un juego con una apuesta perdedora se simula correctamente" in {
-            Try(Jugador(70).jugarApuesta(ApuestaSimple(JugadaMoneda(CARA), 200), CARA)).isSuccess should be(false)
-        }
     }
   }
 
