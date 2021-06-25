@@ -1,7 +1,4 @@
-package Extras
-
-import Dominio.Racional.{Cauto, Combinacion}
-import Dominio.{Apuesta, ApuestaSimple, ArbolEscenarios, Juego, Jugador, Simuladores}
+import Dominio.{ApuestaSimple, ArbolEscenarios, Jugador, Simuladores}
 import Juegos._
 
 object Auxiliar{

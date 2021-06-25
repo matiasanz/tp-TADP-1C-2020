@@ -1,10 +1,12 @@
-import Dominio.{Distribuciones, _}
+package TP
+
+import Dominio.Simuladores._
+import Dominio._
 import Juegos._
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers._
 
 import scala.util.{Failure, Success, Try}
-import Simuladores._
 
 class SimulacionesSpec extends AnyFreeSpec{
     "Simulando un solo juego" - {
