@@ -2,47 +2,46 @@ package Alt
 
 import Dominio.Distribuciones.Distribucion
 import Dominio.Tipos.Plata
-import Dominio._
-import Juegos.ResultadoMoneda
-import Juegos.TiposRuleta.ResultadoRuleta
+import Dominio.{AnyJuego, AnyApuesta, Jugador}
 
-import Alt.SimuladorDivertido._
+import Alt.SimuladorAlternativo._
 
 trait CriterioJuego{
 	type Combinacion = List[(AnyJuego, AnyApuesta)]
-	def	elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion
+	def	elegirEntre(presupuesto: Plata, combinaciones: List[Combinacion]): Combinacion
 
-	def analizarCombinaciones: (Jugador, List[Combinacion]) => List[(Combinacion, Distribucion[Plata])]
-	= (jugador, combinaciones) => combinaciones.map{c=> c->simularJuegosDivertido(jugador, c)}
+	type CriterioPonderacion[S] = ((Combinacion, Distribucion[Plata]))=>S
+
+	def analizarCombinaciones[S:Ordering]
+		(presupuesto: Plata, combinaciones: List[Combinacion], criterio: CriterioPonderacion[S]): Combinacion
+		= combinaciones.map(c=> c->simularJuegos(presupuesto, c)).maxBy(criterio(_))._1
 }
 
 case object Racional extends CriterioJuego {
 
-	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
-		val puntaje: ((Combinacion, Distribucion[Plata]))=>Plata =
-			_._2.map{case(plata, proba) => (jugador.saldo - plata)*proba}.sum
-			//TODO duda: plata no necesariamente es ganancia
+	override def elegirEntre(presupuesto: Plata, combinaciones: List[Combinacion]): Combinacion = {
+		val puntaje: CriterioPonderacion[Plata] =
+			_._2.map{case(plata, proba) => (presupuesto - plata)*proba}.sum
 
-		analizarCombinaciones(jugador, combinaciones). maxBy(puntaje)._1
+		analizarCombinaciones(presupuesto, combinaciones, puntaje)
 	}
 }
 
 case object Arriesgado extends CriterioJuego {
-	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
+	override def elegirEntre(presupuesto: Plata, combinaciones: List[Combinacion]): Combinacion = {
 		val gananciaMaxima: ((Combinacion, Distribucion[Plata]))=>Plata =
 			_._2.map{case(plata, _) => plata}.max
 
-		analizarCombinaciones(jugador, combinaciones).maxBy(gananciaMaxima)._1
+		analizarCombinaciones(presupuesto, combinaciones, gananciaMaxima)
 	}
 }
 
 case object Cauto extends CriterioJuego {
 
-	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
+	override def elegirEntre(presupuesto: Plata, combinaciones: List[Combinacion]): Combinacion = {
 		val probabilidadDeNoPerder: ((Combinacion, Distribucion[Plata]))=>Plata =
-			_._2.collect{case (plata, proba) if(jugador.saldo>=plata) =>  proba}.sum
+			_._2.collect{case (plata, proba) if(presupuesto>=plata) =>  proba}.sum
 
-		analizarCombinaciones(jugador, combinaciones)
-			.maxBy(probabilidadDeNoPerder)._1
+		analizarCombinaciones(presupuesto, combinaciones, probabilidadDeNoPerder)
 	}
 }

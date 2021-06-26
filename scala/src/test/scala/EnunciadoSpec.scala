@@ -103,6 +103,25 @@ class EnunciadoSpec extends AnyFreeSpec {
         }
     }
 
+    "Juegos sucesivos alt" - {
+        import Alt.SimuladorAlternativo._
+
+        "Moneda -> Ruleta" in {
+            val combinacion = List(
+                (MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
+                , (Ruleta, ApuestaSimple(ANumero(0), 15))
+            )
+
+            val distribucion = simularJuegos(15, combinacion)
+
+            distribucion.size should be(3)
+            distribucion(550) should be_aprox(1.38/100)
+            distribucion(10) should be_aprox(48.61/100)
+            distribucion(5) should be_aprox(0.5)
+        }
+    }
+
+
     //TODO
 /*    "Eligiendo un plan de juego" - {}
 */

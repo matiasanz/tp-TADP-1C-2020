@@ -6,26 +6,29 @@ import Dominio._
 import Juegos.ResultadoMoneda
 import Juegos.TiposRuleta.ResultadoRuleta
 
-object SimuladorDivertido {
+object SimuladorAlternativo {
 
-	def monto[R](plata: Plata, apuesta: Apuesta[R], ganancia: Plata) = {
-		if (plata >= apuesta.montoRequerido) plata - apuesta.montoRequerido + ganancia
-		else plata
+	def simularJuegos(presupuesto: Plata, juegos: List[(AnyJuego, AnyApuesta)]): Distribucion[Plata]
+	= juegos.foldLeft(Distribuciones.eventoSeguro(presupuesto)) {
+		case (distribucion, (juego: Juego[ResultadoMoneda], apuesta: Apuesta[ResultadoMoneda])) => simularJuego(distribucion, juego, apuesta)
+		case (distribucion, (juego: Juego[ResultadoRuleta], apuesta: Apuesta[ResultadoRuleta])) => simularJuego(distribucion, juego, apuesta)
+		case (_, (juego, apuesta)) => throw ApuestaIncompatibleException(apuesta, juego)
 	}
 
 	def simularJuego[R](distribucion: Distribucion[Plata], juego: Juego[R], apuesta: Apuesta[R]): Distribucion[Plata] ={
 		val escenarios = for {
-			(plata, probaLlegada) <- distribucion.toList
+			(saldoInicial, probaLlegada) <- distribucion.toList
 			(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta).toList
-		} yield (monto(plata, apuesta, ganancia) -> probaLlegada * probaTransicion)
-		//TODO: Al tenerlo como map se pisan los resultados iguales
-		//TODO: La proba tambien depende de si se hizo la apuesta o no... aunque se va a agrupar
+		} yield (monto(saldoInicial, apuesta.montoRequerido, ganancia), probaLlegada*probaTransicion)
+		//Al tenerlo como map se pisan los resultados iguales
 		escenarios.groupMapReduce(_._1)(_._2)(_+_)
 	}
 
-	def simularJuegosDivertido(jugador: Jugador, juegos: List[(AnyJuego, AnyApuesta)]): Distribucion[Plata]
-	= juegos.foldLeft(Distribuciones.eventoSeguro(jugador.saldo)) {
-		case (distribucion, (juego: Juego[ResultadoMoneda], apuesta: Apuesta[ResultadoMoneda])) => simularJuego(distribucion, juego, apuesta)
-		case (distribucion, (juego: Juego[ResultadoRuleta], apuesta: Apuesta[ResultadoRuleta])) => simularJuego(distribucion, juego, apuesta)
+	def monto(saldoInicial: Plata, costo: Plata, ganancia: Plata) = {
+		val saldo = saldoInicial - costo
+
+		//TODO: Problema: Cada vez que pasa por un nodo y no puede pagar, lo duplica .'. estaba bien antes?
+		if(saldo>=0) saldo+ganancia
+		else 		 saldoInicial
 	}
 }

@@ -1,5 +1,5 @@
 
-import Alt.SimuladorDivertido
+import Alt.SimuladorAlternativo
 import Dominio.Cauto.Combinacion
 import Dominio.Distribuciones.Distribucion
 import Dominio.Tipos.Plata
@@ -46,7 +46,7 @@ object X{
 		val comb2 = List((Ruleta, apR))
 
 
-		val sdaf: Distribucion[Plata] = SimuladorDivertido.simularJuegosDivertido(Jugador(500), List(
+		val sdaf: Distribucion[Plata] = SimuladorAlternativo.simularJuegos(500, List(
 			(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
 			, (MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
 			, (MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
