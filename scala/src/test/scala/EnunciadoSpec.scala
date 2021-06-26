@@ -104,6 +104,6 @@ class EnunciadoSpec extends AnyFreeSpec {
     }
 
     //TODO
-/*    "Eligiendo un plan de juego" - {
-
-    }*/
+/*    "Eligiendo un plan de juego" - {}
+*/
+}
