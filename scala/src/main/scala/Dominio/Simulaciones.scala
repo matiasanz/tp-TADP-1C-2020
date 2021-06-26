@@ -16,7 +16,7 @@ import Juegos.TiposRuleta.ResultadoRuleta
 				(suceso, proba) <- juego.resultadosPosibles.toList
 			} yield Try(jugador.jugarApuesta(apuesta, suceso) -> probaAcum * proba)
 
-			escenarios.collect{case Success(escenario)=>escenario}
+			escenarios.collect{case Success(escenario)=>escenario}.groupMapReduce(_._1)(_._2)(_+_).toList
 		}
 
 		def simularJuegos(jugador: Jugador, juegos: List[(AnyJuego, AnyApuesta)]): ArbolEscenarios = {

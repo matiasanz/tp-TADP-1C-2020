@@ -1,4 +1,6 @@
-import Dominio.{ApuestaSimple, Distribuciones, Simulaciones}
+import Dominio.Distribuciones.Probabilidad
+import Dominio.Tipos.Plata
+import Dominio.{ApuestaSimple, Distribuciones, Jugador, Simulaciones}
 import Juegos._
 import org.scalactic.TripleEqualsSupport
 import org.scalatest.freespec.AnyFreeSpec
@@ -66,22 +68,42 @@ class EnunciadoSpec extends AnyFreeSpec {
     }
 
     "Jugando un juego" - {
-        "Distribucion de ganancias" - {
-            "Por jugar con moneda comun" in {
-                val apuesta = ApuestaSimple(JugadaMoneda(CARA), 30)
-                MonedaComun.distribucionDeGananciasPor(apuesta) should contain only((60, .5), (0, .5))
-            }
+        "Ganancias por jugar con moneda comun" in {
+            val apuesta = ApuestaSimple(JugadaMoneda(CARA), 30)
+            MonedaComun.distribucionDeGananciasPor(apuesta) should contain only((60, .5), (0, .5))
+        }
 
-            "Por jugar a ruleta" in {
-                val apuesta = ApuestaSimple(ANumero(1), 10)
-                val distribucion = Ruleta.distribucionDeGananciasPor(apuesta)
+        "Ganancias por jugar a ruleta" in {
+            val apuesta = ApuestaSimple(ANumero(1), 10)
+            val distribucion = Ruleta.distribucionDeGananciasPor(apuesta)
 
-                distribucion.size should be(2)
-                distribucion(360) should be_aprox(0.027) //1.0/37
-                distribucion(0) should be_aprox(0.972) //36.0/37
-            }
+            distribucion.size should be(2)
+            distribucion(360) should be_aprox(0.027) //1.0/37
+            distribucion(0) should be_aprox(0.972) //36.0/37
         }
     }
 
+    "Juegos sucesivos" - {
+        import Simulaciones._
 
-}
+        "Moneda -> Ruleta" in {
+            val combinacion = List(
+                (MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
+                , (Ruleta, ApuestaSimple(ANumero(0), 15))
+            )
+
+            val distribucion = simularJuegos(Jugador(15), combinacion).hojas.map(a=>(a.situacion, a.probabilidad)).toMap
+
+            val probaDe: Plata=>Probabilidad = x=>distribucion(Jugador(x))
+
+            distribucion.size should be(3)
+            probaDe(550) should be_aprox(1.38/100)
+            probaDe(10) should be_aprox(48.61/100)
+            probaDe(5) should be(0.5)
+        }
+    }
+
+    //TODO
+/*    "Eligiendo un plan de juego" - {
+
+    }*/
