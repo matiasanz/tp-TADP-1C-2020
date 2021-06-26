@@ -1,5 +1,6 @@
 package Dominio
 
+import Dominio.Distribuciones.Probabilidad
 import Juegos.{CARA, JugadaMoneda, ResultadoMoneda}
 
 import scala.util.{Failure, Success, Try}
@@ -8,9 +9,9 @@ import Tipos._
 import Juegos.TiposRuleta.ResultadoRuleta
 
 	object Simulaciones {
-		type Escenario = (Jugador, Float)
+		type Escenario = (Jugador, Probabilidad)
 
-		def simularJuego[R](jugador: Jugador, juego: Juego[R], apuesta: Apuesta[R], probaAcum: Float = 1): List[Escenario] = {
+		def simularJuego[R](jugador: Jugador, juego: Juego[R], apuesta: Apuesta[R], probaAcum: Probabilidad = 1): List[Escenario] = {
 
 			val escenarios = for{
 				(suceso, proba) <- juego.sucesosPosibles.toList
@@ -42,7 +43,7 @@ import Juegos.TiposRuleta.ResultadoRuleta
 
 	case class ArbolEscenarios(escenario: Escenario, subescenarios: List[ArbolEscenarios] = List.empty) {
 		val situacion: Jugador = escenario._1
-		val probabilidad: Float = escenario._2
+		val probabilidad: Probabilidad = escenario._2
 
 		def gananciaRespectoDe(jugador: Jugador): Plata = situacion.saldo - jugador.saldo
 

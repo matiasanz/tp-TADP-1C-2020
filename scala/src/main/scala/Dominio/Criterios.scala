@@ -1,54 +1,40 @@
 package Dominio
 
-//TODO Usar max by
-
-/*TODO:
- * Dudas ->
- * 1) No lo puedo ejecutar por los tipos
- * 2) Al simular una combinacion, se saltean los juegos que no se pueden pagar. Es importante?
- * 3) En los groupMap, probe parametrizar la funcion del medio y no pude hacer que matchee el tipo
- * Pendientes ->
- * 1) Testear
- * 2) Sacar codigo repetido (los reduce)
- *  >> Los dos primeros eligen agrupando, mientras que el tercero compara todos contra todos
-*/
+import Dominio.Distribuciones.Probabilidad
+import Dominio.Tipos.Plata
 
 trait CriterioJuego{
 	type Combinacion = List[(AnyJuego, AnyApuesta)]
 	def	elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion
 
-	def analizarCombinaciones(jugador: Jugador, combinaciones: List[Combinacion]) = {
-		for {
+	def analizarCombinaciones: (Jugador, List[Combinacion]) => List[(Combinacion, Plata, Probabilidad)]
+		= (jugador, combinaciones) => for {
 			combinacion <- combinaciones
 			hoja <- Simulaciones.simularJuegos(jugador, combinacion).hojas
 		} yield (combinacion, hoja.gananciaRespectoDe(jugador), hoja.probabilidad)
-	}
 }
 
 case object Racional extends CriterioJuego {
 
 	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(jugador, combinaciones)
-			.groupMapReduce(_._1) (comb=> comb._2*comb._3) (_+_)
-			.maxBy(_._2)._1
+			.groupMapReduce(_._1) (comb=> comb._2*comb._3) (_+_) //puntaje = proba*plata
+			.maxBy(_._2)._1 //max puntaje
+	}
 }
-
 
 case object Arriesgado extends CriterioJuego {
 	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(jugador, combinaciones)
-			.groupMapReduce(_._1) (comb=> comb._2) (_+_)
-			.maxBy(_._2)._1
+			.maxBy(_._2)._1 //Maxima ganancia
 	}
-}
-
 }
 
 case object Cauto extends CriterioJuego {
 
 	override def elegirEntre(jugador: Jugador, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(jugador, combinaciones)
-			.filter{case(_, ganancia, _)=>ganancia>0}
-			.maxBy(_._3)._1
+			.filter{case(_, ganancia, _)=>ganancia>=0} //No perder plata
+			.maxBy(_._3)._1 //Maxima probabilidad
 	}
 }

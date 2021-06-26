@@ -3,10 +3,11 @@ package Dominio
 import Utils.pesoTotal
 
 object Distribuciones {
-	type Distribucion[R] = Map[R, Float]
+	type Distribucion[R] = Map[R, Probabilidad]
+	type Probabilidad = Double
 
 	def equiprobable[R](sucesos: List[R]): Distribucion[R] = {
-		sucesos.map(s => (s, 1.toFloat / sucesos.length)).toMap
+		sucesos.map(s => (s, 1.toDouble / sucesos.length)).toMap
 	}
 
 	def eventoSeguro[R](suceso: R): Distribucion[R] = equiprobable[R](List(suceso))

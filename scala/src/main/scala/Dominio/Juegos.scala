@@ -1,16 +1,16 @@
 package Dominio
 
-import Distribuciones.Distribucion
-	import Utils.pesoTotal
-	import Tipos.Plata
+import Distribuciones.{Distribucion, Probabilidad}
+import Utils.pesoTotal
+import Tipos.Plata
 
 	trait AnyJuego
 
 	abstract class Juego[R](distribucion: Distribucion[R]) extends AnyJuego {
 		require(pesoTotal(distribucion)-1 <= 0.00001)
 
-		def probabilidadDe(suceso: R): Float = distribucion.getOrElse(suceso, 0)
-		def sucesosPosibles: Map[R, Float] = distribucion.filter(_._2>0)
+		def probabilidadDe(suceso: R): Probabilidad = distribucion.getOrElse(suceso, 0)
+		def sucesosPosibles: Map[R, Probabilidad] = distribucion.filter(_._2>0)
 	}
 
 	trait Jugada[R]{
