@@ -12,7 +12,7 @@ object Stringer{
 	def arbolToString(arbolEscenarios: ArbolEscenarios, padre: Int = 0): String ={
 
 		import arbolEscenarios._
-		val exito = situacion.isSuccess
+		//val exito = situacion.isSuccess
 
 		val id = generateID
 
@@ -20,10 +20,10 @@ object Stringer{
 			"\n >>"
 			, "\n*******"+id+"*********"
 			, "hijo de "+ (if(padre==0) "nadie" else padre.toString)
-			,	"ok?: "+ exito.toString
-			, "plata: "+ (if(exito) situacion.get.saldo.toString else "0")
+		//	,	"ok?: "+ exito.toString
+			, "plata: "+ situacion.saldo.toString
 			, "proba: "+probabilidad.toString
-			, "punto muerto: " + esPuntoMuerto.toString
+//			, "punto muerto: " + esPuntoMuerto.toString
 			, "subarboles: "+subescenarios.map(arbolToString(_, id)).toString
 		)
 
