@@ -6,5 +6,5 @@ object Tipos{
 }
 
 object Utils{ //TODO no hace mas falta
-	def pesoTotal[T](sucesos: Map[_, T])(implicit num: Numeric[T]): T = sucesos.values.sum
+	def pesoTotal(sucesos: Map[_, Double]): Double = sucesos.values.sum
 }
