@@ -1,6 +1,37 @@
 
+import Dominio.Cauto.Combinacion
+import Dominio.Distribuciones.Distribucion
+import Dominio.Tipos.Plata
 import Dominio._
 import Juegos._
+import Juegos.TiposRuleta.ResultadoRuleta
+
+case class coso() {
+
+	def monto[R](plata: Plata, apuesta: Apuesta[R], ganancia: Plata) = {
+		if (plata >= apuesta.montoRequerido) plata - apuesta.montoRequerido + ganancia
+		else plata
+	}
+
+	def simularJuego[R](distribucion: Distribucion[Plata], juego: Juego[R], apuesta: Apuesta[R]) ={
+		val w = for {
+			(plata, probaLlegada) <- distribucion
+			(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta)
+		} yield (monto(plata, apuesta, ganancia) -> probaLlegada * probaTransicion) //TODO La proba tambien depende de si se hizo la apuesta o no... aunque se va a agrupar
+
+		w.groupMapReduce(_._1)(_._2)(_+_)
+	}
+
+	def simularJuegosDivertido(jugador: Jugador, juegos: List[(AnyJuego, AnyApuesta)])
+		= juegos.foldLeft(Map((jugador.saldo, 1.0))) {
+		case (distribucion, (juego: Juego[ResultadoMoneda], apuesta: Apuesta[ResultadoMoneda])) =>
+			simularJuego(distribucion, juego, apuesta)
+		case (distribucion, (juego: Juego[ResultadoRuleta], apuesta: Apuesta[ResultadoRuleta])) =>
+			simularJuego(distribucion, juego, apuesta)
+	}
+}
+
+
 
 object Stringer{
 	var id = 0
@@ -50,8 +81,10 @@ object X{
 		val comb2 = List((Ruleta, apR))
 
 
+		val sdaf = coso().simularJuegosDivertido(Jugador(500), List((MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300)), (MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))))
+		println(sdaf.toString)
 
-		print(Cauto.elegirEntre(Jugador(70000), List(comb1, comb2)).toString)
+//		print(Cauto.elegirEntre(Jugador(70000), List(comb1, comb2)).toString)
 //		val combinacion = List((MonedaComun, apM), (Ruleta, apR))
 
 //		val x = Simuladores.simularJuegos(Jugador(5000), combinacion)

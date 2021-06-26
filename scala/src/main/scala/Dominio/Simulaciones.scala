@@ -1,7 +1,8 @@
 package Dominio
 
-import Dominio.Distribuciones.Probabilidad
+import Dominio.Distribuciones.{Distribucion, Probabilidad}
 import Juegos._
+
 import scala.util.{Success, Try}
 import Simulaciones.Escenario
 import Tipos._
