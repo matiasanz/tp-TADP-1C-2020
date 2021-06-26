@@ -1,9 +1,8 @@
 package Dominio
 
 import Dominio.Distribuciones.Probabilidad
-import Juegos.{CARA, JugadaMoneda, ResultadoMoneda}
-
-import scala.util.{Failure, Success, Try}
+import Juegos._
+import scala.util.{Success, Try}
 import Simulaciones.Escenario
 import Tipos._
 import Juegos.TiposRuleta.ResultadoRuleta
@@ -14,7 +13,7 @@ import Juegos.TiposRuleta.ResultadoRuleta
 		def simularJuego[R](jugador: Jugador, juego: Juego[R], apuesta: Apuesta[R], probaAcum: Probabilidad = 1): List[Escenario] = {
 
 			val escenarios = for{
-				(suceso, proba) <- juego.sucesosPosibles.toList
+				(suceso, proba) <- juego.resultadosPosibles.toList
 			} yield Try(jugador.jugarApuesta(apuesta, suceso) -> probaAcum * proba)
 
 			escenarios.collect{case Success(escenario)=>escenario}
@@ -25,6 +24,7 @@ import Juegos.TiposRuleta.ResultadoRuleta
 			juegos.foldLeft(raiz) {
 				case (arbol, (juego: Juego[ResultadoRuleta], apuesta: Apuesta[ResultadoRuleta])) => analizarSubArbol(arbol, juego, apuesta)
 				case (arbol, (juego: Juego[ResultadoMoneda], apuesta: Apuesta[ResultadoMoneda])) => analizarSubArbol(arbol, juego, apuesta)
+				case (_, (juego, apuesta)) => throw ApuestaIncompatibleException(apuesta, juego)
 			}
 		}
 

@@ -9,14 +9,22 @@ import Tipos.Plata
 	abstract class Juego[R](distribucion: Distribucion[R]) extends AnyJuego {
 		require(pesoTotal(distribucion)-1 <= 0.00001)
 
-		def probabilidadDe(suceso: R): Probabilidad = distribucion.getOrElse(suceso, 0)
-		def sucesosPosibles: Map[R, Probabilidad] = distribucion.filter(_._2>0)
+		def probabilidadDe(suceso: R): Probabilidad = resultadosPosibles.getOrElse(suceso, 0)
+		def resultadosPosibles: Distribucion[R] = distribucion.filter(_._2>0)
+
+		def distribucionDeGananciasPor(apuesta: Apuesta[R]): Distribucion[Plata] = {
+			resultadosPosibles.groupMapReduce
+				{case(rdo, _)=>apuesta.gananciaPorResultado(rdo)}
+				{case(_, proba)=>proba} (_+_)
+		}
 	}
 
-	trait Jugada[R]{
+	trait Jugada[R] {
+		def montoPorResultado(inversion: Plata, resultado: R): Plata = if(cumple(resultado)) montoPorGanar(inversion) else 0
 		def montoPorGanar(inversion: Plata): Plata = ganancia*inversion
-		def ganancia: Double
+
 		def cumple(resultado: R): Boolean
+		def ganancia: Double
 	}
 
 	trait AnyApuesta
@@ -29,8 +37,8 @@ import Tipos.Plata
 
 	case class ApuestaSimple[R](jugada: Jugada[R], montoRequerido: Plata)
 		extends Apuesta[R] {
+		override def gananciaPorResultado(resultado:  R): Plata = jugada.montoPorResultado(montoRequerido, resultado)
 		override def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = ApuestaCompuesta(this::List(apuesta))
-		override def gananciaPorResultado(resultado: R): Plata = if(jugada.cumple(resultado)) jugada.montoPorGanar(montoRequerido) else 0
 	}
 
 	case class ApuestaCompuesta[R](apuestas: List[Apuesta[R]]) extends Apuesta[R]{

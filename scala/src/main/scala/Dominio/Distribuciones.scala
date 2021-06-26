@@ -7,14 +7,14 @@ object Distribuciones {
 	type Probabilidad = Double
 
 	def equiprobable[R](sucesos: List[R]): Distribucion[R] = {
-		sucesos.map(s => (s, 1.toDouble / sucesos.length)).toMap
+		sucesos.map(_ -> 1.toDouble / sucesos.length).toMap
 	}
 
 	def eventoSeguro[R](suceso: R): Distribucion[R] = equiprobable[R](List(suceso))
 
 	def ponderada[R](ponderacion: Map[R, Double]): Distribucion[R] = {
 		val pTotal = pesoTotal(ponderacion)
-		ponderacion.map { case (suc, peso) => (suc, (peso / pTotal).toFloat)}
+		ponderacion.map { case (suc, peso) => (suc, peso / pTotal)}
 	}
 }
 

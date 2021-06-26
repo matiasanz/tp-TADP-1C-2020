@@ -4,18 +4,12 @@ import Dominio.Distribuciones.Distribucion
 import Dominio._
 
 //Juego ********************************************************************
-abstract class JuegoMoneda(distribucion: Distribucion[ResultadoMoneda])	extends Juego(distribucion)
 
 case object MonedaComun
-	extends JuegoMoneda(Distribuciones.equiprobable(List(CARA, CRUZ)))
+	extends Juego(Distribuciones.equiprobable[ResultadoMoneda](List(CARA, CRUZ)))
 
-case class MonedaCargada(resultado: ResultadoMoneda)
-	extends JuegoMoneda(Distribuciones.eventoSeguro(resultado))
-
-/* TODO: Duda - El enunciado primero dice que es evento seguro y en la consigna dice ponderado
-case class MonedaCargada(probaCara: Float, probaCruz: Float)
-	extends JuegoMoneda(Distribuciones.ponderada[ResultadoMoneda](Map((CARA, probaCara), (CRUZ, probaCruz))))
-*/
+case class MonedaCargada(distribucion: Distribucion[ResultadoMoneda])
+	extends Juego(distribucion)
 
 //Resultados ********************************************************************
 trait ResultadoMoneda

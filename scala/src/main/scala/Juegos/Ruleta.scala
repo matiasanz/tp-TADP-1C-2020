@@ -39,10 +39,10 @@ import TiposRuleta._
 		val esPar: ResultadoRuleta=>Boolean = numero => numero%2==0
 
 		//Docenas
-		def docena(numero: Int) = Math.ceil(numero.toDouble / 12).toInt
+		def docena(numero: ResultadoRuleta) = Math.ceil(numero.toDouble / 12).toInt
 
 		//Colores
-		def color(numero: Int): Color = columna(numero) match {
+		def color(numero: ResultadoRuleta): Color = columna(numero) match {
 			case 3 => if (numero % 9 == 6) NEGRO else ROJO
 			case 2 => colorOpuesto(color(numero + 1))
 			case 1 => if (numero == 10) NEGRO else color(numero + 2)
