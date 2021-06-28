@@ -6,6 +6,7 @@ import Dominio._
 import Juegos.ResultadoMoneda
 import Juegos.TiposRuleta.ResultadoRuleta
 
+/*
 object SimuladorAlternativo {
 
 	def simularJuegos(presupuesto: Plata, juegos: List[Simulacion[_]]): Distribucion[Plata]
@@ -18,7 +19,7 @@ object SimuladorAlternativo {
 		val escenarios = for {
 			(saldoInicial, probaLlegada) <- distribucion.toList
 			(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta).toList
-		} yield (monto(saldoInicial, apuesta.montoRequerido, ganancia), probaLlegada*probaTransicion)
+		} yield (this.monto(saldoInicial, apuesta.montoRequerido, ganancia), probaLlegada*probaTransicion)
 
 		Distribuciones.agrupar(escenarios)
 	}
@@ -26,10 +27,8 @@ object SimuladorAlternativo {
 	def monto(saldoInicial: Plata, costo: Plata, ganancia: Plata) = {
 		val saldo = saldoInicial - costo
 
-		if(saldo>=0) saldo+ganancia
-		else 		 saldoInicial
+		if(saldo>=0) saldo+ganancia //Continuo
+		else 		 saldoInicial	//Salteo
 	}
 
-	def agruparPorPlata(escenarios: List[(Plata, Probabilidad)]) = escenarios.groupMapReduce(_._1)(_._2)(_+_)
-
-}
+}*/

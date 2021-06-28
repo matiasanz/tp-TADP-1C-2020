@@ -1,6 +1,7 @@
+import Alt.{Arriesgado, Cauto}
 import Dominio.Distribuciones.Probabilidad
 import Dominio.Tipos.Plata
-import Dominio.{ApuestaSimple, Distribuciones, Jugador, Simulacion, Simulaciones}
+import Dominio.{ApuestaSimple, Distribuciones, Jugador, Simulacion, SimulacionCompuesta, SimulacionSimple, Simulaciones}
 import Juegos._
 import org.scalactic.TripleEqualsSupport
 import org.scalatest.freespec.AnyFreeSpec
@@ -15,7 +16,7 @@ class EnunciadoSpec extends AnyFreeSpec {
     "Jugadas y Apuestas" - {
         "Tirar una moneda" - {
             "Crear una jugada a duplicar si sale cara" in {
-                val montoPorResultado = JugadaMoneda(CARA).montoPorResultado(20, _)
+                val montoPorResultado = JugadaMoneda(CARA)(20, _)
                 montoPorResultado(CARA) should be(40)
                 montoPorResultado(CRUZ) should be(0)
             }
@@ -28,15 +29,15 @@ class EnunciadoSpec extends AnyFreeSpec {
 
 
                 "combinadas si se cumple uno" in {
-                    apuestaCompuesta.gananciaPorResultado(3) should be(50)
+                    apuestaCompuesta(3) should be(50)
                 }
 
                 "combinadas si se cumplen dos de tres" in {
-                    apuestaCompuesta.gananciaPorResultado(14) should be(80)
+                    apuestaCompuesta(14) should be(80)
                 }
 
                 "combinadas si se cumplen todos" in {
-                    apuestaCompuesta.gananciaPorResultado(23) should be(1160)
+                    apuestaCompuesta(23) should be(1160)
                 }
             }
         }
@@ -88,8 +89,8 @@ class EnunciadoSpec extends AnyFreeSpec {
 
         "Moneda -> Ruleta" in {
             val combinacion = List(
-                Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
-                , Simulacion(Ruleta, ApuestaSimple(ANumero(0), 15))
+                SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
+                , SimulacionSimple(Ruleta, ApuestaSimple(ANumero(0), 15))
             )
 
             val distribucion = simularJuegos(Jugador(15, null), combinacion).distribucionFinal
@@ -102,15 +103,14 @@ class EnunciadoSpec extends AnyFreeSpec {
     }
 
     "Juegos sucesivos alt" - {
-        import Alt.SimuladorAlternativo._
 
         "Moneda -> Ruleta" in {
-            val combinacion = List(
-                Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
-                , Simulacion(Ruleta, ApuestaSimple(ANumero(0), 15))
-            )
+            val combinacion = SimulacionCompuesta(List(
+                SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
+                , SimulacionSimple(Ruleta, ApuestaSimple(ANumero(0), 15))
+            ))
 
-            val distribucion = simularJuegos(15, combinacion)
+            val distribucion = combinacion.simular(15)
 
             distribucion.probabilidades.size should be(3)
             distribucion.probabilidadDe(550) should be_aprox(1.38/100)
@@ -121,6 +121,11 @@ class EnunciadoSpec extends AnyFreeSpec {
 
 
     //TODO
-/*    "Eligiendo un plan de juego" - {}
-*/
+    "Eligiendo un plan de juego" - {
+        "combinacion vacia" in {
+            println(Jugador(2, Cauto).elegirCombinacion(List(SimulacionSimple(Ruleta, ApuestaSimple(ANumero(3), 123456789)))))
+            println(Jugador(15, Arriesgado).elegirCombinacion(List.empty))
+        }
+    }
+
 }

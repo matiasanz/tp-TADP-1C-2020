@@ -1,6 +1,4 @@
 
-import Alt.SimuladorAlternativo
-import Alt.Cauto.Combinacion
 import Dominio.Tipos.Plata
 import Dominio.Utils.pesoTotal
 import Dominio._
@@ -45,12 +43,12 @@ object X{
 		val comb2 = List((Ruleta, apR))
 
 
-		val sdaf: Distribucion[Plata] = SimuladorAlternativo.simularJuegos(500, List(
-			Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
-			, Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
-			, Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
-			, Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
-		))
+		val sdaf: Distribucion[Plata] = SimulacionCompuesta(List(
+			SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
+			, SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
+			, SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
+			, SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
+		)).simular(500)
 
 		println(sdaf.toString)
 

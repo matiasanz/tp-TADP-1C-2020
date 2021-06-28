@@ -8,7 +8,47 @@ import Simulaciones.Escenario
 import Tipos._
 import Juegos.TiposRuleta.ResultadoRuleta
 
-	case class Simulacion[R](juego: Juego[R], apuesta: Apuesta[R]){
+	sealed trait Marcador
+	case object Empece extends Marcador
+	case class Jugue(plata: Plata) extends Marcador
+//	case class Gane(jugador: Jugador, simulacion: Simulacion[_]) extends Marcador
+//	case class Perdi(jugador: Jugador, simulacion: Simulacion[_]) extends Marcador
+	case object Saltee extends Marcador
+
+
+	trait Simulacion{
+		def simular(presupuesto: Plata): Distribucion[Plata] = simular(Distribuciones.eventoSeguro(presupuesto))
+		def simular(distribucion: Distribucion[Plata]): Distribucion[Plata]
+	}
+
+	case class SimulacionCompuesta(simulaciones: List[Simulacion]) extends Simulacion {
+		override def simular(distribucion: Distribucion[Plata]): Distribucion[Plata]
+			= simulaciones.foldLeft(distribucion) {
+			case(distribucion, simulacion)=>simulacion.simular(distribucion)
+		}
+	}
+
+	case class SimulacionSimple[R](juego: Juego[R], apuesta: Apuesta[R]) extends Simulacion {
+		//Esto seria la otra alternativa
+		override def simular(distribucion: Distribucion[Plata]): Distribucion[Plata] ={
+			val escenarios = for {
+				(saldoInicial, probaLlegada) <- distribucion.toList
+				(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta).toList
+			} yield (montoFinal(saldoInicial, apuesta.montoRequerido, ganancia), probaLlegada*probaTransicion)
+
+			Distribuciones.agrupar(escenarios)
+		}
+
+		def montoFinal(saldoInicial: Plata, costo: Plata, ganancia: Plata) = {
+			val saldo = saldoInicial - costo
+
+			//ganancia - costo me diria si gano o pierdo
+
+			if(saldo>=0) saldo+ganancia //Juego
+			else 		 saldoInicial	//Salteo
+		}
+
+//TODO **************************** Aca arranaca segunda alternativa ****************************************
 		def simularJuego[R](jugador: Jugador, probaAcum: Probabilidad = 1): List[Escenario] = {
 
 			val escenarios = for{
@@ -17,15 +57,18 @@ import Juegos.TiposRuleta.ResultadoRuleta
 
 			Distribuciones.agrupar(escenarios.collect{case Success(escenario)=>escenario}).toList
 		}
+
+
 	}
+
 
 	object Simulaciones {
 		type Escenario = (Jugador, Probabilidad)
 
-		def simularJuego[R](jugador: Jugador, simulacion: Simulacion[R], proba: Probabilidad = 1.0)
+		def simularJuego[R](jugador: Jugador, simulacion: SimulacionSimple[R], proba: Probabilidad = 1.0)
 			= simulacion.simularJuego(jugador, proba)
 
-		def simularJuegos(jugador: Jugador, simulaciones: List[Simulacion[_]]): ArbolEscenarios = {
+		def simularJuegos(jugador: Jugador, simulaciones: List[SimulacionSimple[_]]): ArbolEscenarios = {
 			val raiz = ArbolEscenarios((jugador, 1))
 			simulaciones.foldLeft(raiz) {
 				case (arbol, simulacion) => analizarSubArbol(arbol, simulacion)
@@ -33,14 +76,14 @@ import Juegos.TiposRuleta.ResultadoRuleta
 		}
 
 		private
-		def analizarSubArbol[R](nodo: ArbolEscenarios, simulacion: Simulacion[R]): ArbolEscenarios = {
+		def analizarSubArbol[R](nodo: ArbolEscenarios, simulacion: SimulacionSimple[R]): ArbolEscenarios = {
 			val conSubescenarios = nodo.copy( subescenarios = nodo.subescenarios.map(analizarSubArbol(_, simulacion) ))
 			if(nodo == conSubescenarios) analizarNodo(nodo, simulacion)
 			else conSubescenarios
 			//Si entra en el if quiere decir que: Es el primer intento o no tiene plata suficiente para apostar al juego
 		}
 
-		def analizarNodo[R](arbol: ArbolEscenarios, simulacion: Simulacion[R]): ArbolEscenarios
+		def analizarNodo[R](arbol: ArbolEscenarios, simulacion: SimulacionSimple[R]): ArbolEscenarios
 			= arbol.copy(subescenarios = simularJuego(arbol.situacion, simulacion, arbol.probabilidad).map(ArbolEscenarios(_)))
 	}
 

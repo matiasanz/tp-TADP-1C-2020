@@ -4,40 +4,39 @@ import Alt.CriterioJuego
 import Distribuciones.Probabilidad
 import Utils.pesoTotal
 import Tipos.Plata
-import Alt.Racional.Combinacion
 
 	abstract class Juego[R](distribucion: Distribucion[R]) {
 
 		def resultadosPosibles = distribucion
 
 		def distribucionDeGananciasPor(apuesta: Apuesta[R]): Distribucion[Plata]
-			= distribucion.map(rdo => apuesta.gananciaPorResultado(rdo))
+			= distribucion.map(rdo => apuesta(rdo))
 	}
 
-	trait Jugada[R] {
-		def montoPorResultado(inversion: Plata, resultado: R): Plata = if(cumple(resultado)) montoPorGanar(inversion) else 0
+	trait Jugada[R] extends ((Plata, R)=>Plata){
+		override def apply(inversion: Plata, resultado: R): Plata = if(cumple(resultado)) montoPorGanar(inversion) else montoPorPerder
 		def montoPorGanar(inversion: Plata): Plata = ganancia*inversion
+		def montoPorPerder = 0
 
 		def cumple(resultado: R): Boolean
 		def ganancia: Double
 	}
 
-	trait Apuesta[R] {
+	trait Apuesta[R] extends (R=>Plata){
 		def montoRequerido: Plata
 		def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R]
-		def gananciaPorResultado(resultado: R): Plata
+		def apply(resultado: R): Plata
 	}
 
-	case class ApuestaSimple[R](jugada: Jugada[R], montoRequerido: Plata)
-		extends Apuesta[R] {
-		override def gananciaPorResultado(resultado:  R): Plata = jugada.montoPorResultado(montoRequerido, resultado)
+	case class ApuestaSimple[R](jugar: Jugada[R], montoRequerido: Plata) extends Apuesta[R] {
+		override def apply(resultado:  R): Plata = jugar(montoRequerido, resultado)
 		override def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = ApuestaCompuesta(this::List(apuesta))
 	}
 
 	case class ApuestaCompuesta[R](apuestas: List[Apuesta[R]]) extends Apuesta[R]{
-		override def montoRequerido: Plata = apuestas.map(_.montoRequerido).sum
+		override def apply(resultado: R): Plata = apuestas.map(_(resultado)).sum
 		override def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = copy(apuestas:+apuesta)
-		override def gananciaPorResultado(resultado: R): Plata = apuestas.map(_.gananciaPorResultado(resultado)).sum
+		override def montoRequerido: Plata = apuestas.map(_.montoRequerido).sum
 	}
 
 	case class Jugador(saldo: Plata, criterio: CriterioJuego) {
@@ -50,7 +49,7 @@ import Alt.Racional.Combinacion
 			copy(saldoPorDesacreditar(monto))
 		}
 
-		def elegirCombinacion(combinaciones: List[Combinacion]): Combinacion
+		def elegirCombinacion(combinaciones: List[Simulacion]): Simulacion
 			= criterio.elegirEntre(saldo, combinaciones)
 
 		def validarExtraccion(monto: Plata): Unit = {
@@ -60,7 +59,7 @@ import Alt.Racional.Combinacion
 
 		val saldoPorDesacreditar: Plata => Plata = monto => saldo-monto
 
-		def jugarApuesta[R](apuesta: Apuesta[R], resultado: R): Jugador = {
-			desacreditar(apuesta.montoRequerido).acreditar(apuesta.gananciaPorResultado(resultado))
+		def jugarApuesta[R](apostar: Apuesta[R], resultado: R): Jugador = {
+			desacreditar(apostar.montoRequerido).acreditar(apostar(resultado))
 		}
 	}

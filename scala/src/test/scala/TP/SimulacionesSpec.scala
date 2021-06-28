@@ -32,7 +32,7 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
 
             "Moneda Comun" - {
                 "50% de probabilidad de ganar y de perder" in {
-                    simularJuego(jugador, Simulacion(MonedaComun, apuesta)) should contain only (
+                    simularJuego(jugador, SimulacionSimple(MonedaComun, apuesta)) should contain only (
                         (jugadorConPresupuesto(400), 0.5)
                         , (jugadorConPresupuesto(0), 0.5)
                     )
@@ -41,7 +41,7 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
 
             "Un juego con una apuesta compuesta perdedora en cualquier caso se simula correctamente" in {
                 val ap = apuesta.compuestaCon(ApuestaSimple(JugadaMoneda(CARA), 300))
-                simularJuego(jugadorConPresupuesto(600), Simulacion(MonedaComun, ap)) should contain only (
+                simularJuego(jugadorConPresupuesto(600), SimulacionSimple(MonedaComun, ap)) should contain only (
                     (jugadorConPresupuesto(1100.0), 0.5.toFloat)
                     , (jugadorConPresupuesto(100),0.5.toFloat)
                 )
