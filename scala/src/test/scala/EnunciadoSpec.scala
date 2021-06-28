@@ -44,15 +44,15 @@ class EnunciadoSpec extends AnyFreeSpec {
 
     "Resultados de los juegos" - {
         "Moneda comun tiene igual probabilidad de salir una u otra" in {
-            MonedaComun.resultadosPosibles should contain only((CARA, 0.5), (CRUZ, 0.5))
+            MonedaComun.resultadosPosibles.probabilidades should contain only((CARA, 0.5), (CRUZ, 0.5))
         }
 
         "Moneda cargada solo para cara" in {
             val monedaCargada = MonedaCargada(Distribuciones.eventoSeguro(CARA))
-            monedaCargada.probabilidadDe(CARA) should be(1)
-            monedaCargada.probabilidadDe(CRUZ) should be(0)
+            monedaCargada.distribucion.probabilidadDe(CARA) should be(1)
+            monedaCargada.distribucion.probabilidadDe(CRUZ) should be(0)
 
-            monedaCargada.resultadosPosibles should not contain(CRUZ)
+            monedaCargada.resultadosPosibles.probabilidades should not contain(CRUZ)
         }
 
         "Distribuciones" - {
@@ -61,8 +61,8 @@ class EnunciadoSpec extends AnyFreeSpec {
                 val sucesos: Map[Boolean, Double] = Map((rdo1, 2.0/3), (rdo2, 1.0/3))
                 val ponderada = Distribuciones.ponderada(sucesos)
 
-                ponderada(rdo1) should be_aprox(0.66)
-                ponderada(rdo2) should be_aprox(0.33)
+                ponderada.probabilidadDe(rdo1) should be_aprox(0.66)
+                ponderada.probabilidadDe(rdo2) should be_aprox(0.33)
             }
         }
     }
@@ -70,16 +70,16 @@ class EnunciadoSpec extends AnyFreeSpec {
     "Jugando un juego" - {
         "Ganancias por jugar con moneda comun" in {
             val apuesta = ApuestaSimple(JugadaMoneda(CARA), 30)
-            MonedaComun.distribucionDeGananciasPor(apuesta) should contain only((60, .5), (0, .5))
+            MonedaComun.distribucionDeGananciasPor(apuesta).probabilidades should contain only((60, .5), (0, .5))
         }
 
         "Ganancias por jugar a ruleta" in {
             val apuesta = ApuestaSimple(ANumero(1), 10)
             val distribucion = Ruleta.distribucionDeGananciasPor(apuesta)
 
-            distribucion.size should be(2)
-            distribucion(360) should be_aprox(0.027) //1.0/37
-            distribucion(0) should be_aprox(0.972) //36.0/37
+            distribucion.probabilidades.size should be(2)
+            distribucion.probabilidadDe(360) should be_aprox(0.027) //1.0/37
+            distribucion.probabilidadDe(0) should be_aprox(0.972) //36.0/37
         }
     }
 
@@ -94,10 +94,10 @@ class EnunciadoSpec extends AnyFreeSpec {
 
             val distribucion = simularJuegos(Jugador(15, null), combinacion).distribucionFinal
 
-            distribucion.size should be(3)
-            distribucion(550) should be_aprox(1.38/100)
-            distribucion(10) should be_aprox(48.61/100)
-            distribucion(5) should be(0.5)
+            distribucion.probabilidades.size should be(3)
+            distribucion.probabilidadDe(550) should be_aprox(1.38/100)
+            distribucion.probabilidadDe(10) should be_aprox(48.61/100)
+            distribucion.probabilidadDe(5) should be(0.5)
         }
     }
 
@@ -112,10 +112,10 @@ class EnunciadoSpec extends AnyFreeSpec {
 
             val distribucion = simularJuegos(15, combinacion)
 
-            distribucion.size should be(3)
-            distribucion(550) should be_aprox(1.38/100)
-            distribucion(10) should be_aprox(48.61/100)
-            distribucion(5) should be_aprox(0.5)
+            distribucion.probabilidades.size should be(3)
+            distribucion.probabilidadDe(550) should be_aprox(1.38/100)
+            distribucion.probabilidadDe(10) should be_aprox(48.61/100)
+            distribucion.probabilidadDe(5) should be_aprox(0.5)
         }
     }
 

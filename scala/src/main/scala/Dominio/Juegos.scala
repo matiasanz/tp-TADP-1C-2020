@@ -1,20 +1,17 @@
 package Dominio
 
 import Alt.CriterioJuego
-import Distribuciones.{Distribucion, Probabilidad}
+import Distribuciones.Probabilidad
 import Utils.pesoTotal
 import Tipos.Plata
 import Alt.Racional.Combinacion
 
 	abstract class Juego[R](distribucion: Distribucion[R]) {
-		require(pesoTotal(distribucion) - 1 <= 0.00001)
 
 		def resultadosPosibles = distribucion
 
-		def probabilidadDe(rdo: R): Probabilidad = distribucion.getOrElse(rdo, 0)
-
 		def distribucionDeGananciasPor(apuesta: Apuesta[R]): Distribucion[Plata]
-			= Distribuciones.map(distribucion, rdo => apuesta.gananciaPorResultado(rdo))
+			= distribucion.map(rdo => apuesta.gananciaPorResultado(rdo))
 	}
 
 	trait Jugada[R] {
@@ -65,6 +62,5 @@ import Alt.Racional.Combinacion
 
 		def jugarApuesta[R](apuesta: Apuesta[R], resultado: R): Jugador = {
 			desacreditar(apuesta.montoRequerido).acreditar(apuesta.gananciaPorResultado(resultado))
-			//TODO: Esto capaz convenga hacerlo desde el lado de la apuesta
 		}
 	}

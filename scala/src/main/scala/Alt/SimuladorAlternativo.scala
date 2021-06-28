@@ -1,6 +1,6 @@
 package Alt
 
-import Dominio.Distribuciones.{Distribucion, Probabilidad}
+import Dominio.Distribuciones.Probabilidad
 import Dominio.Tipos.Plata
 import Dominio._
 import Juegos.ResultadoMoneda
@@ -20,7 +20,7 @@ object SimuladorAlternativo {
 			(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta).toList
 		} yield (monto(saldoInicial, apuesta.montoRequerido, ganancia), probaLlegada*probaTransicion)
 
-		agruparPorPlata(escenarios)
+		Distribuciones.agrupar(escenarios)
 	}
 
 	def monto(saldoInicial: Plata, costo: Plata, ganancia: Plata) = {

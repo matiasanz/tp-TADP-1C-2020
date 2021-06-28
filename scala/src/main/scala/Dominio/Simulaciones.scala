@@ -1,6 +1,6 @@
 package Dominio
 
-import Dominio.Distribuciones.{Distribucion, Probabilidad}
+import Dominio.Distribuciones.Probabilidad
 import Juegos._
 
 import scala.util.{Success, Try}
@@ -15,7 +15,7 @@ import Juegos.TiposRuleta.ResultadoRuleta
 				(suceso, proba) <- juego.resultadosPosibles.toList
 			} yield Try(jugador.jugarApuesta(apuesta, suceso) -> probaAcum * proba)
 
-			escenarios.collect{case Success(escenario)=>escenario}.groupMapReduce(_._1)(_._2)(_+_).toList
+			Distribuciones.agrupar(escenarios.collect{case Success(escenario)=>escenario}).toList
 		}
 	}
 
@@ -49,7 +49,10 @@ import Juegos.TiposRuleta.ResultadoRuleta
 		val saldo: Plata = situacion.saldo
 		val probabilidad: Probabilidad = escenario._2
 
-		def distribucionFinal: Distribucion[Plata] = hojas.map(a=>a.saldo->a.probabilidad).toMap
+		def distribucionFinal: Distribucion[Plata] = {
+			val distr = hojas.map(h=>h.saldo->h.probabilidad).toMap
+			Distribucion(distr)
+		}
 
 		def gananciaRespectoDe(jugador: Jugador): Plata = saldo - jugador.saldo
 

@@ -26,22 +26,22 @@ class ApuestaSpec extends AnyFreeSpec{
       "distribuciones" - {
           "equiprobable" in {
               val equiprobable = Distribuciones.equiprobable(List(CARA, CRUZ))
-              equiprobable(CARA) should be(0.5)
-              equiprobable(CRUZ) should be(0.5)
+              equiprobable.probabilidadDe(CARA) should be(0.5)
+              equiprobable.probabilidadDe(CRUZ) should be(0.5)
           }
 
           "evento unico" in{
               val eventoUnico = Distribuciones.eventoSeguro[ResultadoMoneda](CARA)
-              eventoUnico(CARA) should be(1)
-              eventoUnico.getOrElse(CRUZ, 0) should be(0)
+              eventoUnico.probabilidadDe(CARA) should be(1)
+              eventoUnico.probabilidadDe(CRUZ) should be(0)
           }
 
           "Ponderada" in {
               val sucesos: Map[ResultadoMoneda, Double] = Map((CARA, 7500), (CRUZ, 2500))
               val ponderada = Distribuciones.ponderada(sucesos)
 
-              ponderada(CARA) should be(0.75)
-              ponderada(CRUZ) should be(0.25)
+              ponderada.probabilidadDe(CARA) should be(0.75)
+              ponderada.probabilidadDe(CRUZ) should be(0.25)
           }
         }
      }

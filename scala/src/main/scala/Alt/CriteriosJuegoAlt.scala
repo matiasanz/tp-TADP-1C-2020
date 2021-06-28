@@ -1,9 +1,8 @@
 package Alt
 
 import Alt.SimuladorAlternativo._
-import Dominio.Distribuciones.Distribucion
 import Dominio.Tipos.Plata
-import Dominio.Simulacion
+import Dominio.{Distribucion, Simulacion}
 
 trait CriterioJuego{
 	type Combinacion = List[Simulacion[_]]
@@ -19,7 +18,7 @@ trait CriterioJuego{
 case object Racional extends CriterioJuego {
 
 	val puntaje: Plata=>CriterioPonderacion[Plata] = presupuesto=>
-		_._2.map{case(plata, proba) => (presupuesto - plata)*proba}.sum
+		_._2.probabilidades.map{case(plata, proba) => (presupuesto - plata)*proba}.sum
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(presupuesto, combinaciones, puntaje(presupuesto))
@@ -27,8 +26,7 @@ case object Racional extends CriterioJuego {
 }
 
 case object Arriesgado extends CriterioJuego {
-	val gananciaMaxima: CriterioPonderacion[Plata] =
-		_._2.map{case(plata, _) => plata}.max
+	val gananciaMaxima: CriterioPonderacion[Plata] = _._2.sucesos.max
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(presupuesto, combinaciones, gananciaMaxima)
@@ -38,7 +36,7 @@ case object Arriesgado extends CriterioJuego {
 case object Cauto extends CriterioJuego {
 
 	val probabilidadDeNoPerder: Plata=>CriterioPonderacion[Plata] = presupuesto =>
-		_._2.collect{case (plata, proba) if(presupuesto>=plata) =>  proba}.sum
+		_._2.probabilidades.collect{case(plata, proba) if(presupuesto>=plata) =>  proba}.sum
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Combinacion]): Combinacion = {
 		analizarCombinaciones(presupuesto, combinaciones, probabilidadDeNoPerder(presupuesto))

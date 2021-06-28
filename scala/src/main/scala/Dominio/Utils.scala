@@ -5,6 +5,6 @@ object Tipos{
 	type Plata = BigDecimal
 }
 
-object Utils{ //TODO no hace mas falta
+object Utils{
 	def pesoTotal(sucesos: Map[_, Double]): Double = sucesos.values.sum
 }

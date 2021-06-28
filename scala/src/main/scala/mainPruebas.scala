@@ -1,7 +1,6 @@
 
 import Alt.SimuladorAlternativo
 import Alt.Cauto.Combinacion
-import Dominio.Distribuciones.Distribucion
 import Dominio.Tipos.Plata
 import Dominio.Utils.pesoTotal
 import Dominio._
