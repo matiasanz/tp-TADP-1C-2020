@@ -8,27 +8,6 @@ import Simulaciones.Escenario
 import Tipos._
 import Juegos.TiposRuleta.ResultadoRuleta
 
-	trait Marcador{
-		def saldo: Plata
-	}
-
-	object Marcadores{
-		def seJugo: Marcador => Boolean = marcador => marcador match { //TODO: me parece que habia otra forma...
-			case Empece(_) => false
-			case Saltee(anterior) => seJugo(anterior)
-			case Jugue(_, _) => true
-		}
-	}
-
-	case class Empece(saldo: Plata) extends Marcador
-	case class Jugue(saldo: Plata, anterior: Marcador) extends Marcador
-//	case class Gane(jugador: Jugador, simulacion: Simulacion[_]) extends Marcador
-//	case class Perdi(jugador: Jugador, simulacion: Simulacion[_]) extends Marcador
-	case class Saltee(anterior: Marcador) extends Marcador{
-		def saldo = anterior.saldo
-	}
-
-
 	trait Simulacion{
 		def simular(presupuesto: Plata): Distribucion[Marcador]
 			= simular(Distribuciones.eventoSeguro[Marcador](  Empece(presupuesto)  ))
@@ -63,8 +42,8 @@ import Juegos.TiposRuleta.ResultadoRuleta
 
 			//ganancia - costo me diria si gano o pierdo
 
-			if(saldo>=0) Jugue(saldo+ganancia, marcadorAnterior) //Juego
-			else 		 Saltee(marcadorAnterior)	//Salteo
+			if(saldo>=0) Jugue(saldo+ganancia, this, marcadorAnterior) //Juego
+			else 		 Saltee(this, marcadorAnterior)	//Salteo
 		}
 
 //TODO **************************** Aca arranaca segunda alternativa ****************************************
@@ -76,8 +55,6 @@ import Juegos.TiposRuleta.ResultadoRuleta
 
 			Distribuciones.agrupar(escenarios.collect{case Success(escenario)=>escenario}).toList
 		}
-
-
 	}
 
 

@@ -1,7 +1,6 @@
-import Alt.{Arriesgado, Cauto, CriterioJuego, Racional}
 import Dominio.Distribuciones.Probabilidad
 import Dominio.Tipos.Plata
-import Dominio.{ApuestaCompuesta, ApuestaSimple, Distribuciones, Jugador, Jugue, Saltee, Simulacion, SimulacionCompuesta, SimulacionSimple, SimulacionVacia, Simulaciones}
+import Dominio.{ApuestaCompuesta, ApuestaSimple, Arriesgado, Cauto, CriterioJuego, Distribuciones, Jugador, Jugue, Racional, Saltee, Simulacion, SimulacionCompuesta, SimulacionSimple, SimulacionVacia, Simulaciones}
 import Juegos._
 import org.scalactic.TripleEqualsSupport
 import org.scalatest.freespec.AnyFreeSpec

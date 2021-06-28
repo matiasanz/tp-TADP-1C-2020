@@ -1,8 +1,7 @@
-package Alt
+package Dominio
 
 import Dominio.Marcadores.seJugo
 import Dominio.Tipos.Plata
-import Dominio.{Distribucion, Jugue, Marcador, Saltee, Simulacion, SimulacionCompuesta, SimulacionSimple}
 
 trait CriterioJuego{
 	def	elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]

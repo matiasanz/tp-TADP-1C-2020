@@ -1,6 +1,5 @@
 package Dominio
 
-import Alt.CriterioJuego
 import Distribuciones.Probabilidad
 import Utils.pesoTotal
 import Tipos.Plata
