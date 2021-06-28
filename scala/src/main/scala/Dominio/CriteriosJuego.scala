@@ -1,7 +1,10 @@
 package Dominio
 
+import Dominio.Cauto.{CriterioPonderacion, analizarCombinaciones, probabilidadDeNoPerderRespectoA}
 import Dominio.Marcadores.seJugo
 import Dominio.Tipos.Plata
+
+import scala.math.BigDecimal.int2bigDecimal
 
 trait CriterioJuego{
 	def	elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
@@ -39,4 +42,13 @@ case object Cauto extends CriterioJuego {
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= analizarCombinaciones(presupuesto, combinaciones, probabilidadDeNoPerderRespectoA(presupuesto))
+}
+
+//Criterio extra
+case class Miedoso(presupuesto: Plata) extends CriterioJuego {
+	val menorPerdida: Plata=>CriterioPonderacion[Plata] = presupuesto =>
+		_._2.sucesos.map(marcador=>0.max(marcador.saldo - presupuesto)).min
+
+	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
+		= analizarCombinaciones(presupuesto, combinaciones, menorPerdida(presupuesto))
 }
