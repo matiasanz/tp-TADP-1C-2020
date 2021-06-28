@@ -126,7 +126,7 @@ class EnunciadoSpec extends AnyFreeSpec {
     "Eligiendo un plan de juego" - {
 
         "Casos con una sola apuesta" - {
-            val puntoMedio = SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 15))
+            val puntoMedio = SimulacionSimple(MonedaCargada(Distribuciones.ponderada(Map((CARA, 75), (CRUZ, 25)))), ApuestaSimple(JugadaMoneda(CARA), 15))
             val pocoProbableYMuyBeneficioso = SimulacionSimple(Ruleta, ApuestaSimple(ANumero(1), 50))
             val muyProbableYPocoBeneficioso = SimulacionSimple(MonedaCargada(Distribuciones.eventoSeguro(CARA)), ApuestaSimple(JugadaMoneda(CARA), 5))
 
@@ -147,8 +147,6 @@ class EnunciadoSpec extends AnyFreeSpec {
             }
 
             "Criterio racional" in {
-                println(combinaciones.map(c=> (c, c.simular(50))))
-                println(combinaciones.map(c=> (c, c.simular(50))).map{case(a, b)=>Racional.puntaje(50)(a, b)})
                 elegir(Racional) should be(puntoMedio)
             }
         }

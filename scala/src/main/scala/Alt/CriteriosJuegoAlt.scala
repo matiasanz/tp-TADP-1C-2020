@@ -19,7 +19,11 @@ trait CriterioJuego{
 case object Racional extends CriterioJuego {
 
 	val puntaje: Plata=>CriterioPonderacion[Plata] = presupuesto=>
-		_._2.probabilidades.map{case(marcador, proba) => (marcador.saldo-presupuesto)*proba}.sum
+		_._2.probabilidades.map{case(marcador, proba) => {
+			println(s"(${marcador.saldo.toString()} - ${presupuesto})*$proba")
+
+			(marcador.saldo-presupuesto)*proba
+		}}.sum
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion] = {
 		analizarCombinaciones(presupuesto, combinaciones, puntaje(presupuesto))
