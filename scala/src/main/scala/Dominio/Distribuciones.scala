@@ -1,5 +1,6 @@
 package Dominio
 
+import Dominio.Distribuciones.Probabilidad
 import Utils.pesoTotal
 
 object Distribuciones {
@@ -16,6 +17,15 @@ object Distribuciones {
 		val pTotal = pesoTotal(ponderacion)
 		ponderacion.map { case (suc, peso) => (suc, peso / pTotal)}
 	}
+
+	def map[R, S]: (Distribucion[R], R=>S) => Distribucion[S]
+		= (distribucion, transform) => {
+			val nueva = distribucion.toList.map { case (rdo, proba) => transform(rdo) -> proba }
+			agrupar(nueva)
+		}
+
+	def agrupar[R](distribucion: List[(R, Probabilidad)])
+		= distribucion.groupMapReduce(_._1)(_._2)(_+_)
 }
 
 

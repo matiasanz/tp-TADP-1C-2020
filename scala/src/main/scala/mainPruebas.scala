@@ -1,6 +1,6 @@
 
 import Alt.SimuladorAlternativo
-import Dominio.Cauto.Combinacion
+import Alt.Cauto.Combinacion
 import Dominio.Distribuciones.Distribucion
 import Dominio.Tipos.Plata
 import Dominio.Utils.pesoTotal
@@ -47,10 +47,10 @@ object X{
 
 
 		val sdaf: Distribucion[Plata] = SimuladorAlternativo.simularJuegos(500, List(
-			(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
-			, (MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
-			, (MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
-			, (MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
+			Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
+			, Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
+			, Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
+			, Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
 		))
 
 		println(sdaf.toString)

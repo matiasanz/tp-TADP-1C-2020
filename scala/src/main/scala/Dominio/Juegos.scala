@@ -1,22 +1,20 @@
 package Dominio
 
+import Alt.CriterioJuego
 import Distribuciones.{Distribucion, Probabilidad}
 import Utils.pesoTotal
 import Tipos.Plata
+import Alt.Racional.Combinacion
 
-	trait AnyJuego
+	abstract class Juego[R](distribucion: Distribucion[R]) {
+		require(pesoTotal(distribucion) - 1 <= 0.00001)
 
-	abstract class Juego[R](distribucion: Distribucion[R]) extends AnyJuego {
-		require(pesoTotal(distribucion)-1 <= 0.00001)
+		def resultadosPosibles = distribucion
 
-		def probabilidadDe(suceso: R): Probabilidad = resultadosPosibles.getOrElse(suceso, 0)
-		def resultadosPosibles: Distribucion[R] = distribucion.filter(_._2>0)
+		def probabilidadDe(rdo: R): Probabilidad = distribucion.getOrElse(rdo, 0)
 
-		def distribucionDeGananciasPor(apuesta: Apuesta[R]): Distribucion[Plata] = {
-			resultadosPosibles.groupMapReduce
-				{case(rdo, _)=>apuesta.gananciaPorResultado(rdo)}
-				{case(_, proba)=>proba} (_+_)
-		}
+		def distribucionDeGananciasPor(apuesta: Apuesta[R]): Distribucion[Plata]
+			= Distribuciones.map(distribucion, rdo => apuesta.gananciaPorResultado(rdo))
 	}
 
 	trait Jugada[R] {
@@ -27,9 +25,7 @@ import Tipos.Plata
 		def ganancia: Double
 	}
 
-	trait AnyApuesta
-
-	trait Apuesta[R] extends AnyApuesta{
+	trait Apuesta[R] {
 		def montoRequerido: Plata
 		def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R]
 		def gananciaPorResultado(resultado: R): Plata
@@ -47,7 +43,7 @@ import Tipos.Plata
 		override def gananciaPorResultado(resultado: R): Plata = apuestas.map(_.gananciaPorResultado(resultado)).sum
 	}
 
-	case class Jugador(saldo: Plata) {
+	case class Jugador(saldo: Plata, criterio: CriterioJuego) {
 		require(saldo >= 0)
 
 		def acreditar(monto: Plata): Jugador = copy(saldo + monto)
@@ -56,6 +52,9 @@ import Tipos.Plata
 			validarExtraccion(monto)
 			copy(saldoPorDesacreditar(monto))
 		}
+
+		def elegirCombinacion(combinaciones: List[Combinacion]): Combinacion
+			= criterio.elegirEntre(saldo, combinaciones)
 
 		def validarExtraccion(monto: Plata): Unit = {
 			if(saldoPorDesacreditar(monto)<0)

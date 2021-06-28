@@ -1,6 +1,6 @@
 import Dominio.Distribuciones.Probabilidad
 import Dominio.Tipos.Plata
-import Dominio.{ApuestaSimple, Distribuciones, Jugador, Simulaciones}
+import Dominio.{ApuestaSimple, Distribuciones, Jugador, Simulacion, Simulaciones}
 import Juegos._
 import org.scalactic.TripleEqualsSupport
 import org.scalatest.freespec.AnyFreeSpec
@@ -88,18 +88,16 @@ class EnunciadoSpec extends AnyFreeSpec {
 
         "Moneda -> Ruleta" in {
             val combinacion = List(
-                (MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
-                , (Ruleta, ApuestaSimple(ANumero(0), 15))
+                Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
+                , Simulacion(Ruleta, ApuestaSimple(ANumero(0), 15))
             )
 
-            val distribucion = simularJuegos(Jugador(15), combinacion).hojas.map(a=>(a.situacion, a.probabilidad)).toMap
-
-            val probaDe: Plata=>Probabilidad = x=>distribucion(Jugador(x))
+            val distribucion = simularJuegos(Jugador(15, null), combinacion).distribucionFinal
 
             distribucion.size should be(3)
-            probaDe(550) should be_aprox(1.38/100)
-            probaDe(10) should be_aprox(48.61/100)
-            probaDe(5) should be(0.5)
+            distribucion(550) should be_aprox(1.38/100)
+            distribucion(10) should be_aprox(48.61/100)
+            distribucion(5) should be(0.5)
         }
     }
 
@@ -108,8 +106,8 @@ class EnunciadoSpec extends AnyFreeSpec {
 
         "Moneda -> Ruleta" in {
             val combinacion = List(
-                (MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
-                , (Ruleta, ApuestaSimple(ANumero(0), 15))
+                Simulacion(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
+                , Simulacion(Ruleta, ApuestaSimple(ANumero(0), 15))
             )
 
             val distribucion = simularJuegos(15, combinacion)
