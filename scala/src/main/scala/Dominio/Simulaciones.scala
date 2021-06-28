@@ -8,21 +8,40 @@ import Simulaciones.Escenario
 import Tipos._
 import Juegos.TiposRuleta.ResultadoRuleta
 
-	sealed trait Marcador
-	case object Empece extends Marcador
-	case class Jugue(plata: Plata) extends Marcador
+	trait Marcador{
+		def saldo: Plata
+	}
+
+	object Marcadores{
+		def seJugo: Marcador => Boolean = marcador => marcador match { //TODO: me parece que habia otra forma...
+			case Empece(_) => false
+			case Saltee(anterior) => seJugo(anterior)
+			case Jugue(_, _) => true
+		}
+	}
+
+	case class Empece(saldo: Plata) extends Marcador
+	case class Jugue(saldo: Plata, anterior: Marcador) extends Marcador
 //	case class Gane(jugador: Jugador, simulacion: Simulacion[_]) extends Marcador
 //	case class Perdi(jugador: Jugador, simulacion: Simulacion[_]) extends Marcador
-	case object Saltee extends Marcador
+	case class Saltee(anterior: Marcador) extends Marcador{
+		def saldo = anterior.saldo
+	}
 
 
 	trait Simulacion{
-		def simular(presupuesto: Plata): Distribucion[Plata] = simular(Distribuciones.eventoSeguro(presupuesto))
-		def simular(distribucion: Distribucion[Plata]): Distribucion[Plata]
+		def simular(presupuesto: Plata): Distribucion[Marcador]
+			= simular(Distribuciones.eventoSeguro[Marcador](  Empece(presupuesto)  ))
+
+		def simular(distribucion: Distribucion[Marcador]): Distribucion[Marcador]
+	}
+
+	case object SimulacionVacia extends Simulacion {
+		override def simular(distr: Distribucion[Marcador]): Distribucion[Marcador] = identity(distr)
 	}
 
 	case class SimulacionCompuesta(simulaciones: List[Simulacion]) extends Simulacion {
-		override def simular(distribucion: Distribucion[Plata]): Distribucion[Plata]
+		override def simular(distribucion: Distribucion[Marcador]): Distribucion[Marcador]
 			= simulaciones.foldLeft(distribucion) {
 			case(distribucion, simulacion)=>simulacion.simular(distribucion)
 		}
@@ -30,22 +49,22 @@ import Juegos.TiposRuleta.ResultadoRuleta
 
 	case class SimulacionSimple[R](juego: Juego[R], apuesta: Apuesta[R]) extends Simulacion {
 		//Esto seria la otra alternativa
-		override def simular(distribucion: Distribucion[Plata]): Distribucion[Plata] ={
+		override def simular(distribucion: Distribucion[Marcador]): Distribucion[Marcador] ={
 			val escenarios = for {
-				(saldoInicial, probaLlegada) <- distribucion.toList
+				(marcadorAnterior, probaLlegada) <- distribucion.toList
 				(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta).toList
-			} yield (montoFinal(saldoInicial, apuesta.montoRequerido, ganancia), probaLlegada*probaTransicion)
+			} yield (marcador(marcadorAnterior, apuesta.montoRequerido, ganancia), probaLlegada*probaTransicion)
 
 			Distribuciones.agrupar(escenarios)
 		}
 
-		def montoFinal(saldoInicial: Plata, costo: Plata, ganancia: Plata) = {
-			val saldo = saldoInicial - costo
+		def marcador(marcadorAnterior: Marcador, costo: Plata, ganancia: Plata): Marcador = {
+			val saldo = marcadorAnterior.saldo - costo
 
 			//ganancia - costo me diria si gano o pierdo
 
-			if(saldo>=0) saldo+ganancia //Juego
-			else 		 saldoInicial	//Salteo
+			if(saldo>=0) Jugue(saldo+ganancia, marcadorAnterior) //Juego
+			else 		 Saltee(marcadorAnterior)	//Salteo
 		}
 
 //TODO **************************** Aca arranaca segunda alternativa ****************************************

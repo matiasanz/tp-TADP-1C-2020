@@ -1,7 +1,7 @@
-import Alt.{Arriesgado, Cauto}
+import Alt.{Arriesgado, Cauto, CriterioJuego, Racional}
 import Dominio.Distribuciones.Probabilidad
 import Dominio.Tipos.Plata
-import Dominio.{ApuestaSimple, Distribuciones, Jugador, Simulacion, SimulacionCompuesta, SimulacionSimple, Simulaciones}
+import Dominio.{ApuestaSimple, Distribuciones, Jugador, Jugue, Saltee, Simulacion, SimulacionCompuesta, SimulacionSimple, SimulacionVacia, Simulaciones}
 import Juegos._
 import org.scalactic.TripleEqualsSupport
 import org.scalatest.freespec.AnyFreeSpec
@@ -110,8 +110,9 @@ class EnunciadoSpec extends AnyFreeSpec {
                 , SimulacionSimple(Ruleta, ApuestaSimple(ANumero(0), 15))
             ))
 
-            val distribucion = combinacion.simular(15)
+            val distribucion = combinacion.simular(15).map(_.saldo)
 
+            println(distribucion.probabilidades)
             distribucion.probabilidades.size should be(3)
             distribucion.probabilidadDe(550) should be_aprox(1.38/100)
             distribucion.probabilidadDe(10) should be_aprox(48.61/100)
@@ -120,11 +121,57 @@ class EnunciadoSpec extends AnyFreeSpec {
     }
 
 
+    import Dominio.SimulacionVacia
     //TODO
     "Eligiendo un plan de juego" - {
-        "combinacion vacia" in {
-            println(Jugador(2, Cauto).elegirCombinacion(List(SimulacionSimple(Ruleta, ApuestaSimple(ANumero(3), 123456789)))))
-            println(Jugador(15, Arriesgado).elegirCombinacion(List.empty))
+
+        "Casos con una sola apuesta" - {
+            val puntoMedio = SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 15))
+            val pocoProbableYMuyBeneficioso = SimulacionSimple(Ruleta, ApuestaSimple(ANumero(1), 50))
+            val muyProbableYPocoBeneficioso = SimulacionSimple(MonedaCargada(Distribuciones.eventoSeguro(CARA)), ApuestaSimple(JugadaMoneda(CARA), 5))
+
+            val combinaciones = List(
+                puntoMedio
+                , pocoProbableYMuyBeneficioso
+                , muyProbableYPocoBeneficioso
+            )
+
+            val elegir: CriterioJuego=>Simulacion = criterio=> Jugador(50, criterio).elegirCombinacion(combinaciones)
+
+            "Criterio arriesgado" in {
+                elegir(Arriesgado) should be(pocoProbableYMuyBeneficioso)
+            }
+
+            "Criterio Cauto" in {
+                elegir(Cauto) should be(muyProbableYPocoBeneficioso)
+            }
+
+            "Criterio racional" in {
+                println(combinaciones.map(c=> (c, c.simular(50))))
+                println(combinaciones.map(c=> (c, c.simular(50))).map{case(a, b)=>Racional.puntaje(50)(a, b)})
+                elegir(Racional) should be(puntoMedio)
+            }
+        }
+
+        "Combinacion impagable" in {
+            val assert: CriterioJuego=>Unit = criterio=> {
+                Jugador(2, criterio)
+                    .elegirCombinacion(List(SimulacionSimple(Ruleta, ApuestaSimple(ANumero(3), 123456789)))) should be(SimulacionVacia)
+            }
+
+            assert(Cauto)
+            assert(Racional)
+            assert(Arriesgado)
+        }
+
+        "Combinacion vacia" in {
+            val assert: CriterioJuego=>Unit = criterio=>{
+                Jugador(15, criterio).elegirCombinacion(List.empty) should be(SimulacionVacia)
+            }
+
+            assert(Cauto)
+            assert(Racional)
+            assert(Arriesgado)
         }
     }
 

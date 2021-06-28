@@ -13,8 +13,8 @@ import Tipos.Plata
 			= distribucion.map(rdo => apuesta(rdo))
 	}
 
-	trait Jugada[R] extends ((Plata, R)=>Plata){
-		override def apply(inversion: Plata, resultado: R): Plata = if(cumple(resultado)) montoPorGanar(inversion) else montoPorPerder
+	trait Jugada[R] {
+		def apply(inversion: Plata, resultado: R): Plata = if(cumple(resultado)) montoPorGanar(inversion) else montoPorPerder
 		def montoPorGanar(inversion: Plata): Plata = ganancia*inversion
 		def montoPorPerder = 0
 
@@ -22,7 +22,7 @@ import Tipos.Plata
 		def ganancia: Double
 	}
 
-	trait Apuesta[R] extends (R=>Plata){
+	trait Apuesta[R] {
 		def montoRequerido: Plata
 		def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R]
 		def apply(resultado: R): Plata
@@ -50,7 +50,7 @@ import Tipos.Plata
 		}
 
 		def elegirCombinacion(combinaciones: List[Simulacion]): Simulacion
-			= criterio.elegirEntre(saldo, combinaciones)
+			= criterio.elegirEntre(saldo, combinaciones).getOrElse(SimulacionVacia)
 
 		def validarExtraccion(monto: Plata): Unit = {
 			if(saldoPorDesacreditar(monto)<0)

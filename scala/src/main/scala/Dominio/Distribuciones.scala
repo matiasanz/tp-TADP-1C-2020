@@ -3,12 +3,16 @@ package Dominio
 import Dominio.Distribuciones.Probabilidad
 import Utils.pesoTotal
 
-case class Distribucion[R](probabilidades: Map[R, Probabilidad]){
+case class Distribucion[R](_probabilidades: Map[R, Probabilidad]){
 	require(pesoTotal(probabilidades) - 1 <= 0.00001)
 
+	def probabilidades = _probabilidades.filter(_._2>0)
 	def sucesos = probabilidades.keys
 
 	def probabilidadDe(rdo: R): Probabilidad = probabilidades.getOrElse(rdo, 0)
+
+	def probabilidadDeExito(suceso: R=>Boolean) = map(suceso).probabilidadDe(true)
+
 	def toList = probabilidades.toList
 
 	def map[S]: (R=>S) => Distribucion[S]
@@ -16,6 +20,8 @@ case class Distribucion[R](probabilidades: Map[R, Probabilidad]){
 			val nueva = probabilidades.toList.map { case (rdo, proba) => transform(rdo) -> proba }
 			Distribuciones.agrupar(nueva)
 		}
+
+
 }
 
 object Distribuciones {
