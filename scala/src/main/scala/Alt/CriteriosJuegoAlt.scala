@@ -16,26 +16,21 @@ trait CriterioJuego{
 			.maxByOption(criterio(_)).map(_._1)
 }
 
+//TODO: Aca quise hacer un template method, pero no le pude poner un tipo Ordenable
 case object Racional extends CriterioJuego {
 
 	val puntaje: Plata=>CriterioPonderacion[Plata] = presupuesto=>
-		_._2.probabilidades.map{case(marcador, proba) => {
-			println(s"(${marcador.saldo.toString()} - ${presupuesto})*$proba")
+		_._2.probabilidades.map{case(marcador, proba) => (marcador.saldo-presupuesto)*proba}.sum
 
-			(marcador.saldo-presupuesto)*proba
-		}}.sum
-
-	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion] = {
-		analizarCombinaciones(presupuesto, combinaciones, puntaje(presupuesto))
-	}
+	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
+		= analizarCombinaciones(presupuesto, combinaciones, puntaje(presupuesto))
 }
 
 case object Arriesgado extends CriterioJuego {
 	val gananciaMaxima: CriterioPonderacion[Plata] = _._2.sucesos.map(_.saldo).max
 
-	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion] = {
-		analizarCombinaciones(presupuesto, combinaciones, gananciaMaxima)
-	}
+	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
+		= analizarCombinaciones(presupuesto, combinaciones, gananciaMaxima)
 }
 
 case object Cauto extends CriterioJuego {
@@ -43,7 +38,6 @@ case object Cauto extends CriterioJuego {
 	val probabilidadDeNoPerderRespectoA: Plata=>CriterioPonderacion[Plata] = presupuesto =>
 		_._2.probabilidadDeExito(_.saldo>=presupuesto)
 
-	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion] = {
-		analizarCombinaciones(presupuesto, combinaciones, probabilidadDeNoPerderRespectoA(presupuesto))
-	}
+	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
+		= analizarCombinaciones(presupuesto, combinaciones, probabilidadDeNoPerderRespectoA(presupuesto))
 }
