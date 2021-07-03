@@ -5,32 +5,6 @@ import Dominio._
 import Juegos._
 import Juegos.TiposRuleta.ResultadoRuleta
 
-object Stringer{
-	var id = 0
-	def generateID = {
-		id = id+1
-		id
-	}
-
-	def arbolToString(arbolEscenarios: ArbolEscenarios, padre: Int = 0): String ={
-
-		import arbolEscenarios._
-		//val exito = situacion.isSuccess
-
-		val id = generateID
-
-		String.join(
-			"\n >>"
-			, "\n*******"+id+"*********"
-			, "hijo de "+ (if(padre==0) "nadie" else padre.toString)
-			, "plata: "+ situacion.saldo.toString
-			, "proba: "+probabilidad.toString
-			, "subarboles: "+subescenarios.map(arbolToString(_, id)).toString
-		)
-
-	}
-}
-
 object X{
 	val apM = ApuestaSimple(JugadaMoneda(CARA), 300).compuestaCon(ApuestaSimple(JugadaMoneda(CRUZ), 300))
 	val apR = ApuestaSimple(AColor(ROJO), 900).compuestaCon(ApuestaSimple(ANumero(25), 70)).compuestaCon(ApuestaSimple(AParidad(true), 2))

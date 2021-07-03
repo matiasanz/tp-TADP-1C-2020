@@ -1,6 +1,5 @@
 package TP
 
-import Dominio.Simulaciones._
 import Dominio.Tipos.Plata
 import Dominio._
 import Juegos._
@@ -30,6 +29,7 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
             val jugador = jugadorConPresupuesto(200)
             val apuesta = ApuestaSimple(JugadaMoneda(CARA), 200)
 
+            /*
             "Moneda Comun" - {
                 "50% de probabilidad de ganar y de perder" in {
                     simularJuego(jugador, SimulacionSimple(MonedaComun, apuesta)) should contain only (
@@ -45,7 +45,7 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
                     (jugadorConPresupuesto(1100.0), 0.5.toFloat)
                     , (jugadorConPresupuesto(100),0.5.toFloat)
                 )
-            }
+            }*/
 
             "Un juego con una apuesta perdedora se simula correctamente" in {
                 Try(jugadorConPresupuesto(70)

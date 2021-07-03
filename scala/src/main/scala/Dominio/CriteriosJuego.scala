@@ -18,7 +18,13 @@ trait CriterioJuego{
 			.maxByOption(criterio(_)).map(_._1)
 }
 
-//TODO: Aca quise hacer un template method, pero no le pude poner un tipo Ordenable
+/*TODO: Aca quise hacer un template method, pero no pude tipar a Ordenable
+ * y en metodos heredados no pude usar tipo generico.
+ * El pattern matching lo descarte porque me parecieron metodos medio largos o poco expresivos. Capaz se podria optimizar eso
+ * pero al menos por como esta ahora no me convencio
+ * Despues, en todos los casos trabajo unicamente con la distribucion, con lo cual podria haber sacado "factor comun" el _._2
+ * , pero se me ocurrio que no tiene por que ir orientado a eso. Por ej, un criterio que no quiera incluir tal juego, etc.
+ */
 case object Racional extends CriterioJuego {
 
 	val puntaje: Plata=>CriterioPonderacion[Plata] = presupuesto=>
@@ -36,7 +42,10 @@ case object Arriesgado extends CriterioJuego {
 }
 
 case object Cauto extends CriterioJuego {
-
+	/*TODO: Me quedo pendiente sacar el parametro de presupuesto
+	 * Mi idea era con los marcadores hacer algun tipo de reduce(lista)
+	 * y que el resultante me diera la ganancia total o la perdida, pero no llegue
+	 */
 	val probabilidadDeNoPerderRespectoA: Plata=>CriterioPonderacion[Plata] = presupuesto =>
 		_._2.probabilidadDeExito(_.saldo>=presupuesto)
 

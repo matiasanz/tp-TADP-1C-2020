@@ -1,6 +1,6 @@
 import Dominio.Distribuciones.Probabilidad
 import Dominio.Tipos.Plata
-import Dominio.{ApuestaCompuesta, ApuestaSimple, Arriesgado, Cauto, CriterioJuego, Distribuciones, Jugador, Jugue, Racional, Saltee, Simulacion, SimulacionCompuesta, SimulacionSimple, SimulacionVacia, Simulaciones}
+import Dominio.{ApuestaCompuesta, ApuestaSimple, Arriesgado, Cauto, CriterioJuego, Distribuciones, Jugador, Jugue, Racional, Saltee, Simulacion, SimulacionCompuesta, SimulacionSimple, SimulacionVacia}
 import Juegos._
 import org.scalactic.TripleEqualsSupport
 import org.scalatest.freespec.AnyFreeSpec
@@ -85,24 +85,6 @@ class EnunciadoSpec extends AnyFreeSpec {
     }
 
     "Juegos sucesivos" - {
-        import Simulaciones._
-
-        "Moneda -> Ruleta" in {
-            val combinacion = List(
-                SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 10))
-                , SimulacionSimple(Ruleta, ApuestaSimple(ANumero(0), 15))
-            )
-
-            val distribucion = simularJuegos(Jugador(15, null), combinacion).distribucionFinal
-
-            distribucion.probabilidades.size should be(3)
-            distribucion.probabilidadDe(550) should be_aprox(1.38/100)
-            distribucion.probabilidadDe(10) should be_aprox(48.61/100)
-            distribucion.probabilidadDe(5) should be(0.5)
-        }
-    }
-
-    "Juegos sucesivos alt" - {
 
         "Moneda -> Ruleta" in {
             val combinacion = SimulacionCompuesta(List(
