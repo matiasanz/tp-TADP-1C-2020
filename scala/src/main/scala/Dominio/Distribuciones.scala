@@ -11,17 +11,15 @@ case class Distribucion[R](_probabilidades: Map[R, Probabilidad]){
 
 	def probabilidadDe(rdo: R): Probabilidad = probabilidades.getOrElse(rdo, 0)
 
-	def probabilidadDeExito(suceso: R=>Boolean) = map(suceso).probabilidadDe(true)
+	def probabilidadDeExito(suceso: R=>Boolean) = mapSucesos(suceso).probabilidadDe(true)
 
 	def toList = probabilidades.toList
 
-	def map[S]: (R=>S) => Distribucion[S]
+	def mapSucesos[S]: (R=>S) => Distribucion[S]
 		= (transform) => {
 			val nueva = probabilidades.toList.map { case (rdo, proba) => transform(rdo) -> proba }
 			Distribuciones.agrupar(nueva)
 		}
-
-
 }
 
 object Distribuciones {

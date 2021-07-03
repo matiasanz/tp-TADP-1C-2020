@@ -92,7 +92,7 @@ class EnunciadoSpec extends AnyFreeSpec {
                 , SimulacionSimple(Ruleta, ApuestaSimple(ANumero(0), 15))
             ))
 
-            val distribucion = combinacion.simular(15).map(_.saldo)
+            val distribucion = combinacion.simular(15).mapSucesos(_.saldo)
 
             println(distribucion.probabilidades)
             distribucion.probabilidades.size should be(3)

@@ -9,7 +9,7 @@ import Tipos.Plata
 		def resultadosPosibles = distribucion
 
 		def distribucionDeGananciasPor(apuesta: Apuesta[R]): Distribucion[Plata]
-			= distribucion.map(rdo => apuesta(rdo))
+			= distribucion.mapSucesos(rdo => apuesta(rdo))
 	}
 
 	trait Jugada[R] {
