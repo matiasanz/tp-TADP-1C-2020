@@ -6,7 +6,7 @@ trait Marcador{
 	def saldo: Plata
 	def historial: List[Marcador] //
 	def simulacion: Simulacion
-	def ganancia: Plata
+	def diferenciaSaldo: Plata
 }
 
 object Marcadores{
@@ -21,12 +21,12 @@ object Marcadores{
 case class Empece(saldo: Plata) extends Marcador{
 	override def simulacion: Simulacion = SimulacionVacia
 	override def historial: List[Marcador] = List(this)
-	override def ganancia = 0
+	override def diferenciaSaldo = 0
 }
 
 abstract class MarcadorRuntime(anterior: Marcador) extends Marcador{
 	override def historial: List[Marcador] = this::anterior.historial
-	override def ganancia = saldo - historial.last.saldo
+	override def diferenciaSaldo = saldo - historial.last.saldo
 }
 case class Jugue(saldo: Plata, simulacion: Simulacion, anterior: Marcador) extends MarcadorRuntime(anterior)
 /*TODO: En algun momento pense dividirlo en GANE y PERDI, pero se repetirian muchas cosas entre uno y otro,

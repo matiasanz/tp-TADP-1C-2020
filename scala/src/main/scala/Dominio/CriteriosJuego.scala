@@ -28,14 +28,14 @@ trait CriterioJuego{
 case object Racional extends CriterioJuego {
 
 	val puntaje: CriterioPonderacion[Plata] =
-		_._2.probabilidades.map{case(marcador, proba) => (marcador.ganancia)*proba}.sum
+		_._2.probabilidades.map{case(marcador, proba) => (marcador.diferenciaSaldo)*proba}.sum
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= analizarCombinaciones(presupuesto, combinaciones, puntaje)
 }
 
 case object Arriesgado extends CriterioJuego {
-	val gananciaMaxima: CriterioPonderacion[Plata] = _._2.sucesos.map(_.ganancia).max
+	val gananciaMaxima: CriterioPonderacion[Plata] = _._2.sucesos.map(_.diferenciaSaldo).max
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= analizarCombinaciones(presupuesto, combinaciones, gananciaMaxima)
@@ -47,7 +47,7 @@ case object Cauto extends CriterioJuego {
 	 * y que el resultante me diera la ganancia total o la perdida, pero no llegue
 	 */
 	val probabilidadDeNoPerder: CriterioPonderacion[Plata] =
-		_._2.probabilidadDeExito(_.ganancia>=0)
+		_._2.probabilidadDeExito(_.diferenciaSaldo>=0)
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= analizarCombinaciones(presupuesto, combinaciones, probabilidadDeNoPerder)
@@ -55,7 +55,7 @@ case object Cauto extends CriterioJuego {
 
 //Criterio extra
 case class Miedoso(presupuesto: Plata) extends CriterioJuego {
-	val menorPerdida: CriterioPonderacion[Plata] = _._2.sucesos.map(marcador=>0.max(marcador.ganancia)).min
+	val menorPerdida: CriterioPonderacion[Plata] = _._2.sucesos.map(_.diferenciaSaldo.max(0)).min
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= analizarCombinaciones(presupuesto, combinaciones, menorPerdida)
