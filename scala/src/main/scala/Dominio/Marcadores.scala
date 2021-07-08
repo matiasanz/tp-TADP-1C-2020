@@ -4,8 +4,9 @@ import Dominio.Tipos.Plata
 
 trait Marcador{
 	def saldo: Plata
-	def anteriores: List[Marcador] //
+	def historial: List[Marcador] //
 	def simulacion: Simulacion
+	def ganancia: Plata
 }
 
 object Marcadores{
@@ -19,11 +20,13 @@ object Marcadores{
 
 case class Empece(saldo: Plata) extends Marcador{
 	override def simulacion: Simulacion = SimulacionVacia
-	override def anteriores: List[Marcador] = List.empty
+	override def historial: List[Marcador] = List(this)
+	override def ganancia = 0
 }
 
 abstract class MarcadorRuntime(anterior: Marcador) extends Marcador{
-	override def anteriores: List[Marcador] = anterior.anteriores:+this
+	override def historial: List[Marcador] = this::anterior.historial
+	override def ganancia = saldo - historial.last.saldo
 }
 case class Jugue(saldo: Plata, simulacion: Simulacion, anterior: Marcador) extends MarcadorRuntime(anterior)
 /*TODO: En algun momento pense dividirlo en GANE y PERDI, pero se repetirian muchas cosas entre uno y otro,
