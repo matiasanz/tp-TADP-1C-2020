@@ -54,8 +54,8 @@ case object Cauto extends CriterioJuego {
 }
 
 //Criterio extra
-case class Miedoso(presupuesto: Plata) extends CriterioJuego {
-	val menorPerdida: CriterioPonderacion[Plata] = _._2.sucesos.map(diferenciaSaldo(_).max(0)).min
+case object Miedoso extends CriterioJuego {
+	val menorPerdida: CriterioPonderacion[Plata] = _._2.sucesos.map(diferenciaSaldo(_).min(0)).min
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= analizarCombinaciones(presupuesto, combinaciones, menorPerdida)

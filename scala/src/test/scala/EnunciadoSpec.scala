@@ -140,6 +140,8 @@ class EnunciadoSpec extends AnyFreeSpec {
 
             val impagable = SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 4000))
 
+            val noGanoNadaPeroTampocoPierdo = SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 1))
+
             val imposiblePeroBeneficiosa = SimulacionCompuesta(List(
                 SimulacionSimple(MonedaCargada(eventoSeguro(CARA)), ApuestaSimple(JugadaMoneda(CRUZ), 60))
                 , SimulacionSimple(Ruleta, ApuestaSimple(ANumero(0), 40))
@@ -157,6 +159,7 @@ class EnunciadoSpec extends AnyFreeSpec {
                 , impagable
                 , muyProbablePeroPocoRedituable
                 , puntoMedio
+                , noGanoNadaPeroTampocoPierdo
             )
 
             val elegir = elegirEnBaseA(110, combinacionesCompuestas)
@@ -171,6 +174,10 @@ class EnunciadoSpec extends AnyFreeSpec {
 
             "Criterio racional" in {
                 elegir(Racional) should be(puntoMedio)
+            }
+
+            "Criterio miedoso" in {
+                elegir(Miedoso) should be(noGanoNadaPeroTampocoPierdo)
             }
         }
 
