@@ -24,9 +24,8 @@ case class Empece(saldo: Plata) extends Marcador{
 }
 
 case class Jugue(saldo: Plata, simulacion: Simulacion) extends Marcador
-/*TODO: En algun momento pense dividirlo en GANE y PERDI, pero se repetirian muchas cosas entre uno y otro,
- * pensaba hacer eso y reducirlo con el case tipo el ejemplo del microprocesador cuando reduce las instrucciones
- * pero no llegue a plantearlo de forma que me convenciera
+/*TODO: En algun momento pense dividirlo en GANE y PERDI, pero
+ * no senti que me aportara o por lo menos no llegue a plantearlo de forma que me convenciera
  */
 
 case class Saltee(saldo: Plata, simulacion: Simulacion) extends Marcador
