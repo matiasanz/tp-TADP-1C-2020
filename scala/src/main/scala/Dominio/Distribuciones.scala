@@ -1,7 +1,7 @@
 package Dominio
 
 import Dominio.Distribuciones.Probabilidad
-import Utils.pesoTotal
+import Distribuciones.pesoTotal
 
 case class Distribucion[R](_probabilidades: Map[R, Probabilidad]){
 	require(pesoTotal(probabilidades) - 1 <= 0.00001)
@@ -40,6 +40,8 @@ object Distribuciones {
 
 	def agrupar[R](distribucion: List[(R, Probabilidad)])
 		= Distribucion(distribucion.groupMapReduce(_._1)(_._2)(_+_))
+
+	def pesoTotal(sucesos: Map[_, Double]): Double = sucesos.values.sum
 }
 
 

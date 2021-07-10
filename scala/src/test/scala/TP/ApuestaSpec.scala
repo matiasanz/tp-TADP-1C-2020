@@ -8,14 +8,14 @@ import org.scalatest.matchers.should.Matchers._
 
 class ApuestaSpec extends AnyFreeSpec{
 
-  val jugada = JugadaMoneda(CARA)
+  val jugada = AMoneda(CARA)
 
   val apuesta = ApuestaSimple(jugada, 200)
 
   "TP" - {
       "Apuestas" - {
           "El resultado esperado cumple la apuesta" in {
-              jugada.cumple(CARA) should be(true)
+              jugada.satisfechaPor(CARA) should be(true)
           }
 
           "Si se cumple la apuesta, se multiplica el monto" - {

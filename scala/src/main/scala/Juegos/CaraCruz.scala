@@ -16,8 +16,9 @@ trait ResultadoMoneda
 case object CARA extends ResultadoMoneda
 case object CRUZ extends ResultadoMoneda
 
-case class JugadaMoneda(resultadoEsperado: ResultadoMoneda) extends Jugada[ResultadoMoneda] {
+case class AMoneda(resultadoEsperado: ResultadoMoneda) extends Jugada[ResultadoMoneda] {
 	val ganancia = 2
 
-	def cumple(resultado: ResultadoMoneda) = resultado == resultadoEsperado
+	override def satisfechaPor: ResultadoMoneda => Boolean
+		= _ == resultadoEsperado
 }

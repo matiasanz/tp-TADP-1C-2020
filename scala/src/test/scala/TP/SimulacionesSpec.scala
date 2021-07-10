@@ -27,7 +27,7 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
 
         "Cara cruz" - {
             val jugador = jugadorConPresupuesto(200)
-            val apuesta = ApuestaSimple(JugadaMoneda(CARA), 200)
+            val apuesta = ApuestaSimple(AMoneda(CARA), 200)
 
             /*
             "Moneda Comun" - {
@@ -49,7 +49,7 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
 
             "Un juego con una apuesta perdedora se simula correctamente" in {
                 Try(jugadorConPresupuesto(70)
-                    .jugarApuesta(ApuestaSimple(JugadaMoneda(CARA), 200), CARA)
+                    .jugarApuesta(ApuestaSimple(AMoneda(CARA), 200), CARA)
                 ) should be(Failure(SaldoInsuficienteException(jugadorConPresupuesto(70), 200)))
             }
 

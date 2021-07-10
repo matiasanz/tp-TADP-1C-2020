@@ -1,7 +1,6 @@
 package Dominio
 
 import Distribuciones.Probabilidad
-import Utils.pesoTotal
 import Tipos.Plata
 
 	abstract class Juego[R](distribucion: Distribucion[R]) {
@@ -13,11 +12,11 @@ import Tipos.Plata
 	}
 
 	trait Jugada[R] {
-		def apply(inversion: Plata, resultado: R): Plata = if(cumple(resultado)) montoPorGanar(inversion) else montoPorPerder
+		def apply(inversion: Plata, resultado: R): Plata = if(satisfechaPor(resultado)) montoPorGanar(inversion) else montoPorPerder
 		def montoPorGanar(inversion: Plata): Plata = ganancia*inversion
 		def montoPorPerder = 0
 
-		def cumple(resultado: R): Boolean
+		def satisfechaPor: R => Boolean
 		def ganancia: Double
 	}
 
@@ -61,4 +60,8 @@ import Tipos.Plata
 		def jugarApuesta[R](apostar: Apuesta[R], resultado: R): Jugador = {
 			desacreditar(apostar.montoRequerido).acreditar(apostar(resultado))
 		}
+	}
+
+	object Tipos{
+		type Plata = BigDecimal
 	}

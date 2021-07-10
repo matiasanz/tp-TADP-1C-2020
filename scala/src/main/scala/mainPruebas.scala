@@ -1,12 +1,11 @@
 
 import Dominio.Tipos.Plata
-import Dominio.Utils.pesoTotal
 import Dominio._
 import Juegos._
-import Juegos.TiposRuleta.ResultadoRuleta
+import Juegos.Cuadricula.ResultadoRuleta
 
 object X{
-	val apM = ApuestaSimple(JugadaMoneda(CARA), 300).compuestaCon(ApuestaSimple(JugadaMoneda(CRUZ), 300))
+	val apM = ApuestaSimple(AMoneda(CARA), 300).compuestaCon(ApuestaSimple(AMoneda(CRUZ), 300))
 	val apR = ApuestaSimple(AColor(ROJO), 900).compuestaCon(ApuestaSimple(ANumero(25), 70)).compuestaCon(ApuestaSimple(AParidad(true), 2))
 
 
@@ -18,10 +17,10 @@ object X{
 
 
 		val sdaf: Distribucion[List[Marcador]] = SimulacionCompuesta(List(
-			SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
-			, SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
-			, SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
-			, SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
+			SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CARA), 300))
+			, SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CARA), 300))
+			, SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CRUZ), 300))
+			, SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CRUZ), 300))
 		)).simular(500)
 
 		println(sdaf.toString)

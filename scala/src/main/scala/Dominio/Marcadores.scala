@@ -27,8 +27,4 @@ case class Empece(saldo: Plata) extends Marcador{
 }
 
 case class Jugue(saldo: Plata, simulacion: Simulacion) extends Marcador
-/*TODO: En algun momento pense dividirlo en GANE y PERDI, pero
- * no senti que me aportara o por lo menos no llegue a plantearlo de forma que me convenciera
- */
-
 case class Saltee(saldo: Plata, simulacion: Simulacion) extends Marcador

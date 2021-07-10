@@ -1,8 +1,8 @@
 package Juegos
 
 import Dominio._
-import Tablero.{color, docena, esPar}
-import TiposRuleta._
+import Cuadricula.{color, docena, esPar}
+import Cuadricula.ResultadoRuleta
 
 //Juego ********************************************************************
 	object Ruleta extends Juego[ResultadoRuleta](Distribuciones.equiprobable((0 to 36).toList))
@@ -11,18 +11,22 @@ import TiposRuleta._
 	abstract class JugadaRuleta(val ganancia: Double) extends Jugada[ResultadoRuleta]
 
 	case class ANumero(numero: ResultadoRuleta) extends JugadaRuleta(36){
-		def cumple(resultado: ResultadoRuleta) = numero == resultado
+		def satisfechaPor: ResultadoRuleta => Boolean
+			= (_ == numero)
 	}
 
-	case class ADocena(cual: Int) 				extends JugadaRuleta(3){
-		def cumple(resultado: ResultadoRuleta) = cual == docena(resultado)
+	case class ADocena(cual: Int)	extends JugadaRuleta(3){
+		def satisfechaPor: ResultadoRuleta =>Boolean
+			= docena(_) == cual
 	}
-	case class AColor(queColor: Color) 			extends JugadaRuleta(2){
-		def cumple(resultado: ResultadoRuleta) = queColor == color(resultado)
+	case class AColor(queColor: Color)	extends JugadaRuleta(2){
+		def satisfechaPor: ResultadoRuleta =>Boolean
+			= queColor == color(_)
 	}
 
 	case class AParidad(siONo: Boolean) extends JugadaRuleta(2){
-		def cumple(resultado: ResultadoRuleta) = resultado!=0 && siONo == esPar(resultado)
+		def satisfechaPor: ResultadoRuleta => Boolean
+			= resultado => resultado!=0 && siONo == esPar(resultado)
 	}
 
 //Auxiliares ********************************************************************
@@ -33,12 +37,14 @@ import TiposRuleta._
 	case object NEGRO extends Color
 	case object INCOLORO extends Color
 
-	object Tablero{
+	object Cuadricula{
+		type ResultadoRuleta = Int
+
 		//Paridad
 		val esPar: ResultadoRuleta=>Boolean = numero => numero%2==0
 
 		//Docenas
-		def docena(numero: ResultadoRuleta) = Math.ceil(numero.toDouble / 12).toInt
+		def docena(numero: ResultadoRuleta): Int = Math.ceil(numero.toDouble / 12).toInt
 
 		//Colores
 		def color(numero: ResultadoRuleta): Color = columna(numero) match {
@@ -54,12 +60,8 @@ import TiposRuleta._
 //			case INCOLORO => INCOLORO
 		}
 
-		def columna(numero: Int): Int = {
+		def columna(numero: ResultadoRuleta): Int = {
 			val columna = numero % 3
 			if (columna == 0 && numero != 0) 3 else columna
 		}
 	}
-
-object TiposRuleta{
-	type ResultadoRuleta = Int
-}
