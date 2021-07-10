@@ -1,11 +1,6 @@
 package Dominio
-
-import Dominio.Distribuciones.Probabilidad
-import Juegos._
-
-import scala.util.{Success, Try}
+import Marcadores._
 import Tipos._
-import Juegos.TiposRuleta.ResultadoRuleta
 
 	trait Simulacion{
 		def simular(presupuesto: Plata): Distribucion[List[Marcador]]
@@ -29,18 +24,21 @@ import Juegos.TiposRuleta.ResultadoRuleta
 
 		override def simular(distribucion: Distribucion[List[Marcador]]): Distribucion[List[Marcador]] ={
 			val escenarios = for {
-				(marcadorAnterior, probaLlegada) <- distribucion.toList
+				(marcadoresAnteriores, probaLlegada) <- distribucion.toList
 				(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta).toList
-			} yield (siguienteMarcador(marcadorAnterior, apuesta.montoRequerido, ganancia)::marcadorAnterior, probaLlegada*probaTransicion)
+			} yield (marcadoresFinales(marcadoresAnteriores, apuesta.montoRequerido, ganancia), probaLlegada*probaTransicion)
 
 			Distribuciones.agrupar(escenarios)
 		}
 
-		def siguienteMarcador(marcadoresAnteriores: List[Marcador], costo: Plata, ganancia: Plata): Marcador = {
-			val saldoInicial = Marcadores.saldo(marcadoresAnteriores)
-			val saldo = saldoInicial - costo
+		def marcadoresFinales(marcadoresAnteriores: List[Marcador], costo: Plata, ganancia: Plata)
+		 = siguienteMarcador(marcadoresAnteriores, apuesta.montoRequerido, ganancia)::marcadoresAnteriores
 
-			if(saldo>=0) Jugue(saldo+ganancia, this) //Juego
-			else 		 Saltee(saldoInicial, this)	//Salteo
+		def siguienteMarcador(marcadoresAnteriores: List[Marcador], costo: Plata, ganancia: Plata): Marcador = {
+			val saldoInicial = saldo(marcadoresAnteriores)
+			val saldoPorApostar = saldoInicial - costo
+
+			if(saldoPorApostar>=0) Jugue(saldoPorApostar+ganancia, this) //Juego
+			else 		 		   Saltee(saldoInicial, this)	//Salteo
 		}
 	}

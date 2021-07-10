@@ -1,10 +1,10 @@
 package Dominio
 
 import Dominio.Cauto.{CriterioPonderacion, analizarCombinaciones, probabilidadDeNoPerder}
-import Dominio.Marcadores.seJugo
 import Dominio.Tipos.Plata
 
 import scala.math.BigDecimal.int2bigDecimal
+import Marcadores._
 
 trait CriterioJuego{
 	def	elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
@@ -28,14 +28,14 @@ trait CriterioJuego{
 case object Racional extends CriterioJuego {
 
 	val puntaje: CriterioPonderacion[Plata] =
-		_._2.probabilidades.map{case(marcador, proba) => Marcadores.diferenciaSaldo(marcador)*proba}.sum
+		_._2.probabilidades.map{case(marcadores, proba) => diferenciaSaldo(marcadores)*proba}.sum
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= analizarCombinaciones(presupuesto, combinaciones, puntaje)
 }
 
 case object Arriesgado extends CriterioJuego {
-	val gananciaMaxima: CriterioPonderacion[Plata] = _._2.sucesos.map(Marcadores.diferenciaSaldo(_)).max
+	val gananciaMaxima: CriterioPonderacion[Plata] = _._2.sucesos.map(diferenciaSaldo(_)).max
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= analizarCombinaciones(presupuesto, combinaciones, gananciaMaxima)
@@ -47,7 +47,7 @@ case object Cauto extends CriterioJuego {
 	 * y que el resultante me diera la ganancia total o la perdida, pero no llegue
 	 */
 	val probabilidadDeNoPerder: CriterioPonderacion[Plata] =
-		_._2.probabilidadDeExito(Marcadores.diferenciaSaldo(_)>=0)
+		_._2.probabilidadDeExito(diferenciaSaldo(_)>=0)
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= analizarCombinaciones(presupuesto, combinaciones, probabilidadDeNoPerder)
@@ -55,7 +55,7 @@ case object Cauto extends CriterioJuego {
 
 //Criterio extra
 case class Miedoso(presupuesto: Plata) extends CriterioJuego {
-	val menorPerdida: CriterioPonderacion[Plata] = _._2.sucesos.map(Marcadores.diferenciaSaldo(_).max(0)).min
+	val menorPerdida: CriterioPonderacion[Plata] = _._2.sucesos.map(diferenciaSaldo(_).max(0)).min
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= analizarCombinaciones(presupuesto, combinaciones, menorPerdida)
