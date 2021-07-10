@@ -8,6 +8,9 @@ trait Marcador{
 }
 
 object Marcadores{
+	val puntoDePartida: Plata => List[Marcador]
+		= presupuesto => List(Empece(presupuesto))
+
 	def seJugo: List[Marcador] => Boolean = _.exists{
 		case Jugue(_, _) => true
 		case _ => false

@@ -4,7 +4,7 @@ import Tipos._
 
 	trait Simulacion{
 		def simular(presupuesto: Plata): Distribucion[List[Marcador]]
-			= simular(Distribuciones.eventoSeguro[List[Marcador]](  List(Empece(presupuesto))  ))
+			= simular(Distribuciones.eventoSeguro(  Marcadores.puntoDePartida(presupuesto)  ))
 
 		def simular: Distribucion[List[Marcador]] => Distribucion[List[Marcador]]
 	}
