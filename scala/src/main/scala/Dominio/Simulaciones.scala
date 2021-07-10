@@ -23,8 +23,7 @@ import Tipos._
 
 	case class SimulacionSimple[R](juego: Juego[R], apuesta: Apuesta[R]) extends Simulacion {
 
-		override def simular: Distribucion[List[Marcador]] => Distribucion[List[Marcador]]
-		= distribucion =>{
+		override def simular: Distribucion[List[Marcador]] => Distribucion[List[Marcador]] = distribucion =>{
 			val escenarios = for {
 				(marcadoresAnteriores, probaLlegada) <- distribucion.toList
 				(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta).toList
@@ -34,10 +33,9 @@ import Tipos._
 		}
 
 		def marcadoresFinales(marcadoresAnteriores: List[Marcador], costo: Plata, ganancia: Plata)
-		 	= siguienteMarcador(marcadoresAnteriores, apuesta.montoRequerido, ganancia)::marcadoresAnteriores
+		 	= siguienteMarcador(saldo(marcadoresAnteriores), apuesta.montoRequerido, ganancia)::marcadoresAnteriores
 
-		def siguienteMarcador(marcadoresAnteriores: List[Marcador], costo: Plata, ganancia: Plata): Marcador = {
-			val saldoInicial = saldo(marcadoresAnteriores)
+		def siguienteMarcador(saldoInicial: Plata, costo: Plata, ganancia: Plata): Marcador = {
 			val saldoPorApostar = saldoInicial - costo
 
 			if(saldoPorApostar>=0) Jugue(saldoPorApostar+ganancia, this) //Juego
