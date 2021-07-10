@@ -27,16 +27,16 @@ import Tipos._
 			val escenarios = for {
 				(marcadoresAnteriores, probaLlegada) <- distribucion.toList
 				(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta).toList
-			} yield (marcadoresFinales(marcadoresAnteriores, apuesta.montoRequerido, ganancia), probaLlegada*probaTransicion)
+			} yield (marcadoresFinales(marcadoresAnteriores, ganancia), probaLlegada*probaTransicion)
 
 			Distribuciones.agrupar(escenarios)
 		}
 
-		def marcadoresFinales(marcadoresAnteriores: List[Marcador], costo: Plata, ganancia: Plata)
-		 	= siguienteMarcador(saldo(marcadoresAnteriores), apuesta.montoRequerido, ganancia)::marcadoresAnteriores
+		def marcadoresFinales(marcadoresAnteriores: List[Marcador], ganancia: Plata)
+		 	= siguienteMarcador(saldo(marcadoresAnteriores), ganancia)::marcadoresAnteriores
 
-		def siguienteMarcador(saldoInicial: Plata, costo: Plata, ganancia: Plata): Marcador = {
-			val saldoPorApostar = saldoInicial - costo
+		def siguienteMarcador(saldoInicial: Plata, ganancia: Plata): Marcador = {
+			val saldoPorApostar = saldoInicial - apuesta.montoRequerido
 
 			if(saldoPorApostar>=0) Jugue(saldoPorApostar+ganancia, this) //Juego
 			else 		 		   Saltee(saldoInicial, this)	//Salteo
