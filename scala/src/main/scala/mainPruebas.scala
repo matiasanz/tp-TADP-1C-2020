@@ -17,7 +17,7 @@ object X{
 		val comb2 = List((Ruleta, apR))
 
 
-		val sdaf: Distribucion[Marcador] = SimulacionCompuesta(List(
+		val sdaf: Distribucion[List[Marcador]] = SimulacionCompuesta(List(
 			SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
 			, SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CARA), 300))
 			, SimulacionSimple(MonedaComun, ApuestaSimple(JugadaMoneda(CRUZ), 300))
