@@ -42,10 +42,7 @@ case object Arriesgado extends CriterioJuego {
 }
 
 case object Cauto extends CriterioJuego {
-	/*TODO: Me quedo pendiente sacar el parametro de presupuesto
-	 * Mi idea era con los marcadores hacer algun tipo de reduce(lista)
-	 * y que el resultante me diera la ganancia total o la perdida, pero no llegue
-	 */
+
 	val probabilidadDeNoPerder: CriterioPonderacion[Plata] =
 		_._2.probabilidadDeExito(diferenciaSaldo(_)>=0)
 
