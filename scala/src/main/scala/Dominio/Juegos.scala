@@ -38,7 +38,7 @@ import Tipos.Plata
 	}
 
 	object Tipos{
-		type Plata = BigDecimal
+		type Plata = Double
 	}
 
 //******************************* Esto no se usa *******************************************

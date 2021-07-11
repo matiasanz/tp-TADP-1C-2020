@@ -12,7 +12,7 @@ object Marcadores{
 		= presupuesto => List(Empece(presupuesto))
 
 	def seJugo: List[Marcador] => Boolean = _.exists{
-		case Jugue(_, _) => true
+		case _: Jugue => true
 		case _ => false
 	}
 

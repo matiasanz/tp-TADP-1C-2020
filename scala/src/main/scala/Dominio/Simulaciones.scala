@@ -3,8 +3,11 @@ import Marcadores._
 import Tipos._
 
 	trait Simulacion{
-		def simular(presupuesto: Plata): Distribucion[List[Marcador]]
-			= simular(Distribuciones.eventoSeguro(  Marcadores.puntoDePartida(presupuesto)  ))
+		def simular(presupuesto: Plata): Distribucion[List[Marcador]] = {
+			val puntoDePartida = Marcadores.puntoDePartida(presupuesto)
+			simular(Distribuciones.eventoSeguro(puntoDePartida))
+		}
+
 
 		def simular: Distribucion[List[Marcador]] => Distribucion[List[Marcador]]
 	}
@@ -16,9 +19,7 @@ import Tipos._
 
 	case class SimulacionCompuesta(simulaciones: List[Simulacion]) extends Simulacion {
 		override def simular: Distribucion[List[Marcador]] => Distribucion[List[Marcador]]
-			= simulaciones.foldLeft(_){
-			case(distribucion, simulacion)=>simulacion.simular(distribucion)
-		}
+			= simulaciones.foldLeft(_)((distribucion, simulacion)=>simulacion.simular(distribucion))
 	}
 
 	case class SimulacionSimple[R](juego: Juego[R], apuesta: Apuesta[R]) extends Simulacion {

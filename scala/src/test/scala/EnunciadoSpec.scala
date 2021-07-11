@@ -1,6 +1,6 @@
 import Dominio.Distribuciones.Probabilidad
 import Dominio.Tipos.Plata
-import Dominio.{ApuestaCompuesta, ApuestaSimple, Arriesgado, Cauto, CriterioJuego, Distribuciones, Jugador, Jugue, Miedoso, Racional, Saltee, Simulacion, SimulacionCompuesta, SimulacionSimple, SimulacionVacia}
+import Dominio.{ApuestaCompuesta, ApuestaSimple, Arriesgado, Cauto, CriterioJuego, Distribuciones, Jugador, Jugue, Marcadores, Miedoso, Racional, Saltee, Simulacion, SimulacionCompuesta, SimulacionSimple, SimulacionVacia}
 import Juegos._
 import org.scalactic.TripleEqualsSupport
 import org.scalatest.freespec.AnyFreeSpec
@@ -92,9 +92,8 @@ class EnunciadoSpec extends AnyFreeSpec {
                 , SimulacionSimple(Ruleta, ApuestaSimple(ANumero(0), 15))
             ))
 
-            val distribucion = combinacion.simular(15).mapSucesos(_.head.saldo)
+            val distribucion = combinacion.simular(15.0).mapSucesos(Marcadores.saldo)
 
-            println(distribucion.probabilidades)
             distribucion.probabilidades.size should be(3)
             distribucion.probabilidadDe(550) should be_aprox(1.38/100)
             distribucion.probabilidadDe(10) should be_aprox(48.61/100)
@@ -182,6 +181,7 @@ class EnunciadoSpec extends AnyFreeSpec {
         }
 
         "Casos no felices" - {
+
             "Combinacion impagable" in {
                 val assert: CriterioJuego=>Unit = criterio=>{
                     elegirEnBaseA(
@@ -206,7 +206,4 @@ class EnunciadoSpec extends AnyFreeSpec {
             }
         }
     }
-
-
-
 }
