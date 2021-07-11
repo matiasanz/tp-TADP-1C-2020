@@ -11,7 +11,7 @@ case class Distribucion[R](_probabilidades: Map[R, Probabilidad]){
 
 	def probabilidadDe(rdo: R): Probabilidad = probabilidades.getOrElse(rdo, 0)
 
-	def probabilidadDeExito(suceso: R=>Boolean) = mapSucesos(suceso).probabilidadDe(true)
+	def probabilidadDeCumplir(suceso: R=>Boolean) = mapSucesos(suceso).probabilidadDe(true)
 
 	def toList = probabilidades.toList
 

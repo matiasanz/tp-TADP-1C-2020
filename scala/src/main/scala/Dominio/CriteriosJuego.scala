@@ -11,10 +11,12 @@ trait CriterioJuego{
 
 	type CriterioPonderacion[Ord] = ((Simulacion, Distribucion[List[Marcador]]))=>Ord
 
+	//type Tal : Parametro interno, se puede definir en las subclases
+
 	def elegirSegunCriterio[S:Ordering]
 		(presupuesto: Plata, combinaciones: List[Simulacion], criterio: CriterioPonderacion[S]): Option[Simulacion]
 		= combinaciones.map(c=> c -> c.simular(presupuesto))
-			.filter{_._2.probabilidadDeExito(seJugo(_)) > 0}
+			.filter{_._2.probabilidadDeCumplir(seJugo(_)) > 0} //Prescindible
 			.maxByOption(criterio).map(_._1)
 }
 
@@ -37,7 +39,7 @@ case object Racional extends CriterioJuego {
 }
 
 case object Arriesgado extends CriterioJuego {
-	val gananciaMaxima: CriterioPonderacion[Plata] = _._2.sucesos.map(diferenciaSaldo(_)).max
+	val gananciaMaxima: CriterioPonderacion[Plata] = _._2.sucesos.map(diferenciaSaldo).max
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= elegirSegunCriterio(presupuesto, combinaciones, gananciaMaxima)
@@ -46,7 +48,7 @@ case object Arriesgado extends CriterioJuego {
 case object Cauto extends CriterioJuego {
 
 	val probabilidadDeNoPerder: CriterioPonderacion[Plata] =
-		_._2.probabilidadDeExito(diferenciaSaldo(_)>=0)
+		_._2.probabilidadDeCumplir(diferenciaSaldo(_)>=0)
 
 	override def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 		= elegirSegunCriterio(presupuesto, combinaciones, probabilidadDeNoPerder)

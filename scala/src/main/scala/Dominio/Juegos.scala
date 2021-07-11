@@ -13,11 +13,11 @@ import Tipos.Plata
 
 	trait Jugada[R] {
 		def apply(inversion: Plata, resultado: R): Plata = if(satisfechaPor(resultado)) montoPorGanar(inversion) else montoPorPerder
-		def montoPorGanar(inversion: Plata): Plata = ganancia*inversion
+		def montoPorGanar(inversion: Plata): Plata = ratioGanancia*inversion
 		def montoPorPerder = 0
 
 		def satisfechaPor: R => Boolean
-		def ganancia: Double
+		def ratioGanancia: Double
 	}
 
 	trait Apuesta[R] {
@@ -35,31 +35,6 @@ import Tipos.Plata
 		override def apply(resultado: R): Plata = apuestas.map(_(resultado)).sum
 		override def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = copy(apuestas:+apuesta)
 		override def montoRequerido: Plata = apuestas.map(_.montoRequerido).sum
-	}
-
-	case class Jugador(saldo: Plata, criterio: CriterioJuego) {
-		require(saldo >= 0)
-
-		def acreditar(monto: Plata): Jugador = copy(saldo + monto)
-
-		def desacreditar(monto: Plata): Jugador = {
-			validarExtraccion(monto)
-			copy(saldoPorDesacreditar(monto))
-		}
-
-		def elegirCombinacion(combinaciones: List[Simulacion]): Simulacion
-			= criterio.elegirEntre(saldo, combinaciones).getOrElse(SimulacionVacia)
-
-		def validarExtraccion(monto: Plata): Unit = {
-			if(saldoPorDesacreditar(monto)<0)
-				throw SaldoInsuficienteException(this, monto)
-		}
-
-		val saldoPorDesacreditar: Plata => Plata = monto => saldo-monto
-
-		def jugarApuesta[R](apostar: Apuesta[R], resultado: R): Jugador = {
-			desacreditar(apostar.montoRequerido).acreditar(apostar(resultado))
-		}
 	}
 
 	object Tipos{

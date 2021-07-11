@@ -17,7 +17,7 @@ case object CARA extends ResultadoMoneda
 case object CRUZ extends ResultadoMoneda
 
 case class AMoneda(resultadoEsperado: ResultadoMoneda) extends Jugada[ResultadoMoneda] {
-	val ganancia = 2
+	val ratioGanancia = 2
 
 	override def satisfechaPor: ResultadoMoneda => Boolean
 		= _ == resultadoEsperado

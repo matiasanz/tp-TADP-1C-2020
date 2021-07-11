@@ -8,7 +8,7 @@ import Cuadricula.ResultadoRuleta
 	object Ruleta extends Juego[ResultadoRuleta](Distribuciones.equiprobable((0 to 36).toList))
 
 //Resultados ********************************************************************
-	abstract class JugadaRuleta(val ganancia: Double) extends Jugada[ResultadoRuleta]
+	abstract class JugadaRuleta(val ratioGanancia: Double) extends Jugada[ResultadoRuleta]
 
 	case class ANumero(numero: ResultadoRuleta) extends JugadaRuleta(36){
 		def satisfechaPor: ResultadoRuleta => Boolean

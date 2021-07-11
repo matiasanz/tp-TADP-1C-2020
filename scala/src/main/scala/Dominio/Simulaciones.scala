@@ -16,7 +16,7 @@ import Tipos._
 
 	case class SimulacionCompuesta(simulaciones: List[Simulacion]) extends Simulacion {
 		override def simular: Distribucion[List[Marcador]] => Distribucion[List[Marcador]]
-			= simulaciones.foldLeft(_) {
+			= simulaciones.foldLeft(_){
 			case(distribucion, simulacion)=>simulacion.simular(distribucion)
 		}
 	}
