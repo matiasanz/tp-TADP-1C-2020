@@ -40,3 +40,32 @@ import Tipos.Plata
 	object Tipos{
 		type Plata = BigDecimal
 	}
+
+//******************************* Esto no se usa *******************************************
+case class Jugador(saldo: Plata, criterio: CriterioJuego) {
+	require(saldo >= 0)
+
+	def acreditar(monto: Plata): Jugador = copy(saldo + monto)
+
+	def desacreditar(monto: Plata): Jugador = {
+		validarExtraccion(monto)
+		copy(saldoPorDesacreditar(monto))
+	}
+
+	def elegirCombinacion(combinaciones: List[Simulacion]): Simulacion
+	= criterio.elegirEntre(saldo, combinaciones).getOrElse(SimulacionVacia)
+
+	def validarExtraccion(monto: Plata): Unit = {
+		if(saldoPorDesacreditar(monto)<0)
+			throw SaldoInsuficienteException(this, monto)
+	}
+
+	val saldoPorDesacreditar: Plata => Plata = monto => saldo-monto
+
+	def jugarApuesta[R](apostar: Apuesta[R], resultado: R): Jugador = {
+		desacreditar(apostar.montoRequerido).acreditar(apostar(resultado))
+	}
+}
+
+case class SaldoInsuficienteException(jugador: Jugador, monto: Plata)
+	extends RuntimeException(s"Se intento extraer ${monto} siendo el saldo de ${jugador.saldo}")
