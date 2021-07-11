@@ -3,12 +3,9 @@ package Dominio
 import Distribuciones.Probabilidad
 import Tipos.Plata
 
-	abstract class Juego[R](distribucion: Distribucion[R]) {
-
-		def resultadosPosibles = distribucion
-
+	abstract class Juego[R](resultadosPosibles: Distribucion[R]) {
 		def distribucionDeGananciasPor(apuesta: Apuesta[R]): Distribucion[Plata]
-			= distribucion.mapSucesos(rdo => apuesta(rdo))
+			= resultadosPosibles.mapSucesos(rdo => apuesta(rdo))
 	}
 
 	trait Jugada[R] {
@@ -52,8 +49,8 @@ case class Jugador(saldo: Plata, criterio: CriterioJuego) {
 		copy(saldoPorDesacreditar(monto))
 	}
 
-	def elegirCombinacion(combinaciones: List[Simulacion]): Simulacion
-	= criterio.elegirEntre(saldo, combinaciones).getOrElse(SimulacionVacia)
+	def elegirCombinacion(combinaciones: List[Simulacion]): Option[Simulacion]
+		= criterio.elegirEntre(saldo, combinaciones)
 
 	def validarExtraccion(monto: Plata): Unit = {
 		if(saldoPorDesacreditar(monto)<0)
