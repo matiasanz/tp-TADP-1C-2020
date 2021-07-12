@@ -1,12 +1,13 @@
 package Dominio
 import Dominio.Distribuciones.Probabilidad
 import Dominio.Tipos.Plata
-import Marcadores._
+import Simulaciones.presupuestoSuficiente
+import Marcadores.variacionDeSaldo
 
 sealed trait CriterioJuego{
 	def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
 	= combinaciones
-		.filter(_.presupuestoSuficiente(presupuesto))
+		.filter(presupuestoSuficiente(_, presupuesto))
 		.maxByOption(CriterioPonderacion(this).compose(_.simular(presupuesto)))
 }
 
