@@ -10,16 +10,20 @@ case class Empece(saldo: Plata) extends Marcador{
 	override def simulacion: Simulacion = SimulacionVacia
 }
 
-sealed trait Jugue extends Marcador
+abstract class Jugue(val variacion: Plata) extends Marcador
 object Jugue{
 	def apply(variacionSaldo: Plata, simulacion: Simulacion): Marcador ={
-		if(variacionSaldo>=0) Gane(variacionSaldo, simulacion)
-		else Perdi((-1)*variacionSaldo, simulacion)
+		variacionSaldo match {
+			case n if n>0 => Gane(variacionSaldo, simulacion)
+			case n if n<0 => Perdi(variacionSaldo.abs, simulacion)
+			case 0 => ComoEntre(simulacion)
+		}
 	}
 }
 
-case class Gane(ganancia: Plata, simulacion: Simulacion) extends Jugue
-case class Perdi(perdida: Plata, simulacion: Simulacion) extends Jugue
+case class Gane(ganancia: Plata, simulacion: Simulacion) extends Jugue(ganancia)
+case class Perdi(perdida: Plata, simulacion: Simulacion) extends Jugue((-1)*perdida)
+case class ComoEntre(simulacion: Simulacion) 			 extends Jugue(0)
 case class Saltee(simulacion: Simulacion) extends Marcador
 
 object Marcadores{
@@ -32,8 +36,7 @@ object Marcadores{
 	}
 
 	def saldoFinal: List[Marcador] => Plata = {
-		case Gane(ganancia, _)::resto => ganancia + saldoFinal(resto)
-		case Perdi(perdida, _)::resto => (-1)*perdida + saldoFinal(resto)
+		case (jugue:Jugue)::resto => jugue.variacion + saldoFinal(resto)
 		case (_:Saltee)::resto => saldoFinal(resto)
 		case Nil:+Empece(saldo) => saldo
 		case marcadores => throw MarcadoresInvalidosException(marcadores)
