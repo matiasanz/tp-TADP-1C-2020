@@ -8,13 +8,18 @@ import Tipos.Plata
 			= resultadosPosibles.mapSucesos(rdo => apuesta(rdo))
 	}
 
-	trait Jugada[R] {
-		def apply(inversion: Plata, resultado: R): Plata = if(satisfechaPor(resultado)) montoPorGanar(inversion) else montoPorPerder(inversion)
+	trait Jugada[R]{
+		def apply(inversion: Plata, resultado: R): Plata
+			= if(satisfechaPor(resultado)) montoPorGanar(inversion) else montoPorPerder(inversion)
+
+		def montoPorGanar(inversion: Plata): Plata
+		def montoPorPerder(inversion: Plata): Plata
+		def satisfechaPor: R => Boolean
+	}
+
+	abstract class JugadaRatioONada[R](ratioGanancia: Double) extends Jugada[R]{
 		def montoPorGanar(inversion: Plata): Plata = ratioGanancia*inversion
 		def montoPorPerder(inversion: Plata): Plata = 0
-
-		def satisfechaPor: R => Boolean
-		def ratioGanancia: Double
 	}
 
 	trait Apuesta[R] {
@@ -23,7 +28,7 @@ import Tipos.Plata
 		def apply(resultado: R): Plata
 	}
 
-	case class ApuestaSimple[R](jugar: Jugada[R], montoRequerido: Plata) extends Apuesta[R] {
+	case class ApuestaSimple[R](jugar: JugadaRatioONada[R], montoRequerido: Plata) extends Apuesta[R] {
 		override def apply(resultado:  R): Plata = jugar(montoRequerido, resultado)
 		override def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = ApuestaCompuesta(this::List(apuesta))
 	}
