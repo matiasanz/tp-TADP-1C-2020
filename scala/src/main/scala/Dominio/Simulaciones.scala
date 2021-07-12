@@ -25,18 +25,16 @@ import Tipos._
 		}
 
 		def marcadoresFinales(marcadoresAnteriores: List[Marcador], ganancia: Plata)
-			= intentarJugar(saldo(marcadoresAnteriores), ganancia)::marcadoresAnteriores
+			= intentarJugar(saldoFinal(marcadoresAnteriores), ganancia)::marcadoresAnteriores
 
 		def intentarJugar(saldoInicial: Plata, ganancia: Plata): Marcador = {
 			if(presupuestoSuficiente(saldoInicial))
-				Jugue(saldoPorApostar(saldoInicial)+ganancia, this) //Juego
+				Jugue(ganancia - apuesta.montoRequerido, this) //Juego
 			else
 				Saltee(saldoInicial, this)	//Salteo
 		}
 
-		def presupuestoSuficiente: Plata => Boolean = saldoPorApostar(_)>=0
-
-		def saldoPorApostar(saldoInicial: Plata) =  saldoInicial - apuesta.montoRequerido
+		def presupuestoSuficiente: Plata => Boolean = _ - apuesta.montoRequerido >=0
 	}
 
 	case class SimulacionCompuesta(simulaciones: List[Simulacion]) extends Simulacion {
@@ -49,7 +47,7 @@ import Tipos._
 
 	case object SimulacionVacia extends Simulacion {
 		override def simular: Distribucion[List[Marcador]] => Distribucion[List[Marcador]]
-		= identity
+			= identity
 
 		override def presupuestoSuficiente: Plata => Boolean = _=>true
 	}

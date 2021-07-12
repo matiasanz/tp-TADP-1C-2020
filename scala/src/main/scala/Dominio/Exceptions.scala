@@ -8,3 +8,6 @@ case class SaldoInsuficienteException(jugador: Jugador, monto: Plata)
 
 case class ColorSinOpuestoException(color: Color)
 	extends RuntimeException(s"El color ${color.getClass.toString} no tiene definido opuesto")
+
+case class MarcadoresInvalidosException(marcadores: List[Marcador])
+	extends RuntimeException("Error en trayecto")
