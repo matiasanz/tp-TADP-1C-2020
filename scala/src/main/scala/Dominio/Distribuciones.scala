@@ -7,6 +7,7 @@ case class Distribucion[R](_probabilidades: Map[R, Probabilidad]){
 	require(pesoTotal(probabilidades) - 1 <= 0.00001)
 
 	def probabilidades = _probabilidades.filter(_._2>0)
+
 	def sucesos = probabilidades.keys
 
 	def probabilidadDe(rdo: R): Probabilidad = probabilidades.getOrElse(rdo, 0)
@@ -26,16 +27,16 @@ object Distribuciones {
 	type Probabilidad = Double
 
 	def equiprobable[R](sucesos: List[R]): Distribucion[R] = {
-		val d = sucesos.map(_ -> 1.toDouble / sucesos.length).toMap
-		Distribucion(d)
+		val mapEquiprobable = sucesos.map(_ -> 1.toDouble / sucesos.length).toMap
+		Distribucion(mapEquiprobable)
 	}
 
 	def eventoSeguro[R](suceso: R): Distribucion[R] = equiprobable[R](List(suceso))
 
 	def ponderada[R](ponderacion: Map[R, Double]): Distribucion[R] = {
 		val pTotal = pesoTotal(ponderacion)
-		val d = ponderacion.map { case (suc, peso) => (suc, peso / pTotal)}
-		Distribucion(d)
+		val mapPonderada = ponderacion.map { case (suc, peso) => (suc, peso / pTotal)}
+		Distribucion(mapPonderada)
 	}
 
 	def agrupar[R](distribucion: List[(R, Probabilidad)])

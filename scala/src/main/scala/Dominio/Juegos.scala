@@ -11,7 +11,7 @@ import Tipos.Plata
 	trait Jugada[R] {
 		def apply(inversion: Plata, resultado: R): Plata = if(satisfechaPor(resultado)) montoPorGanar(inversion) else montoPorPerder(inversion)
 		def montoPorGanar(inversion: Plata): Plata = ratioGanancia*inversion
-		def montoPorPerder(inversion: Plata) = 0
+		def montoPorPerder(inversion: Plata): Plata = 0
 
 		def satisfechaPor: R => Boolean
 		def ratioGanancia: Double

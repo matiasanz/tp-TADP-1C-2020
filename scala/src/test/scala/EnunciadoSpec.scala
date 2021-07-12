@@ -120,15 +120,15 @@ class EnunciadoSpec extends AnyFreeSpec {
             val elegir = elegirEnBaseA(50, combinaciones)
 
             "Criterio arriesgado" in {
-                elegir(Arriesgado) should be(Some(pocoProbableYMuyBeneficioso))
+                elegir(Arriesgado) shouldBe Some(pocoProbableYMuyBeneficioso)
             }
 
             "Criterio Cauto" in {
-                elegir(Cauto) should be(Some(muyProbableYPocoBeneficioso))
+                elegir(Cauto) shouldBe Some(muyProbableYPocoBeneficioso)
             }
 
             "Criterio racional" in {
-                elegir(Racional) should be(Some(puntoMedio))
+                elegir(Racional) shouldBe Some(puntoMedio)
             }
         }
 
@@ -161,19 +161,19 @@ class EnunciadoSpec extends AnyFreeSpec {
             val elegir = elegirEnBaseA(110, combinacionesCompuestas)
 
             "Criterio arriesgado" in {
-                elegir(Arriesgado) should be(Some(imposiblePeroBeneficiosa))
+                elegir(Arriesgado) shouldBe Some(imposiblePeroBeneficiosa)
             }
 
             "Criterio Cauto" in {
-                elegir(Cauto) should be(Some(muyProbablePeroPocoRedituable))
+                elegir(Cauto) shouldBe Some(muyProbablePeroPocoRedituable)
             }
 
             "Criterio racional" in {
-                elegir(Racional) should be(Some(puntoMedio))
+                elegir(Racional) shouldBe Some(puntoMedio)
             }
 
             "Criterio miedoso" in {
-                elegir(Miedoso) should be(Some(noGanoNadaPeroTampocoPierdo))
+                elegir(Miedoso) shouldBe Some(noGanoNadaPeroTampocoPierdo)
             }
         }
 
@@ -184,7 +184,7 @@ class EnunciadoSpec extends AnyFreeSpec {
                     elegirEnBaseA(
                         2
                         , List(SimulacionSimple(Ruleta, ApuestaSimple(ANumero(3), 123456789)))
-                    ).apply(criterio) should be(None)
+                    ).apply(criterio) shouldBe None
                 }
 
                 assert(Cauto)
@@ -194,7 +194,7 @@ class EnunciadoSpec extends AnyFreeSpec {
 
             "Combinacion vacia" in {
                 val assert: CriterioJuego=>Unit = criterio=>{
-                    Jugador(15, criterio).elegirCombinacion(List.empty) should be(None)
+                    Jugador(15, criterio).elegirCombinacion(List.empty) shouldBe None
                 }
 
                 assert(Cauto)

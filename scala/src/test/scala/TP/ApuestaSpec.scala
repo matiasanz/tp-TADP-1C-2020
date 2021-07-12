@@ -15,33 +15,33 @@ class ApuestaSpec extends AnyFreeSpec{
   "TP" - {
       "Apuestas" - {
           "El resultado esperado cumple la apuesta" in {
-              jugada.satisfechaPor(CARA) should be(true)
+              jugada.satisfechaPor(CARA) shouldBe true
           }
 
           "Si se cumple la apuesta, se multiplica el monto" - {
-              jugada.montoPorGanar(200.00) should be(400)
+              jugada.montoPorGanar(200.00) shouldBe 400
           }
       }
 
       "distribuciones" - {
           "equiprobable" in {
               val equiprobable = Distribuciones.equiprobable(List(CARA, CRUZ))
-              equiprobable.probabilidadDe(CARA) should be(0.5)
-              equiprobable.probabilidadDe(CRUZ) should be(0.5)
+              equiprobable.probabilidadDe(CARA) shouldBe 0.5
+              equiprobable.probabilidadDe(CRUZ) shouldBe 0.5
           }
 
           "evento unico" in{
               val eventoUnico = Distribuciones.eventoSeguro[ResultadoMoneda](CARA)
-              eventoUnico.probabilidadDe(CARA) should be(1)
-              eventoUnico.probabilidadDe(CRUZ) should be(0)
+              eventoUnico.probabilidadDe(CARA) shouldBe 1
+              eventoUnico.probabilidadDe(CRUZ) shouldBe 0
           }
 
           "Ponderada" in {
               val sucesos: Map[ResultadoMoneda, Double] = Map((CARA, 7500), (CRUZ, 2500))
               val ponderada = Distribuciones.ponderada(sucesos)
 
-              ponderada.probabilidadDe(CARA) should be(0.75)
-              ponderada.probabilidadDe(CRUZ) should be(0.25)
+              ponderada.probabilidadDe(CARA) shouldBe 0.75
+              ponderada.probabilidadDe(CRUZ) shouldBe 0.25
           }
         }
      }
