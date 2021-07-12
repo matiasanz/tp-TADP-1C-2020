@@ -4,13 +4,13 @@ import Dominio.Distribuciones.Probabilidad
 import Distribuciones.pesoTotal
 
 case class Distribucion[R](_probabilidades: Map[R, Probabilidad]){
-	require(pesoTotal(probabilidades) - 1 <= 0.00001)
+	require(pesoTotal(probabilidades) - 1 <= 0.00001 && probabilidades.values.forall(_>=0))
 
 	def probabilidades = _probabilidades.filter(_._2>0)
 
-	def sucesos = probabilidades.keys
-
 	def probabilidadDe(rdo: R): Probabilidad = probabilidades.getOrElse(rdo, 0)
+
+	def sucesos = probabilidades.keys
 
 	def probabilidadDeCumplir(suceso: R=>Boolean) = mapSucesos(suceso).probabilidadDe(true)
 

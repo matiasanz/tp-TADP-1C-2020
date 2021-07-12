@@ -2,7 +2,7 @@ package Dominio
 
 import Dominio.Tipos.Plata
 
-trait Marcador{
+sealed trait Marcador{
 	def simulacion: Simulacion
 	def saldo: Plata
 }
@@ -18,7 +18,7 @@ object Marcadores{
 
 	def saldo: List[Marcador] => Plata = _.head.saldo //Minimamente deberia haber un empece
 
-	def diferenciaSaldo: List[Marcador] => Plata =
+	def variacionDeSaldo: List[Marcador] => Plata =
 		marcadores => marcadores.head.saldo - marcadores.last.saldo
 }
 

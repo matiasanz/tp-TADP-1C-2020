@@ -18,14 +18,14 @@ case object Miedoso extends CriterioJuego //Criterio extra
 case object CriterioPonderacion{
 	def apply(criterio: CriterioJuego): (Distribucion[List[Marcador]]=>Double) = criterio match{
 		case Racional 	=> _.probabilidades.map(puntaje.tupled).sum
-		case Arriesgado => _.sucesos.map(diferenciaSaldo).max
-		case Cauto 		=> _.probabilidadDeCumplir(diferenciaSaldo(_)>=0)
+		case Arriesgado => _.sucesos.map(variacionDeSaldo).max
+		case Cauto 		=> _.probabilidadDeCumplir(variacionDeSaldo(_)>=0)
 		case Miedoso 	=> _.sucesos.map(perdida).min
 	}
 
 	val puntaje: (List[Marcador], Probabilidad)=>Double
-		= (marcadores, proba) => proba*diferenciaSaldo(marcadores)
+		= (marcadores, proba) => proba*variacionDeSaldo(marcadores)
 
 	private def perdida(marcadores: List[Marcador]): Plata
-		= diferenciaSaldo(marcadores).min(0.0)
+		= variacionDeSaldo(marcadores).min(0.0)
 }

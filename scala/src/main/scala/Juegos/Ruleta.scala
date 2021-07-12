@@ -15,9 +15,9 @@ import Cuadricula.ResultadoRuleta
 			= (_ == numero)
 	}
 
-	case class ADocena(cual: Int)	extends JugadaRuleta(3){
+	case class ADocena(queDocena: Int)	extends JugadaRuleta(3){
 		def satisfechaPor: ResultadoRuleta =>Boolean
-			= docena(_) == cual
+			= queDocena == docena(_)
 	}
 	case class AColor(queColor: Color)	extends JugadaRuleta(2){
 		def satisfechaPor: ResultadoRuleta =>Boolean
@@ -31,7 +31,7 @@ import Cuadricula.ResultadoRuleta
 
 //Auxiliares ********************************************************************
 	//Colores
-	trait Color
+	sealed trait Color
 
 	case object ROJO extends Color
 	case object NEGRO extends Color
@@ -57,7 +57,7 @@ import Cuadricula.ResultadoRuleta
 		def colorOpuesto(color: Color): Color = color match {
 			case NEGRO => ROJO
 			case ROJO => NEGRO
-//			case INCOLORO => INCOLORO
+			case c => throw ColorSinOpuestoException(c)
 		}
 
 		def columna(numero: ResultadoRuleta): Int = {
