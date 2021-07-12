@@ -23,14 +23,17 @@ import Tipos._
 		}
 
 		def marcadoresFinales(marcadoresAnteriores: List[Marcador], ganancia: Plata)
-			= intentarJugar(saldoFinal(marcadoresAnteriores), ganancia)::marcadoresAnteriores
+			= marcadoresAnteriores:+intentarJugar(saldoFinal(marcadoresAnteriores), ganancia)
 
 		def intentarJugar(saldoInicial: Plata, ganancia: Plata): Marcador = {
-			if(Simulaciones.presupuestoSuficiente(this, saldoInicial))
+			if(presupuestoSuficiente(saldoInicial))
 				Jugue(ganancia - apuesta.montoRequerido, this) //Juego
 			else
 				Saltee(this)	//Salteo
 		}
+
+		def presupuestoSuficiente(presupuesto: Plata): Boolean
+			= presupuesto - apuesta.montoRequerido >=0
 	}
 
 	case class SimulacionCompuesta(simulaciones: List[Simulacion]) extends Simulacion {
@@ -46,7 +49,7 @@ import Tipos._
 	object Simulaciones{
 		def presupuestoSuficiente: (Simulacion, Plata) => Boolean
 		= (simulacion, presupuesto) => simulacion match {
-			case SimulacionSimple(_, apuesta) => presupuesto - apuesta.montoRequerido >=0
+			case simple:SimulacionSimple[_] => simple.presupuestoSuficiente(presupuesto)
 			case SimulacionCompuesta(simulaciones) => simulaciones.exists(presupuestoSuficiente(_, presupuesto))
 			case SimulacionVacia =>true
 		}

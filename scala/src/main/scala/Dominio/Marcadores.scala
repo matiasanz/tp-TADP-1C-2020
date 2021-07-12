@@ -36,14 +36,14 @@ object Marcadores{
 	}
 
 	def saldoFinal: List[Marcador] => Plata = {
-		case (jugue:Jugue)::resto => jugue.variacion + saldoFinal(resto)
-		case (_:Saltee)::resto => saldoFinal(resto)
-		case Nil:+Empece(saldo) => saldo
+		case primeros:+(jugue:Jugue) => jugue.variacion + saldoFinal(primeros)
+		case primeros:+(_:Saltee) => saldoFinal(primeros)
+		case Empece(saldo)::Nil => saldo
 		case marcadores => throw MarcadoresInvalidosException(marcadores)
 	}
 
 	def saldoInicial: List[Marcador] => Plata = {
-		case _:+Empece(saldo) => saldo
+		case Empece(saldo)::_ => saldo
 		case marcadores => throw MarcadoresInvalidosException(marcadores)
 	}
 
