@@ -3,15 +3,15 @@ package Dominio
 import Distribuciones.Probabilidad
 import Tipos.Plata
 
-	abstract class Juego[R](resultadosPosibles: Distribucion[R]) {
+	abstract class Juego[R](val resultadosPosibles: Distribucion[R]) {
 		def distribucionDeGananciasPor(apuesta: Apuesta[R]): Distribucion[Plata]
 			= resultadosPosibles.mapSucesos(rdo => apuesta(rdo))
 	}
 
 	trait Jugada[R] {
-		def apply(inversion: Plata, resultado: R): Plata = if(satisfechaPor(resultado)) montoPorGanar(inversion) else montoPorPerder
+		def apply(inversion: Plata, resultado: R): Plata = if(satisfechaPor(resultado)) montoPorGanar(inversion) else montoPorPerder(inversion)
 		def montoPorGanar(inversion: Plata): Plata = ratioGanancia*inversion
-		def montoPorPerder = 0
+		def montoPorPerder(inversion: Plata) = 0
 
 		def satisfechaPor: R => Boolean
 		def ratioGanancia: Double
@@ -63,6 +63,3 @@ case class Jugador(saldo: Plata, criterio: CriterioJuego) {
 		desacreditar(apostar.montoRequerido).acreditar(apostar(resultado))
 	}
 }
-
-case class SaldoInsuficienteException(jugador: Jugador, monto: Plata)
-	extends RuntimeException(s"Se intento extraer ${monto} siendo el saldo de ${jugador.saldo}")

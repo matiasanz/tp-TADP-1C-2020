@@ -5,34 +5,33 @@ import Marcadores._
 
 trait CriterioJuego{
 
-	type CriterioPonderacion = ((Simulacion, Distribucion[List[Marcador]]))=>Double
+	type CriterioPonderacion = Distribucion[List[Marcador]]=>Double
 	def criterioPonderacion: CriterioPonderacion
 
 	def elegirEntre(presupuesto: Plata, combinaciones: List[Simulacion]): Option[Simulacion]
-		= combinaciones.map(combinacion => (combinacion, combinacion.simular(presupuesto))  )
-			.filter(_._2.probabilidadDeCumplir(seJugo) > 0) //Prescindible
-			.maxByOption(criterioPonderacion) //Maximo opcional
-			.map(_._1) //Me quedo con la simulacion
+		= combinaciones
+			.filter(_.presupuestoSuficiente(presupuesto))
+			.maxByOption(criterioPonderacion.compose(_.simular(presupuesto)))
 }
 
 case object Racional extends CriterioJuego {
-	val criterioPonderacion: CriterioPonderacion = _._2.probabilidades.map(puntaje.tupled).sum
+	val criterioPonderacion: CriterioPonderacion = _.probabilidades.map(puntaje.tupled).sum
 
 	val puntaje: (List[Marcador], Probabilidad)=>Double
-		= (marcadores, proba) => diferenciaSaldo(marcadores)*proba
+		= (marcadores, proba) => proba*diferenciaSaldo(marcadores)
 }
 
 case object Arriesgado extends CriterioJuego {
-	val criterioPonderacion: CriterioPonderacion = _._2.sucesos.map(diferenciaSaldo).max
+	val criterioPonderacion: CriterioPonderacion = _.sucesos.map(diferenciaSaldo).max
 }
 
 case object Cauto extends CriterioJuego {
-	val criterioPonderacion: CriterioPonderacion = _._2.probabilidadDeCumplir(diferenciaSaldo(_)>=0)
+	val criterioPonderacion: CriterioPonderacion = _.probabilidadDeCumplir(diferenciaSaldo(_)>=0)
 }
 
 //Criterio extra
 case object Miedoso extends CriterioJuego {
-	val criterioPonderacion: CriterioPonderacion = _._2.sucesos.map(perdida).min
+	val criterioPonderacion: CriterioPonderacion = _.sucesos.map(perdida).min
 
 	private def perdida(marcadores: List[Marcador]): Plata
 		= diferenciaSaldo(marcadores).min(0.0)

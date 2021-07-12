@@ -101,9 +101,6 @@ class EnunciadoSpec extends AnyFreeSpec {
         }
     }
 
-
-    import Dominio.SimulacionVacia
-
     "Eligiendo un plan de juego" - {
 
         val elegirEnBaseA: (Plata, List[Simulacion]) => CriterioJuego => Option[Simulacion]
