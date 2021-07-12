@@ -20,7 +20,7 @@ object Jugue{
 
 case class Gane(ganancia: Plata, simulacion: Simulacion) extends Jugue
 case class Perdi(perdida: Plata, simulacion: Simulacion) extends Jugue
-case class Saltee(saldo: Plata, simulacion: Simulacion) extends Marcador
+case class Saltee(simulacion: Simulacion) extends Marcador
 
 object Marcadores{
 	val puntoDePartida: Plata => List[Marcador]

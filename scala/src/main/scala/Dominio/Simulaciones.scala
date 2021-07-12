@@ -31,7 +31,7 @@ import Tipos._
 			if(presupuestoSuficiente(saldoInicial))
 				Jugue(ganancia - apuesta.montoRequerido, this) //Juego
 			else
-				Saltee(saldoInicial, this)	//Salteo
+				Saltee(this)	//Salteo
 		}
 
 		def presupuestoSuficiente: Plata => Boolean = _ - apuesta.montoRequerido >=0
