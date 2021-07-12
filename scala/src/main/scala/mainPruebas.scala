@@ -1,8 +1,6 @@
 
-import Dominio.Tipos.Plata
 import Dominio._
 import Juegos._
-import Juegos.Cuadricula.ResultadoRuleta
 
 object X{
 	val apM = ApuestaSimple(AMoneda(CARA), 300).compuestaCon(ApuestaSimple(AMoneda(CRUZ), 300))
@@ -10,11 +8,8 @@ object X{
 
 
 	def main(args: Array[String]): Unit = {
-
-
 		val comb1 = List((MonedaComun, apM))
 		val comb2 = List((Ruleta, apR))
-
 
 		val sdaf: Distribucion[List[Marcador]] = SimulacionCompuesta(List(
 			SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CARA), 300))
@@ -23,13 +18,7 @@ object X{
 			, SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CRUZ), 300))
 		)).simular(500)
 
-		println(sdaf.toString)
+		println(sdaf.mapSucesos(_.map(_.getClass.toString).mkString("<--")).sucesos.mkString("\n"))
 
-//		print(Cauto.elegirEntre(Jugador(70000), List(comb1, comb2)).toString)
-//		val combinacion = List((MonedaComun, apM), (Ruleta, apR))
-
-//		val x = Simuladores.simularJuegos(Jugador(5000), combinacion)
-
-//		println(Stringer.arbolToString(x))
 	}
 }

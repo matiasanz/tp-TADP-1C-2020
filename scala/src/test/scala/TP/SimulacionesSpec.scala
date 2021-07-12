@@ -14,6 +14,22 @@ trait Proveedor{
 
 class SimulacionesSpec extends AnyFreeSpec with Proveedor {
 
+    "Implementacion actual" - {
+        "No se generan marcadores de mas" in {
+            val sdaf: Distribucion[List[Marcador]] = SimulacionCompuesta(List(
+                SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CARA), 300))
+                , SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CARA), 300))
+                , SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CRUZ), 300))
+                , SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CRUZ), 300))
+            )).simular(500)
+
+            sdaf.sucesos.foreach(_.length should be(1+4))
+        }
+    }
+
+
+    //TODO: Deprecados
+
     "Simulando un solo juego" - {
         "Generalidades" - {
             "Jugador no se puede crear con menos plata" in {
@@ -26,27 +42,6 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
         }
 
         "Cara cruz" - {
-            val jugador = jugadorConPresupuesto(200)
-            val apuesta = ApuestaSimple(AMoneda(CARA), 200)
-
-            /*
-            "Moneda Comun" - {
-                "50% de probabilidad de ganar y de perder" in {
-                    simularJuego(jugador, SimulacionSimple(MonedaComun, apuesta)) should contain only (
-                        (jugadorConPresupuesto(400), 0.5)
-                        , (jugadorConPresupuesto(0), 0.5)
-                    )
-                }
-            }
-
-            "Un juego con una apuesta compuesta perdedora en cualquier caso se simula correctamente" in {
-                val ap = apuesta.compuestaCon(ApuestaSimple(JugadaMoneda(CARA), 300))
-                simularJuego(jugadorConPresupuesto(600), SimulacionSimple(MonedaComun, ap)) should contain only (
-                    (jugadorConPresupuesto(1100.0), 0.5.toFloat)
-                    , (jugadorConPresupuesto(100),0.5.toFloat)
-                )
-            }*/
-
             "Un juego con una apuesta perdedora se simula correctamente" in {
                 Try(jugadorConPresupuesto(70)
                     .jugarApuesta(ApuestaSimple(AMoneda(CARA), 200), CARA)
