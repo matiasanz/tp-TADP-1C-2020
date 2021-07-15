@@ -4,7 +4,7 @@ import Distribuciones.Probabilidad
 import Tipos.Plata
 
 	abstract class Juego[R](val resultadosPosibles: Distribucion[R]) {
-		def distribucionDeGananciasPor(apostar: Apuesta[R]): Distribucion[Plata]
+		def gananciasPosiblesPor(apostar: Apuesta[R]): Distribucion[Plata]
 			= resultadosPosibles.mapSucesos(apostar)
 	}
 

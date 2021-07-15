@@ -10,9 +10,9 @@ case class Distribucion[S](asMap: Map[S, Probabilidad]){
 
 	def getSucesos = asMap.keys
 
-	def probabilidadDe(rdo: S): Probabilidad = asMap.getOrElse(rdo, 0)
+	def probabilidadDe(suceso: S): Probabilidad = asMap.getOrElse(suceso, 0)
 
-	def probabilidadDeCumplir(suceso: S=>Boolean) = mapSucesos(suceso).probabilidadDe(true)
+	def probabilidadDe: (S=>Boolean)=>Probabilidad = mapSucesos(_).probabilidadDe(true)
 
 	def promedioPonderado[T](deQue: S=>Double): Double
 		= mapToList((suc, proba) => deQue(suc)*proba).sum

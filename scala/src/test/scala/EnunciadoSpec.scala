@@ -71,12 +71,12 @@ class EnunciadoSpec extends AnyFreeSpec {
     "Jugando un juego" - {
         "Ganancias por jugar con moneda comun" in {
             val apuesta = ApuestaSimple(ACara(CARA), 30)
-            MonedaComun.distribucionDeGananciasPor(apuesta).asMap should contain only((60, .5), (0, .5))
+            MonedaComun.gananciasPosiblesPor(apuesta).asMap should contain only((60, .5), (0, .5))
         }
 
         "Ganancias por jugar a ruleta" in {
             val apuesta = ApuestaSimple(ANumero(1), 10)
-            val distribucion = Ruleta.distribucionDeGananciasPor(apuesta)
+            val distribucion = Ruleta.gananciasPosiblesPor(apuesta)
 
             distribucion.asMap.size should be(2)
             distribucion.probabilidadDe(360) should be_aprox(0.027) //1.0/37

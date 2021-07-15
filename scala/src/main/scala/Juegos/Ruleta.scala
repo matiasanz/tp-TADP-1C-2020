@@ -54,7 +54,7 @@ import Cuadricula.ResultadoRuleta
 			case 0 => INCOLORO
 		}
 
-		def colorOpuesto(color: Color): Color = color match {
+		def colorOpuesto: Color => Color = {
 			case NEGRO => ROJO
 			case ROJO => NEGRO
 			case otro => throw ColorSinOpuestoException(otro)

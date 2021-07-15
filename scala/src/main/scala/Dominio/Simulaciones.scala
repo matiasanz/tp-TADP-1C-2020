@@ -16,7 +16,7 @@ import Tipos._
 		override def simular: Distribucion[List[Marcador]] => Distribucion[List[Marcador]] = distribucion =>{
 			val escenarios = for {
 				(marcadoresAnteriores, probaLlegada) <- distribucion.listar
-				(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta).listar
+				(ganancia, probaTransicion) <- juego.gananciasPosiblesPor(apuesta).listar
 			} yield (sumarMarcador(marcadoresAnteriores, ganancia), probaLlegada*probaTransicion)
 
 			Distribuciones.agrupar(escenarios)
