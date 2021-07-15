@@ -24,9 +24,9 @@ import Cuadricula.ResultadoRuleta
 			= queColor == color(_)
 	}
 
-	case class AParidad(siONo: Boolean) extends JugadaRuleta(2){
+	case class AParidad(seraPar: Boolean) extends JugadaRuleta(2){
 		def satisfechaPor: ResultadoRuleta => Boolean
-			= resultado => resultado!=0 && siONo == esPar(resultado)
+			= resultado => resultado!=0 && seraPar == esPar(resultado)
 	}
 
 //Auxiliares ********************************************************************

@@ -4,8 +4,8 @@ import Distribuciones.Probabilidad
 import Tipos.Plata
 
 	abstract class Juego[R](val resultadosPosibles: Distribucion[R]) {
-		def distribucionDeGananciasPor(apuesta: Apuesta[R]): Distribucion[Plata]
-			= resultadosPosibles.mapSucesos(rdo => apuesta(rdo))
+		def distribucionDeGananciasPor(apostar: Apuesta[R]): Distribucion[Plata]
+			= resultadosPosibles.mapSucesos(rdo => apostar(rdo))
 	}
 
 	trait Jugada[R]{
@@ -23,19 +23,17 @@ import Tipos.Plata
 	}
 
 	trait Apuesta[R] {
-		def montoRequerido: Plata
-		def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R]
 		def apply(resultado: R): Plata
+		def montoRequerido: Plata
+		def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = ApuestaCompuesta(this::List(apuesta))
 	}
 
 	case class ApuestaSimple[R](jugar: JugadaRatioONada[R], montoRequerido: Plata) extends Apuesta[R] {
 		override def apply(resultado:  R): Plata = jugar(montoRequerido, resultado)
-		override def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = ApuestaCompuesta(this::List(apuesta))
 	}
 
 	case class ApuestaCompuesta[R](apuestas: List[Apuesta[R]]) extends Apuesta[R]{
 		override def apply(resultado: R): Plata = apuestas.map(_(resultado)).sum
-		override def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = copy(apuestas:+apuesta)
 		override def montoRequerido: Plata = apuestas.map(_.montoRequerido).sum
 	}
 

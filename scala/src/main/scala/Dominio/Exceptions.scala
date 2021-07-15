@@ -10,4 +10,4 @@ case class ColorSinOpuestoException(color: Color)
 	extends RuntimeException(s"El color ${color.getClass.toString} no tiene definido opuesto")
 
 case class MarcadoresInvalidosException(marcadores: List[Marcador])
-	extends RuntimeException("Error en trayecto")
+	extends RuntimeException("Los siguientes marcadores se dieron antes de empezar "+ marcadores.toString())

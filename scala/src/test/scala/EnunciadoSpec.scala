@@ -1,6 +1,6 @@
 import Dominio.Distribuciones.Probabilidad
 import Dominio.Tipos.Plata
-import Dominio.{ApuestaCompuesta, ApuestaSimple, Arriesgado, Cauto, CriterioJuego, Distribuciones, Jugador, Jugue, Marcadores, Miedoso, Racional, Saltee, Simulacion, SimulacionCompuesta, SimulacionSimple, SimulacionVacia}
+import Dominio.{ApuestaCompuesta, ApuestaSimple, Arriesgado, Cauto, CriterioJuego, Distribuciones, Jugador, Jugue, Marcadores, Pesimista, Racional, Saltee, Simulacion, SimulacionCompuesta, SimulacionSimple, SimulacionVacia}
 import Juegos._
 import org.scalactic.TripleEqualsSupport
 import org.scalatest.freespec.AnyFreeSpec
@@ -175,7 +175,7 @@ class EnunciadoSpec extends AnyFreeSpec {
             }
 
             "Criterio miedoso" in {
-                elegir(Miedoso) shouldBe Some(noGanoNadaPeroTampocoPierdo)
+                elegir(Pesimista) shouldBe Some(noGanoNadaPeroTampocoPierdo)
             }
         }
 
