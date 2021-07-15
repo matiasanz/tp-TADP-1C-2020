@@ -6,15 +6,15 @@ import Distribuciones.pesoTotal
 case class Distribucion[S](asMap: Map[S, Probabilidad]){
 	require(pesoTotal(asMap) - 1 <= 0.00001 && asMap.values.forall(_>=0))
 
-	def probabilidadDe(rdo: S): Probabilidad = asMap.getOrElse(rdo, 0)
+	def listar = asMap.toList
 
 	def getSucesos = asMap.keys
 
+	def probabilidadDe(rdo: S): Probabilidad = asMap.getOrElse(rdo, 0)
+
 	def probabilidadDeCumplir(suceso: S=>Boolean) = mapSucesos(suceso).probabilidadDe(true)
 
-	def listar = asMap.toList
-
-	def promedio[T](deQue: S=>Double): Double
+	def promedioPonderado[T](deQue: S=>Double): Double
 		= mapToList((suc, proba) => deQue(suc)*proba).sum
 
 	def mapSucesos[T]: (S=>T) => Distribucion[T]
