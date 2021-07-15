@@ -17,6 +17,7 @@ class RuletaSpec extends AnyFreeSpec{
         }
 
         "Color es correcto" in {
+            color(0) shouldBe INCOLORO
             color(14) shouldBe ROJO
             color(17) shouldBe NEGRO
             color(20) shouldBe NEGRO

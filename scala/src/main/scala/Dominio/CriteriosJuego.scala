@@ -18,14 +18,14 @@ case object Pesimista extends CriterioJuego //Criterio extra
 
 object CriterioPonderacion{
 	def apply(criterio: CriterioJuego): (Distribucion[List[Marcador]]=>Double) = criterio match{
-		case Racional 	=> _.asMap.map(gananciaMedia.tupled).sum
+		case Racional 	=> gananciaMedia
 		case Arriesgado => variacionesDeSaldo(_).max
 		case Cauto 		=> _.probabilidadDeCumplir(variacionDeSaldo(_)>=0)
 		case Pesimista 	=> variacionesDeSaldo(_).min
 	}
 
-	val gananciaMedia: (List[Marcador], Probabilidad)=>Double
-		= (marcadores, proba) => proba*variacionDeSaldo(marcadores)
+	val gananciaMedia: Distribucion[List[Marcador]]=>Double
+		= _.mapToList(variacionDeSaldo(_)*_).sum
 
 	val variacionesDeSaldo: Distribucion[List[Marcador]]=>Iterable[Plata]
 		= _.sucesos.map(variacionDeSaldo)
