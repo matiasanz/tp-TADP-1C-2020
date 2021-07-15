@@ -4,7 +4,7 @@ import Dominio.Distribuciones.Probabilidad
 import Distribuciones.pesoTotal
 
 case class Distribucion[S](asMap: Map[S, Probabilidad]){
-	require(pesoTotal(asMap) - 1 <= 0.00001 && asMap.values.forall(_>=0))
+	require((pesoTotal(asMap) - 1).abs <= 0.00001 && asMap.values.forall(_>=0))
 
 	def listar = asMap.toList
 
