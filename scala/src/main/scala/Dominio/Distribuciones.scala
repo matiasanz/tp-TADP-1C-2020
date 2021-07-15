@@ -3,22 +3,20 @@ package Dominio
 import Dominio.Distribuciones.Probabilidad
 import Distribuciones.pesoTotal
 
-case class Distribucion[R](_probabilidades: Map[R, Probabilidad]){
-	require(pesoTotal(probabilidades) - 1 <= 0.00001 && probabilidades.values.forall(_>=0))
+case class Distribucion[S](asMap: Map[S, Probabilidad]){
+	require(pesoTotal(asMap) - 1 <= 0.00001 && asMap.values.forall(_>=0))
 
-	def probabilidades = _probabilidades.filter(_._2>0)
+	def probabilidadDe(rdo: S): Probabilidad = asMap.getOrElse(rdo, 0)
 
-	def probabilidadDe(rdo: R): Probabilidad = probabilidades.getOrElse(rdo, 0)
+	def sucesos = asMap.keys
 
-	def sucesos = probabilidades.keys
+	def probabilidadDeCumplir(suceso: S=>Boolean) = mapSucesos(suceso).probabilidadDe(true)
 
-	def probabilidadDeCumplir(suceso: R=>Boolean) = mapSucesos(suceso).probabilidadDe(true)
+	def listar = asMap.toList
 
-	def toList = probabilidades.toList
-
-	def mapSucesos[S]: (R=>S) => Distribucion[S]
+	def mapSucesos[T]: (S=>T) => Distribucion[T]
 		= (transform) => {
-			val nueva = probabilidades.toList.map { case (rdo, proba) => transform(rdo) -> proba }
+			val nueva = asMap.toList.map { case (rdo, proba) => transform(rdo) -> proba }
 			Distribuciones.agrupar(nueva)
 		}
 }
@@ -26,20 +24,20 @@ case class Distribucion[R](_probabilidades: Map[R, Probabilidad]){
 object Distribuciones {
 	type Probabilidad = Double
 
-	def equiprobable[R](sucesos: List[R]): Distribucion[R] = {
+	def equiprobable[S](sucesos: List[S]): Distribucion[S] = {
 		val mapEquiprobable = sucesos.map(_ -> 1.toDouble / sucesos.length).toMap
 		Distribucion(mapEquiprobable)
 	}
 
-	def eventoSeguro[R](suceso: R): Distribucion[R] = equiprobable[R](List(suceso))
+	def eventoSeguro[S](suceso: S): Distribucion[S] = equiprobable[S](List(suceso))
 
-	def ponderada[R](ponderacion: Map[R, Double]): Distribucion[R] = {
+	def ponderada[S](ponderacion: Map[S, Double]): Distribucion[S] = {
 		val pTotal = pesoTotal(ponderacion)
 		val mapPonderada = ponderacion.map { case (suc, peso) => (suc, peso / pTotal)}
 		Distribucion(mapPonderada)
 	}
 
-	def agrupar[R](distribucion: List[(R, Probabilidad)])
+	def agrupar[S](distribucion: List[(S, Probabilidad)])
 		= Distribucion(distribucion.groupMapReduce(_._1)(_._2)(_+_))
 
 	def pesoTotal(sucesos: Map[_, Double]): Double = sucesos.values.sum

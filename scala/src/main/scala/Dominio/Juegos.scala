@@ -5,10 +5,10 @@ import Tipos.Plata
 
 	abstract class Juego[R](val resultadosPosibles: Distribucion[R]) {
 		def distribucionDeGananciasPor(apostar: Apuesta[R]): Distribucion[Plata]
-			= resultadosPosibles.mapSucesos(rdo => apostar(rdo))
+			= resultadosPosibles.mapSucesos(apostar)
 	}
 
-	trait Jugada[R]{
+	trait Jugada[R] extends ((Plata, R)=>Plata){
 		def apply(inversion: Plata, resultado: R): Plata
 			= if(satisfechaPor(resultado)) montoPorGanar(inversion) else montoPorPerder(inversion)
 
@@ -22,7 +22,7 @@ import Tipos.Plata
 		def montoPorPerder(inversion: Plata): Plata = 0
 	}
 
-	trait Apuesta[R] {
+	trait Apuesta[R] extends (R=>Plata){
 		def apply(resultado: R): Plata
 		def montoRequerido: Plata
 		def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = ApuestaCompuesta(this::List(apuesta))
