@@ -25,5 +25,5 @@ object CriterioPonderacion{
 	}
 
 	val variacionesDeSaldo: Distribucion[List[Marcador]]=>Iterable[Plata]
-		= _.sucesos.map(variacionDeSaldo)
+		= _.getSucesos.map(variacionDeSaldo)
 }

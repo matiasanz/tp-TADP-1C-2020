@@ -8,7 +8,7 @@ case class Distribucion[S](asMap: Map[S, Probabilidad]){
 
 	def probabilidadDe(rdo: S): Probabilidad = asMap.getOrElse(rdo, 0)
 
-	def sucesos = asMap.keys
+	def getSucesos = asMap.keys
 
 	def probabilidadDeCumplir(suceso: S=>Boolean) = mapSucesos(suceso).probabilidadDe(true)
 

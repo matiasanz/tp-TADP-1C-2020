@@ -23,7 +23,7 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
                 , SimulacionSimple(MonedaComun, ApuestaSimple(ACara(CRUZ), 300))
             )).simular(500)
 
-            sdaf.sucesos.foreach(_.length should be(1+4))
+            sdaf.getSucesos.foreach(_.length should be(1+4))
         }
     }
 

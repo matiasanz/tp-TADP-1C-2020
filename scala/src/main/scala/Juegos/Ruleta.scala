@@ -7,7 +7,7 @@ import Cuadricula.ResultadoRuleta
 //Juego ********************************************************************
 	object Ruleta extends Juego[ResultadoRuleta](Distribuciones.equiprobable((0 to 36).toList))
 
-//Resultados ********************************************************************
+//Jugadas ********************************************************************
 	abstract class JugadaRuleta(val ratioGanancia: Double) extends JugadaRatioONada[ResultadoRuleta](ratioGanancia)
 
 	case class ANumero(queNumero: ResultadoRuleta) extends JugadaRuleta(36) {
@@ -29,7 +29,7 @@ import Cuadricula.ResultadoRuleta
 			= resultado => resultado!=0 && seraPar == esPar(resultado)
 	}
 
-//Auxiliares ********************************************************************
+//Resultados ********************************************************************
 	//Colores
 	sealed trait Color
 

@@ -19,7 +19,7 @@ object Pruebas{
 			)
 		).simular(500.0)
 
-		println(sdaf.mapSucesos(_.map(_.getClass.toString).mkString("-->")).sucesos.mkString("\n"))
+		println(sdaf.mapSucesos(_.map(_.getClass.toString).mkString("-->")).getSucesos.mkString("\n"))
 
 	}
 }
