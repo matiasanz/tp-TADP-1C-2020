@@ -25,14 +25,14 @@ import Tipos.Plata
 	trait Apuesta[R] extends (R=>Plata){
 		def apply(resultado: R): Plata
 		def montoRequerido: Plata
-		def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = ApuestaCompuesta(this::List(apuesta))
+		def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = ApuestaCompuesta(this,apuesta)
 	}
 
 	case class ApuestaSimple[R](jugar: JugadaRatioONada[R], montoRequerido: Plata) extends Apuesta[R] {
 		override def apply(resultado:  R): Plata = jugar(montoRequerido, resultado)
 	}
 
-	case class ApuestaCompuesta[R](apuestas: List[Apuesta[R]]) extends Apuesta[R]{
+	case class ApuestaCompuesta[R](apuestas: Apuesta[R]*) extends Apuesta[R]{
 		override def apply(resultado: R): Plata = apuestas.map(_(resultado)).sum
 		override def montoRequerido: Plata = apuestas.map(_.montoRequerido).sum
 	}

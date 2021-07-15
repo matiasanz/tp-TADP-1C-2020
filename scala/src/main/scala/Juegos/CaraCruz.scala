@@ -17,7 +17,6 @@ case object CARA extends ResultadoMoneda
 case object CRUZ extends ResultadoMoneda
 
 case class ACara(queCara: ResultadoMoneda) extends JugadaRatioONada[ResultadoMoneda](2) {
-
 	override def satisfechaPor: ResultadoMoneda => Boolean
 		= (_ == queCara)
 }
