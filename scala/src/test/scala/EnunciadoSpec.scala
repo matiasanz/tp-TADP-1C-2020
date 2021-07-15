@@ -16,7 +16,7 @@ class EnunciadoSpec extends AnyFreeSpec {
     "Jugadas y Apuestas" - {
         "Tirar una moneda" - {
             "Crear una jugada a duplicar si sale cara" in {
-                val montoPorResultado = AMoneda(CARA)(20, _)
+                val montoPorResultado = ACara(CARA)(20, _)
                 montoPorResultado(CARA) should be(40)
                 montoPorResultado(CRUZ) should be(0)
             }
@@ -70,7 +70,7 @@ class EnunciadoSpec extends AnyFreeSpec {
 
     "Jugando un juego" - {
         "Ganancias por jugar con moneda comun" in {
-            val apuesta = ApuestaSimple(AMoneda(CARA), 30)
+            val apuesta = ApuestaSimple(ACara(CARA), 30)
             MonedaComun.distribucionDeGananciasPor(apuesta).asMap should contain only((60, .5), (0, .5))
         }
 
@@ -88,7 +88,7 @@ class EnunciadoSpec extends AnyFreeSpec {
 
         "Moneda -> Ruleta" in {
             val combinacion = SimulacionCompuesta(List(
-                SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CARA), 10))
+                SimulacionSimple(MonedaComun, ApuestaSimple(ACara(CARA), 10))
                 , SimulacionSimple(Ruleta, ApuestaSimple(ANumero(0), 15))
             ))
 
@@ -109,9 +109,9 @@ class EnunciadoSpec extends AnyFreeSpec {
             = (presup, combinaciones) => criterio=> Jugador(presup, criterio).elegirCombinacion(combinaciones)
 
         "Casos con una sola apuesta" - {
-            val puntoMedio = SimulacionSimple(MonedaCargada(Distribuciones.ponderada(Map((CARA, 75), (CRUZ, 25)))), ApuestaSimple(AMoneda(CARA), 15))
+            val puntoMedio = SimulacionSimple(MonedaCargada(Distribuciones.ponderada(Map((CARA, 75), (CRUZ, 25)))), ApuestaSimple(ACara(CARA), 15))
             val pocoProbableYMuyBeneficioso = SimulacionSimple(Ruleta, ApuestaSimple(ANumero(1), 50))
-            val muyProbableYPocoBeneficioso = SimulacionSimple(MonedaCargada(Distribuciones.eventoSeguro(CARA)), ApuestaSimple(AMoneda(CARA), 5))
+            val muyProbableYPocoBeneficioso = SimulacionSimple(MonedaCargada(Distribuciones.eventoSeguro(CARA)), ApuestaSimple(ACara(CARA), 5))
 
             val combinaciones = List(
                 puntoMedio
@@ -136,21 +136,21 @@ class EnunciadoSpec extends AnyFreeSpec {
 
         "Casos con mas de una apuesta" - {
 
-            val impagable = SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CARA), 4000))
+            val impagable = SimulacionSimple(MonedaComun, ApuestaSimple(ACara(CARA), 4000))
 
-            val noGanoNadaPeroTampocoPierdo = SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CARA), 1))
+            val noGanoNadaPeroTampocoPierdo = SimulacionSimple(MonedaComun, ApuestaSimple(ACara(CARA), 1))
 
             val imposiblePeroBeneficiosa = SimulacionCompuesta(List(
-                SimulacionSimple(MonedaCargada(eventoSeguro(CARA)), ApuestaSimple(AMoneda(CRUZ), 60))
+                SimulacionSimple(MonedaCargada(eventoSeguro(CARA)), ApuestaSimple(ACara(CRUZ), 60))
                 , SimulacionSimple(Ruleta, ApuestaSimple(ANumero(0), 40))
                 , impagable
             ))
             val muyProbablePeroPocoRedituable = SimulacionCompuesta(List(
-                SimulacionSimple(MonedaCargada(ponderada(Map((CRUZ, 8), (CARA, 2)))), ApuestaSimple(AMoneda(CRUZ), 5))
+                SimulacionSimple(MonedaCargada(ponderada(Map((CRUZ, 8), (CARA, 2)))), ApuestaSimple(ACara(CRUZ), 5))
                 , impagable
             ))
 
-            val puntoMedio = SimulacionSimple(MonedaCargada(ponderada(Map((CRUZ, 7), (CARA, 3)))), ApuestaSimple(AMoneda(CRUZ), 35))
+            val puntoMedio = SimulacionSimple(MonedaCargada(ponderada(Map((CRUZ, 7), (CARA, 3)))), ApuestaSimple(ACara(CRUZ), 35))
 
             val combinacionesCompuestas = List(
                 imposiblePeroBeneficiosa

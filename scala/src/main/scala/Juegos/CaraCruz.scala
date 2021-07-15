@@ -16,8 +16,8 @@ sealed trait ResultadoMoneda
 case object CARA extends ResultadoMoneda
 case object CRUZ extends ResultadoMoneda
 
-case class AMoneda(resultadoEsperado: ResultadoMoneda) extends JugadaRatioONada[ResultadoMoneda](2) {
+case class ACara(queCara: ResultadoMoneda) extends JugadaRatioONada[ResultadoMoneda](2) {
 
 	override def satisfechaPor: ResultadoMoneda => Boolean
-		= _ == resultadoEsperado
+		= (_ == queCara)
 }

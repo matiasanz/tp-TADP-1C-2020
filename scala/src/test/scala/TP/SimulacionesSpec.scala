@@ -17,10 +17,10 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
     "Implementacion actual" - {
         "No se generan marcadores de mas" in {
             val sdaf: Distribucion[List[Marcador]] = SimulacionCompuesta(List(
-                SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CARA), 300))
-                , SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CARA), 300))
-                , SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CRUZ), 300))
-                , SimulacionSimple(MonedaComun, ApuestaSimple(AMoneda(CRUZ), 300))
+                SimulacionSimple(MonedaComun, ApuestaSimple(ACara(CARA), 300))
+                , SimulacionSimple(MonedaComun, ApuestaSimple(ACara(CARA), 300))
+                , SimulacionSimple(MonedaComun, ApuestaSimple(ACara(CRUZ), 300))
+                , SimulacionSimple(MonedaComun, ApuestaSimple(ACara(CRUZ), 300))
             )).simular(500)
 
             sdaf.sucesos.foreach(_.length should be(1+4))
@@ -44,7 +44,7 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
         "Cara cruz" - {
             "Un juego con una apuesta perdedora se simula correctamente" in {
                 Try(jugadorConPresupuesto(70)
-                    .jugarApuesta(ApuestaSimple(AMoneda(CARA), 200), CARA)
+                    .jugarApuesta(ApuestaSimple(ACara(CARA), 200), CARA)
                 ) should be(Failure(SaldoInsuficienteException(jugadorConPresupuesto(70), 200)))
             }
 

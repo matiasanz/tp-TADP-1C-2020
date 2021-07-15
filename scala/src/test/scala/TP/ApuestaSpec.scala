@@ -8,7 +8,7 @@ import org.scalatest.matchers.should.Matchers._
 
 class ApuestaSpec extends AnyFreeSpec{
 
-  val jugada = AMoneda(CARA)
+  val jugada = ACara(CARA)
 
   val apuesta = ApuestaSimple(jugada, 200)
 
