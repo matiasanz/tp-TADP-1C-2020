@@ -19,12 +19,12 @@ case class Distribucion[S](asMap: Map[S, Probabilidad]){
 
 	def mapSucesos[T]: (S=>T) => Distribucion[T]
 		= (transform) => {
-			val nueva = asMap.toList.map { case (rdo, proba) => transform(rdo) -> proba }
+			val nueva = mapToList((rdo, proba) => transform(rdo) -> proba  )
 			Distribuciones.agrupar(nueva)
 		}
 
-	def mapToList[T]: ((S, Probabilidad)=>T) => Iterable[T]
-		= transform => asMap.map(transform.tupled)
+	def mapToList[T]: ((S, Probabilidad)=>T) => List[T]
+		= transform => asMap.map(transform.tupled).toList
 }
 
 object Distribuciones {

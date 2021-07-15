@@ -10,9 +10,9 @@ import Cuadricula.ResultadoRuleta
 //Resultados ********************************************************************
 	abstract class JugadaRuleta(val ratioGanancia: Double) extends JugadaRatioONada[ResultadoRuleta](ratioGanancia)
 
-	case class ANumero(numero: ResultadoRuleta) extends JugadaRuleta(36){
-		def satisfechaPor: ResultadoRuleta => Boolean
-			= (_ == numero)
+	case class ANumero(queNumero: ResultadoRuleta) extends JugadaRuleta(36) {
+		override def satisfechaPor: ResultadoRuleta => Boolean
+			= (_ == queNumero)
 	}
 
 	case class ADocena(queDocena: Int)	extends JugadaRuleta(3){

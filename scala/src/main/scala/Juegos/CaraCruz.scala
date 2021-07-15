@@ -5,18 +5,19 @@ import Dominio._
 //Juego ********************************************************************
 
 case object MonedaComun
-	extends Juego(Distribuciones.equiprobable[ResultadoMoneda](List(CARA, CRUZ)))
+	extends Juego[CaraMoneda](Distribuciones.equiprobable(List(CARA, CRUZ)))
 
-case class MonedaCargada(distribucion: Distribucion[ResultadoMoneda])
+case class MonedaCargada(distribucion: Distribucion[CaraMoneda])
 	extends Juego(distribucion)
 
 //Resultados ********************************************************************
-sealed trait ResultadoMoneda
+sealed trait CaraMoneda
 
-case object CARA extends ResultadoMoneda
-case object CRUZ extends ResultadoMoneda
+case object CARA extends CaraMoneda
+case object CRUZ extends CaraMoneda
 
-case class ACara(queCara: ResultadoMoneda) extends JugadaRatioONada[ResultadoMoneda](2) {
-	override def satisfechaPor: ResultadoMoneda => Boolean
-		= (_ == queCara)
+//Jugadas ********************************************************************
+case class ACara(queCara: CaraMoneda) extends JugadaRatioONada[CaraMoneda](2){
+	override def satisfechaPor: CaraMoneda => Boolean
+		= (_==queCara)
 }

@@ -31,13 +31,13 @@ class ApuestaSpec extends AnyFreeSpec{
           }
 
           "evento unico" in{
-              val eventoUnico = Distribuciones.eventoSeguro[ResultadoMoneda](CARA)
+              val eventoUnico = Distribuciones.eventoSeguro[CaraMoneda](CARA)
               eventoUnico.probabilidadDe(CARA) shouldBe 1
               eventoUnico.probabilidadDe(CRUZ) shouldBe 0
           }
 
           "Ponderada" in {
-              val sucesos: Map[ResultadoMoneda, Double] = Map((CARA, 7500), (CRUZ, 2500))
+              val sucesos: Map[CaraMoneda, Double] = Map((CARA, 7500), (CRUZ, 2500))
               val ponderada = Distribuciones.ponderada(sucesos)
 
               ponderada.probabilidadDe(CARA) shouldBe 0.75
