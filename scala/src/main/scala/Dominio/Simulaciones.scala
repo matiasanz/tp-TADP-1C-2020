@@ -17,12 +17,12 @@ import Tipos._
 			val escenarios = for {
 				(marcadoresAnteriores, probaLlegada) <- distribucion.listar
 				(ganancia, probaTransicion) <- juego.distribucionDeGananciasPor(apuesta).listar
-			} yield (marcadoresFinales(marcadoresAnteriores, ganancia), probaLlegada*probaTransicion)
+			} yield (sumarMarcador(marcadoresAnteriores, ganancia), probaLlegada*probaTransicion)
 
 			Distribuciones.agrupar(escenarios)
 		}
 
-		def marcadoresFinales(marcadoresAnteriores: List[Marcador], ganancia: Plata)
+		def sumarMarcador(marcadoresAnteriores: List[Marcador], ganancia: Plata)
 			= marcadoresAnteriores:+intentarJugar(saldoFinal(marcadoresAnteriores), ganancia)
 
 		def intentarJugar(saldoInicial: Plata, ganancia: Plata): Marcador = {
