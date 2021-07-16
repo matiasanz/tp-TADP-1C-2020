@@ -24,7 +24,7 @@ case class Distribucion[S](asMap: Map[S, Probabilidad]){
 		}
 
 	def mapToList[T]: ((S, Probabilidad)=>T) => List[T]
-		= transform => asMap.map(transform.tupled).toList
+		= transform => listar.map(transform.tupled)
 }
 
 object Distribuciones {
