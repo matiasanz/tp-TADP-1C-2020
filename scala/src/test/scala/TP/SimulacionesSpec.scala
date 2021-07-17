@@ -27,7 +27,6 @@ class SimulacionesSpec extends AnyFreeSpec with Proveedor {
         }
     }
 
-
     //TODO: Deprecados
 
     "Simulando un solo juego" - {

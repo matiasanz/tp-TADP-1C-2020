@@ -1,15 +1,21 @@
 package Dominio
 
 import Distribuciones.Probabilidad
-import Tipos.Plata
+import Tipos._
+
+trait Jugada[R] extends ((Plata, R)=>Plata)
+
+object Tipos{
+	type Plata = Double
+}
 
 	abstract class Juego[R](val resultadosPosibles: Distribucion[R]) {
 		def gananciasPosiblesPor(apostar: Apuesta[R]): Distribucion[Plata]
 			= resultadosPosibles.mapSucesos(apostar)
 	}
 
-	trait Jugada[R] extends ((Plata, R)=>Plata){
-		def apply(inversion: Plata, resultado: R): Plata
+	trait JugadaACriterio[R] extends Jugada[R]{
+		override def apply(inversion: Plata, resultado: R): Plata
 			= if(satisfechaPor(resultado)) montoPorGanar(inversion) else montoPorPerder(inversion)
 
 		def montoPorGanar(inversion: Plata): Plata
@@ -17,7 +23,8 @@ import Tipos.Plata
 		def satisfechaPor: R => Boolean
 	}
 
-	abstract class JugadaRatioONada[R](ratioGanancia: Double) extends Jugada[R]{
+	//TODO: Aca estaria muy bueno poder hacer extends Trait(val) y ahi mezclaria con
+	abstract class RatioONada[R](val ratioGanancia: Double){
 		def montoPorGanar(inversion: Plata): Plata = ratioGanancia*inversion
 		def montoPorPerder(inversion: Plata): Plata = 0
 	}
@@ -28,17 +35,13 @@ import Tipos.Plata
 		def compuestaCon(apuesta: Apuesta[R]): ApuestaCompuesta[R] = ApuestaCompuesta(this,apuesta)
 	}
 
-	case class ApuestaSimple[R](jugar: JugadaRatioONada[R], montoRequerido: Plata) extends Apuesta[R] {
+	case class ApuestaSimple[R](jugar: Jugada[R], montoRequerido: Plata) extends Apuesta[R] {
 		override def apply(resultado:  R): Plata = jugar(montoRequerido, resultado)
 	}
 
 	case class ApuestaCompuesta[R](apuestas: Apuesta[R]*) extends Apuesta[R]{
 		override def apply(resultado: R): Plata = apuestas.map(_(resultado)).sum
 		override def montoRequerido: Plata = apuestas.map(_.montoRequerido).sum
-	}
-
-	object Tipos{
-		type Plata = Double
 	}
 
 //******************************* Esto no se usa *******************************************

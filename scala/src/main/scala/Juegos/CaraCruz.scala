@@ -1,5 +1,6 @@
 package Juegos
 
+import Dominio.Tipos._
 import Dominio._
 
 //Juego ********************************************************************
@@ -17,7 +18,8 @@ case object CARA extends CaraMoneda
 case object CRUZ extends CaraMoneda
 
 //Jugadas ********************************************************************
-case class ACara(queCara: CaraMoneda) extends JugadaRatioONada[CaraMoneda](2){
+case class ACara(queCara: CaraMoneda)
+	extends RatioONada[CaraMoneda](2) with JugadaACriterio[CaraMoneda]{
 	override def satisfechaPor: CaraMoneda => Boolean
 		= (_==queCara)
 }

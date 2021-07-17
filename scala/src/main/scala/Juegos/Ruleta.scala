@@ -3,12 +3,14 @@ package Juegos
 import Dominio._
 import Cuadricula.{color, docena, esPar}
 import Cuadricula.ResultadoRuleta
+import Dominio._
 
 //Juego ********************************************************************
 	object Ruleta extends Juego[ResultadoRuleta](Distribuciones.equiprobable((0 to 36).toList))
 
 //Jugadas ********************************************************************
-	abstract class JugadaRuleta(val ratioGanancia: Double) extends JugadaRatioONada[ResultadoRuleta](ratioGanancia)
+	abstract class JugadaRuleta(override val ratioGanancia: Double)
+		extends RatioONada[ResultadoRuleta](ratioGanancia) with JugadaACriterio[ResultadoRuleta]
 
 	case class ANumero(queNumero: ResultadoRuleta) extends JugadaRuleta(36) {
 		override def satisfechaPor: ResultadoRuleta => Boolean
