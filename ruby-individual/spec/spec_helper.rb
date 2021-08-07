@@ -1,0 +1,6 @@
+require 'rspec'
+require 'tadb'
+require_relative 'prueba'
+require_relative '../lib/a_utils'
+require_relative '../lib/e_ORM'
+require_relative '../lib/exceptions'
